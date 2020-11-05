@@ -137,7 +137,10 @@ class Ui(QtWidgets.QMainWindow):
     def browse_file(self):
         filename = QFileDialog().getOpenFileName(self, "Select image data", '', 'image file(*.hdf *.h5 *tiff *tif )')
         self.file_name = (str(filename[0]))
-        self.reset_and_load_stack()
+        try:
+            self.reset_and_load_stack()
+        except:
+            pass
 
     def load_stack(self):
         logger.info('Loading.. please wait...')
@@ -333,10 +336,14 @@ class Ui(QtWidgets.QMainWindow):
         self.update_image_roi()
 
     def save_stack(self):
-        self.update_stack()
-        file_name = QFileDialog().getSaveFileName(self, "", '', 'image file(*tiff *tif )')
-        tf.imsave(str(file_name[0]), self.updated_stack.transpose(0,2,1))
-        logger.info(f'Updated Image Saved: {str(file_name[0])}')
+        try:
+            self.update_stack()
+            file_name = QFileDialog().getSaveFileName(self, "", '', 'image file(*tiff *tif )')
+            tf.imsave(str(file_name[0]), self.updated_stack.transpose(0,2,1))
+            logger.info(f'Updated Image Saved: {str(file_name[0])}')
+        except:
+            logger.error('No file to save')
+            pass
 
     def open_xrf_stack_imagej(self):
         tf.imsave(f'{self.le_wd.text()}/tmp_image.tiff', np.float32(self.updated_stack), imagej=True)

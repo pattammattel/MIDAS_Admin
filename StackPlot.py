@@ -33,11 +33,18 @@ class StackSpecViewer(QtWidgets.QMainWindow):
         self.stack_width = int(self.dim1 * 0.05)
         self.image_view.setCurrentIndex(self.stack_center)
 
+        '''
         self.image_roi = pg.ROI(
             pos=(int(self.dim2 // 2), int(self.dim3 // 2)),
             size=(int(self.dim2 * 0.1), int(self.dim3 * 0.1)),
             scaleSnap=True, translateSnap=True, rotateSnap=True
         )
+        
+        '''
+        cn = int(self.dim2 // 2)
+        sz = np.max([int(self.dim2 * 0.15),int(self.dim3 * 0.15)])
+        self.image_roi = pg.PolyLineROI([[0,0], [0,sz], [sz,sz], [sz,0]],
+                                        pos =(int(self.dim2 // 2), int(self.dim3 // 2)), closed=True)
 
         self.image_view.addItem(self.image_roi)
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
@@ -227,11 +234,11 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.refs = refs
 
         (self.dim1, self.dim3, self.dim2) = self.im_stack.shape
-        self.image_roi = pg.ROI(
-            pos=(int(self.dim2 // 2), int(self.dim3 // 2)),
-            size=(int(self.dim2 * 0.1), int(self.dim3 * 0.1)),
-            scaleSnap=True, translateSnap=True, rotateSnap=True
-        )
+        cn = int(self.dim2 // 2)
+        sz = np.max([int(self.dim2 * 0.25),int(self.dim3 * 0.25)])
+        self.image_roi = pg.PolyLineROI([[0,0], [0,sz], [sz,sz], [sz,0]],
+                                        pos =(int(self.dim2 // 2), int(self.dim3 // 2)), closed=True)
+        self.image_roi.addRotateHandle([sz // 2, sz // 2], [2, 2])
         self.image_view.setImage(self.im_stack)
         self.image_view.ui.menuBtn.hide()
         self.image_view.ui.roiBtn.hide()
@@ -260,34 +267,21 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.image_view_maps.ui.roiBtn.hide()
         new_ref = interploate_E(self.refs, self.xdata)
 
-        plt_clrs = ['c', 'm', 'y', 'w']
+        plt_clrs = ['c', 'm', 'y', 'w']*2
         self.spectrum_view_refs.addLegend()
         for ii in range(new_ref.shape[0]):
             self.spectrum_view_refs.plot(self.xdata, new_ref[ii], pen=plt_clrs[ii], name="ref" + str(ii + 1))
 
     def update_spectrum(self):
-        # Obtaining coordinates of ROI graphic in the image plot
-        self.image_coord_handles = self.image_roi.getState()
-        self.posimage = self.image_coord_handles['pos']
-        self.sizeimage = self.image_coord_handles['size']
 
-        posx = int(self.posimage[0])
-        sizex = int(self.sizeimage[0])
-        posy = int(self.posimage[1])
-        sizey = int(self.sizeimage[1])
-        xmin = posx
-        xmax = posx + sizex
-        ymin = posy
-        ymax = posy + sizey
+        self.roi_img = self.image_roi.getArrayRegion(self.im_stack, self.image_view.imageItem, axes=(1, 2))
+        sizex, sizey = self.roi_img.shape[1], self.roi_img.shape[2]
+        posx, posy = self.image_roi.pos()
+        self.le_roi_xs.setText(str(int(posx))+':' +str(int(posy)))
+        self.le_roi_xe.setText(str(sizex) +','+ str(sizey))
 
-        self.le_roi_xs.setText(str(xmin))
-        self.le_roi_xe.setText(str(xmax))
-        self.le_roi_ys.setText(str(ymin))
-        self.le_roi_ye.setText(str(ymax))
-
-        # print(self.updated_im_stack[:, xmax, ymax])
         self.xdata1 = self.e_list + self.sb_e_shift.value()
-        self.ydata1 = remove_nan_inf(get_sum_spectra(self.im_stack[:, xmin:xmax, ymin:ymax]))
+        self.ydata1 = get_sum_spectra(self.roi_img)
         new_ref = interploate_E(self.refs, self.xdata1)
         coeffs, r = opt.nnls(new_ref.T, self.ydata1)
         self.fit_ = np.dot(coeffs, new_ref)
@@ -299,22 +293,29 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.le_r_sq.setText(str(np.around(r / self.ydata1.sum(), 4)))
 
     def re_fit_xanes(self):
-        self.new_map = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(), self.refs, method='NNLS')
-        self.image_view_maps.setImage(self.new_map.T)
+        self.decon_ims = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(), self.refs, method='NNLS')
+        self.image_view_maps.setImage(self.decon_ims.T)
 
     def save_chem_map(self):
-        file_name = QFileDialog().getSaveFileName(self, "", '', 'image data (*tiff)')
+        file_name = QFileDialog().getSaveFileName(self, "save image", '', 'image data (*tiff)')
         try:
-            tf.imsave(str(file_name[0]) + '.tiff', np.float32(self.new_map), imagej=True)
-
-        except:
             tf.imsave(str(file_name[0]) + '.tiff', np.float32(self.decon_ims), imagej=True)
+        except:
+            logger.error('No file to save')
+            pass
 
     def save_spec_fit(self):
         try:
             to_save = np.column_stack((self.xdata1, self.ydata1, self.fit_))
-            file_name = QFileDialog().getSaveFileName(self, "", '', 'spectrum and fit (*txt)')
+            file_name = QFileDialog().getSaveFileName(self, "save spectrum", '', 'spectrum and fit (*txt)')
             np.savetxt(str(file_name[0]) + '.txt', to_save)
         except:
             logger.error('No file to save')
             pass
+
+    def display_rgb(self):
+        self.image_view.clear()
+        clrs = ['r','g','b']
+        for ii in range(self.decon_ims.shape[0]):
+            self.image_view.setImage(self.im_stack[ii], pen = clrs[ii])
+

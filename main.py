@@ -187,7 +187,6 @@ class Ui(QtWidgets.QMainWindow):
 
         logger.info(f'completed image shape {np.shape(self.im_stack)}')
 
-
     def reset_and_load_stack(self):
         self.cb_log.setChecked(False)
         self.cb_remove_edges.setChecked(False)
@@ -200,7 +199,6 @@ class Ui(QtWidgets.QMainWindow):
         self.sb_yrange1.setValue(0)
         self.load_stack()
 
-
     def update_stack_info(self):
         z, x, y = np.shape(self.updated_stack)
         self.sb_zrange2.setMaximum(z+self.sb_zrange1.value())
@@ -210,14 +208,12 @@ class Ui(QtWidgets.QMainWindow):
         self.sb_yrange2.setMaximum(y)
         logger.info('Stack info has been updated')
 
-
     def crop_to_dim(self):
         x1, x2 = self.sb_xrange1.value(),self.sb_xrange2.value()
         y1, y2 = self.sb_yrange1.value(), self.sb_yrange2.value()
         z1, z2 = self.sb_zrange1.value(), self.sb_zrange2.value()
 
         self.updated_stack = remove_nan_inf(self.im_stack[z1:z2, x1:x2, y1:y2])
-
 
     def update_stack(self):
 
@@ -369,15 +365,6 @@ class Ui(QtWidgets.QMainWindow):
         ims, comp_spec, decon_spec, decomp_map = decompose_stack(self.updated_stack,
             decompose_method=method_ , n_components_=n_components)
 
-        '''
-        if self.cb_autosave.isChecked():
-            dest = '.'
-            tf.imsave(dest+'/'+ method_+'_components.tiff', np.float32(ims))
-            np.savetxt(dest+'/'+ method_+ '_eigen_spectra.txt', comp_spec)
-            np.savetxt(dest+'/'+ method_+'_deconv_spectra.txt', decon_spec)
-            
-        '''
-
         self._new_window3 = ComponentViewer(ims, comp_spec, decon_spec,decomp_map)
         self._new_window3.show()
 
@@ -393,7 +380,6 @@ class Ui(QtWidgets.QMainWindow):
             pass
             logger.error('Overflow Error, values are too long')
 
-
     def clustering_(self):
 
         logger.info('Process started..')
@@ -405,15 +391,6 @@ class Ui(QtWidgets.QMainWindow):
                                                    decomposed=False,
                                                    decompose_method=self.cb_comp_method.currentText(),
                                                    decompose_comp = self.sb_ncomp.value())
-        '''
-        if self.cb_autosave.isChecked():
-
-            dest = str(self.le_wd.text())
-            tf.imsave(dest+'/'+ method_+'_clusters.tiff', np.float32(decon_images), )
-            tf.imsave(dest+'/'+ method_+ '_cluster_map.tiff', np.float32(X_cluster))
-            np.savetxt(dest+'/'+ method_+'_deconv_spectra.txt', decon_spectra)
-            
-        '''
 
         self._new_window4 = ClusterViewer(decon_images,X_cluster, decon_spectra)
         self._new_window4.show()
@@ -424,10 +401,10 @@ class Ui(QtWidgets.QMainWindow):
     # XANES files
 
     def select_ref_file(self):
-        file_name = QFileDialog().getOpenFileName(self, "Open file", '', 'text file (*.txt *.nor)')
+        file_name = QFileDialog().getOpenFileName(self, "Open reference file", '', 'text file (*.txt *.nor)')
         try:
             self.refs = np.loadtxt(str(file_name[0]))
-            if bool(self.refs.max()) == True:
+            if bool(self.refs.max()):
                 self.change_color_on_load(self.pb_ref_xanes)
                 plot_xanes_refs(self.refs)
 
@@ -437,7 +414,7 @@ class Ui(QtWidgets.QMainWindow):
 
 
     def select_elist(self):
-        file_name = QFileDialog().getOpenFileName(self, "Open file", '', 'text file (*.txt)')
+        file_name = QFileDialog().getOpenFileName(self, "Open energy list", '', 'text file (*.txt)')
         try:
             self.energy = np.loadtxt(str(file_name[0]))
             if bool(self.energy.max()) == True:
@@ -461,12 +438,6 @@ class Ui(QtWidgets.QMainWindow):
         xanes_maps = xanes_fitting(self.updated_stack, e_list1,ref1,
                                    method=self.cb_xanes_fitting_method.currentText())
         logger.info('Process complete')
-
-        '''
-        if self.cb_autosave.isChecked():
-            dest = str(self.le_wd.text())
-            tf.imsave(dest+'/_XANES_Map.tiff', np.float32(xanes_maps))
-        '''
 
         self._new_window5 = XANESViewer(xanes_maps.T, self.updated_stack, e_list1, ref1)
         self._new_window5.show()

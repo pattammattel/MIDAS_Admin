@@ -417,7 +417,7 @@ class Ui(QtWidgets.QMainWindow):
     # XANES files
 
     def select_ref_file(self):
-        file_name = QFileDialog().getOpenFileName(self, "Open file", '', 'text file (*.txt *.csv *.xlsx )')
+        file_name = QFileDialog().getOpenFileName(self, "Open file", '', 'text file (*.txt *.nor)')
         try:
             self.refs = np.loadtxt(str(file_name[0]))
             if bool(self.refs.max()) == True:
@@ -430,7 +430,7 @@ class Ui(QtWidgets.QMainWindow):
 
 
     def select_elist(self):
-        file_name = QFileDialog().getOpenFileName(self, "Open file", '', 'text file (*.txt *.csv *.xlsx )')
+        file_name = QFileDialog().getOpenFileName(self, "Open file", '', 'text file (*.txt)')
         try:
             self.energy = np.loadtxt(str(file_name[0]))
             if bool(self.energy.max()) == True:

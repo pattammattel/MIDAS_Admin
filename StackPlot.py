@@ -75,9 +75,9 @@ class StackSpecViewer(QtWidgets.QMainWindow):
         self.le_roi_size.setText(str(self.sizeimage))
 
         # print(self.updated_im_stack[:, xmax, ymax])
-        xdata = np.arange(0, self.dim1, 1)
+        self.xdata = np.arange(0, self.dim1, 1)
         ydata = remove_nan_inf(get_sum_spectra(self.updated_im_stack[:, xmin:xmax, ymin:ymax]))
-        self.spectrum_view.plot(xdata, ydata, clear=True)
+        self.spectrum_view.plot(self.xdata, ydata, clear=True)
         self.spectrum_view.addItem(self.spec_roi)
 
     def update_image_roi(self):
@@ -244,6 +244,8 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.sb_e_shift.valueChanged.connect(self.update_spectrum)
         self.sb_e_shift.valueChanged.connect(self.re_fit_xanes)
         self.image_roi.sigRegionChanged.connect(self.update_spectrum)
+        self.pb_save_chem_map.clicked.connect(self.save_chem_map)
+        self.pb_save_spe_fit.clicked.connect(self.save_spec_fit)
         # self.pb_play_stack.clicked.connect(self.play_stack)
 
     def display_all_data(self):
@@ -279,29 +281,31 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.le_roi_ye.setText(str(ymax))
 
         # print(self.updated_im_stack[:, xmax, ymax])
-        xdata = self.e_list + self.sb_e_shift.value()
-        ydata1 = remove_nan_inf(get_sum_spectra(self.im_stack[:, xmin:xmax, ymin:ymax]))
-        new_ref = interploate_E(self.refs, xdata)
-        coeffs, r = opt.nnls(new_ref.T, ydata1)
-        fit_ = np.dot(coeffs, new_ref)
+        self.xdata1 = self.e_list + self.sb_e_shift.value()
+        self.ydata1 = remove_nan_inf(get_sum_spectra(self.im_stack[:, xmin:xmax, ymin:ymax]))
+        new_ref = interploate_E(self.refs, self.xdata1)
+        coeffs, r = opt.nnls(new_ref.T, self.ydata1)
+        self.fit_ = np.dot(coeffs, new_ref)
         pen = pg.mkPen('g', width=1.5)
         pen2 = pg.mkPen('r', width=1.5)
         self.spectrum_view.addLegend()
-        self.spectrum_view.plot(xdata, ydata1, pen=pen, name="Data", clear=True)
-        self.spectrum_view.plot(xdata, fit_, name="Fit", pen=pen2)
-        self.le_r_sq.setText(str(np.around(r / ydata1.sum(), 4)))
+        self.spectrum_view.plot(self.xdata1, self.ydata1, pen=pen, name="Data", clear=True)
+        self.spectrum_view.plot(self.xdata1, self.fit_, name="Fit", pen=pen2)
+        self.le_r_sq.setText(str(np.around(r / self.ydata1.sum(), 4)))
 
     def re_fit_xanes(self):
         self.new_map = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(), self.refs, method='NNLS')
         self.image_view_maps.setImage(self.new_map.T)
 
-    def save_xanes_data(self):
+    def save_chem_map(self):
         file_name = QFileDialog().getSaveFileName(self, "", '', 'image data (*tiff)')
         try:
-            tf.imsave(str(file_name[0]) + '_chem_map.tiff', np.float32(self.new_map.transpose(0, 2, 1)), imagej=True)
+            tf.imsave(str(file_name[0]) + '.tiff', np.float32(self.new_map), imagej=True)
 
         except:
-            tf.imsave(str(file_name[0]) + '_chem_map.tiff', np.float32(self.decon_ims.transpose(0, 2, 1)), imagej=True)
+            tf.imsave(str(file_name[0]) + '.tiff', np.float32(self.decon_ims), imagej=True)
 
-        plt.imsave(str(file_name[0]) + '_cluster_map.png', np.float32(self.X_cluster.T))
-        np.savetxt(str(file_name[0]) + '_deconv_spec.txt', self.decon_spectra)
+    def save_spec_fit(self):
+        to_save = np.column_stack((self.xdata1,self.ydata1, self.fit_))
+        file_name = QFileDialog().getSaveFileName(self, "", '', 'spectrum and fit (*txt)')
+        np.savetxt(str(file_name[0]) + '.txt', to_save)

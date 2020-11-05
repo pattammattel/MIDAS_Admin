@@ -1,14 +1,19 @@
 import sys
 import tifffile as tf
+import matplotlib.pyplot as plt
 import pyqtgraph as pg
+import numpy as np
+import os
+import logging
+
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QFileDialog
 from pyqtgraph.Qt import QtCore, QtGui
 from pyqtgraph import ImageView, PlotWidget
-import numpy as np
-import os
+
 from StackCalcs import *
-import matplotlib.pyplot as plt
+
+logger = logging.getLogger()
 
 
 class StackSpecViewer(QtWidgets.QMainWindow):
@@ -149,12 +154,12 @@ class ComponentViewer(QtWidgets.QMainWindow):
 
     def show_all_spec(self):
         self.spectrum_view.clear()
-        plt_clrs = ['g', 'r', 'c', 'm', 'y', 'w' ]*2
-        offsets = np.arange(0,2,0.2)
+        plt_clrs = ['g', 'r', 'c', 'm', 'y', 'w'] * 2
+        offsets = np.arange(0, 2, 0.2)
         self.spectrum_view.addLegend()
         for ii in range(self.decon_spectra.shape[1]):
-            self.spectrum_view.plot((self.decon_spectra[:, ii]/self.decon_spectra[:, ii].max())+offsets[ii],
-                                    pen = plt_clrs[ii], name="component" + str(ii+1))
+            self.spectrum_view.plot((self.decon_spectra[:, ii] / self.decon_spectra[:, ii].max()) + offsets[ii],
+                                    pen=plt_clrs[ii], name="component" + str(ii + 1))
 
     def save_comp_data(self):
         file_name = QFileDialog().getSaveFileName(self, "", '', 'data(*tiff *tif *txt *png )')
@@ -255,10 +260,10 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.image_view_maps.ui.roiBtn.hide()
         new_ref = interploate_E(self.refs, self.xdata)
 
-        plt_clrs = ['c', 'm', 'y']
+        plt_clrs = ['c', 'm', 'y', 'w']
         self.spectrum_view_refs.addLegend()
         for ii in range(new_ref.shape[0]):
-            self.spectrum_view_refs.plot(self.xdata, new_ref[ii], pen=plt_clrs[ii], name="ref" + str(ii+1))
+            self.spectrum_view_refs.plot(self.xdata, new_ref[ii], pen=plt_clrs[ii], name="ref" + str(ii + 1))
 
     def update_spectrum(self):
         # Obtaining coordinates of ROI graphic in the image plot
@@ -306,6 +311,10 @@ class XANESViewer(QtWidgets.QMainWindow):
             tf.imsave(str(file_name[0]) + '.tiff', np.float32(self.decon_ims), imagej=True)
 
     def save_spec_fit(self):
-        to_save = np.column_stack((self.xdata1,self.ydata1, self.fit_))
-        file_name = QFileDialog().getSaveFileName(self, "", '', 'spectrum and fit (*txt)')
-        np.savetxt(str(file_name[0]) + '.txt', to_save)
+        try:
+            to_save = np.column_stack((self.xdata1, self.ydata1, self.fit_))
+            file_name = QFileDialog().getSaveFileName(self, "", '', 'spectrum and fit (*txt)')
+            np.savetxt(str(file_name[0]) + '.txt', to_save)
+        except:
+            logger.error('No file to save')
+            pass

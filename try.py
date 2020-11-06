@@ -10,6 +10,7 @@ import tifffile as tf
 
 from scipy.signal import savgol_filter
 
-ff = np.loadtxt('marked.nor')
 
-print(ff[0])
+img = tf.imread(r'C:\Users\pattammattel\Desktop\Spectromicroscopy\HXN_Data\amap_site4um.tiff')
+
+#print(img.shape)

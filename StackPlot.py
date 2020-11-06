@@ -313,9 +313,12 @@ class XANESViewer(QtWidgets.QMainWindow):
             logger.error('No file to save')
             pass
 
-    def display_rgb(self):
-        self.image_view.clear()
-        clrs = ['r','g','b']
-        for ii in range(self.decon_ims.shape[0]):
-            self.image_view.setImage(self.im_stack[ii], pen = clrs[ii])
 
+    '''
+    def display_rgb(self):
+        self.image_view_maps.clear()
+        clrs = ['r','g','k']
+        for ii in range(3):
+            self.image_view_maps.addItem(self.im_stack[ii])
+            self.image_view_maps.setPredefinedGradient('thermal')
+    '''

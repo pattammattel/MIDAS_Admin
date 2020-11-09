@@ -41,9 +41,9 @@ class StackSpecViewer(QtWidgets.QMainWindow):
         )
         
         '''
-        cn = int(self.dim2 // 2)
-        sz = np.max([int(self.dim2 * 0.15),int(self.dim3 * 0.15)])
-        self.image_roi = pg.PolyLineROI([[0,0], [0,sz], [sz,sz], [sz,0]],
+        self.cn = int(self.dim2 // 2)
+        self.sz = np.max([int(self.dim2 * 0.15),int(self.dim3 * 0.15)])
+        self.image_roi = pg.PolyLineROI([[0,0], [0,self.sz], [self.sz,self.sz], [self.sz,0]],
                                         pos =(int(self.dim2 // 2), int(self.dim3 // 2)), closed=True)
 
         self.image_view.addItem(self.image_roi)
@@ -234,11 +234,11 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.refs = refs
 
         (self.dim1, self.dim3, self.dim2) = self.im_stack.shape
-        cn = int(self.dim2 // 2)
-        sz = np.max([int(self.dim2 * 0.25),int(self.dim3 * 0.25)])
-        self.image_roi = pg.PolyLineROI([[0,0], [0,sz], [sz,sz], [sz,0]],
+        self.cn = int(self.dim2 // 2)
+        self.sz = np.max([int(self.dim2 * 0.25),int(self.dim3 * 0.25)])
+        self.image_roi = pg.PolyLineROI([[0,0], [0,self.sz], [self.sz,self.sz], [self.sz,0]],
                                         pos =(int(self.dim2 // 2), int(self.dim3 // 2)), closed=True)
-        self.image_roi.addRotateHandle([sz // 2, sz // 2], [2, 2])
+        self.image_roi.addRotateHandle([self.sz // 2, self.sz // 2], [2, 2])
         self.image_view.setImage(self.im_stack)
         self.image_view.ui.menuBtn.hide()
         self.image_view.ui.roiBtn.hide()
@@ -257,6 +257,7 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.sb_e_shift.valueChanged.connect(self.re_fit_xanes)
         self.image_roi.sigRegionChanged.connect(self.update_spectrum)
         self.pb_save_chem_map.clicked.connect(self.save_chem_map)
+        #self.pb_save_spe_fit.clicked.connect(self.reset_roi)
         self.pb_save_spe_fit.clicked.connect(self.save_spec_fit)
         # self.pb_play_stack.clicked.connect(self.play_stack)
 
@@ -321,4 +322,12 @@ class XANESViewer(QtWidgets.QMainWindow):
         for ii in range(3):
             self.image_view_maps.addItem(self.im_stack[ii])
             self.image_view_maps.setPredefinedGradient('thermal')
+    
+
+    def reset_roi(self):
+        self.image_view.removeItem(self.image_roi)
+        self.image_roi = pg.PolyLineROI([[0,0], [0,self.sz], [self.sz,self.sz], [self.sz,0]],
+                                        pos =(int(self.dim2 // 2), int(self.dim3 // 2)), closed=True)
+        self.image_roi.addRotateHandle([self.sz // 2, self.sz // 2], [2, 2])
+
     '''

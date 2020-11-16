@@ -281,7 +281,7 @@ class Ui(QtWidgets.QMainWindow):
         cn = int(self.dim2 // 2)
         sz = np.max([int(self.dim2 * 0.15),int(self.dim3 * 0.15)])
         self.image_roi = pg.PolyLineROI([[0,0], [0,sz], [sz,sz], [sz,0]],
-                                        pos =(int(self.dim2 // 2), int(self.dim3 // 2)), closed=True)
+                                        pos =(int(self.dim3 // 2), int(self.dim2 // 2)), closed=True)
 
 
         #self.image_roi.addScaleHandle([10, 1], [0, 0])
@@ -306,6 +306,7 @@ class Ui(QtWidgets.QMainWindow):
         self.sb_roi_spec_s.valueChanged.connect(self.set_spec_roi)
         self.sb_roi_spec_e.valueChanged.connect(self.set_spec_roi)
         self.spec_roi_math.sigRegionChanged.connect(self.spec_roi_calc)
+        self.rb_math_roi.clicked.connect(self.update_spectrum)
         # self.pb_play_stack.clicked.connect(self.play_stack)
 
     def update_region(self):
@@ -324,7 +325,13 @@ class Ui(QtWidgets.QMainWindow):
 
         self.spectrum_view.plot(xdata, get_sum_spectra(ydata), clear=True)
         self.spectrum_view.addItem(self.spec_roi)
-        self.spectrum_view.addItem(self.spec_roi_math)
+        self.math_roi_flag()
+
+    def math_roi_flag(self):
+        if self.rb_math_roi.isChecked():
+            self.spectrum_view.addItem(self.spec_roi_math)
+        else:
+            self.spectrum_view.removeItem(self.spec_roi_math)
 
     def update_image_roi(self):
         self.spec_lo, self.spec_hi = self.spec_roi.getRegion()

@@ -10,104 +10,79 @@ import tifffile as tf
 
 from scipy.signal import savgol_filter
 
-
 # -*- coding: utf-8 -*-
 """
-Example demonstrating a variety of scatter plot features.
+Demonstrates GLVolumeItem for displaying volumetric data.
+
 """
-
-
 
 ## Add path to library (just for examples; you do not need this)
 
-from pyqtgraph.Qt import QtGui, QtCore
-import pyqtgraph as pg
-import numpy as np
+
+from pyqtgraph.Qt import QtCore, QtGui
+import pyqtgraph.opengl as gl
 
 app = QtGui.QApplication([])
-mw = QtGui.QMainWindow()
-mw.resize(800,800)
-view = pg.GraphicsLayoutWidget()  ## GraphicsView with GraphicsLayout inserted by default
-mw.setCentralWidget(view)
-mw.show()
-mw.setWindowTitle('pyqtgraph example: ScatterPlot')
+w = gl.GLViewWidget()
+w.opts['distance'] = 200
+w.show()
+w.setWindowTitle('pyqtgraph example: GLVolumeItem')
 
-## create four areas to add plots
-w1 = view.addPlot()
-w2 = view.addViewBox()
-w2.setAspectLocked(True)
-view.nextRow()
-w3 = view.addPlot()
-w4 = view.addPlot()
-print("Generating data, this takes a few seconds...")
+# b = gl.GLBoxItem()
+# w.addItem(b)
+g = gl.GLGridItem()
+g.scale(10, 10, 1)
+w.addItem(g)
 
-## There are a few different ways we can draw scatter plots; each is optimized for different types of data:
+import numpy as np
 
 
-## 1) All spots identical and transform-invariant (top-left plot).
-## In this case we can get a huge performance boost by pre-rendering the spot
-## image and just drawing that image repeatedly.
+## Hydrogen electron probability density
+def psi(i, j, k, offset=(50, 50, 100)):
+    x = i - offset[0]
+    y = j - offset[1]
+    z = k - offset[2]
+    th = np.arctan2(z, (x ** 2 + y ** 2) ** 0.5)
+    phi = np.arctan2(y, x)
+    r = (x ** 2 + y ** 2 + z ** 2) ** 0.5
+    a0 = 2
+    # ps = (1./81.) * (2./np.pi)**0.5 * (1./a0)**(3/2) * (6 - r/a0) * (r/a0) * np.exp(-r/(3*a0)) * np.cos(th)
+    ps = (1. / 81.) * 1. / (6. * np.pi) ** 0.5 * (1. / a0) ** (3 / 2) * (r / a0) ** 2 * np.exp(-r / (3 * a0)) * (
+                3 * np.cos(th) ** 2 - 1)
 
-n = 300
-s1 = pg.ScatterPlotItem(size=10, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 120))
-pos = np.random.normal(size=(2,n), scale=1e-5)
-spots = [{'pos': pos[:,i], 'data': 1} for i in range(n)] + [{'pos': [0,0], 'data': 1}]
-s1.addPoints(spots)
-w1.addItem(s1)
+    return ps
 
-## Make all plots clickable
-lastClicked = []
-def clicked(plot, points):
-    global lastClicked
-    for p in lastClicked:
-        p.resetPen()
-    print("clicked points", points)
-    for p in points:
-        p.setPen('b', width=2)
-    lastClicked = points
-s1.sigClicked.connect(clicked)
+    # return ((1./81.) * (1./np.pi)**0.5 * (1./a0)**(3/2) * (r/a0)**2 * (r/a0) * np.exp(-r/(3*a0)) * np.sin(th) * np.cos(th) * np.exp(2 * 1j * phi))**2
 
 
+data = np.fromfunction(psi, (100, 100, 200))
+positive = np.log(np.clip(data, 0, data.max()) ** 2)
+negative = np.log(np.clip(-data, 0, -data.min()) ** 2)
 
-## 2) Spots are transform-invariant, but not identical (top-right plot).
-## In this case, drawing is almsot as fast as 1), but there is more startup
-## overhead and memory usage since each spot generates its own pre-rendered
-## image.
+d2 = np.empty(data.shape + (4,), dtype=np.ubyte)
+d2[..., 0] = positive * (255. / positive.max())
+d2[..., 1] = negative * (255. / negative.max())
+d2[..., 2] = d2[..., 1]
+d2[..., 3] = d2[..., 0] * 0.3 + d2[..., 1] * 0.3
+d2[..., 3] = (d2[..., 3].astype(float) / 255.) ** 2 * 255
 
-s2 = pg.ScatterPlotItem(size=10, pen=pg.mkPen('w'), pxMode=True)
-pos = np.random.normal(size=(2,n), scale=1e-5)
-spots = [{'pos': pos[:,i], 'data': 1, 'brush':pg.intColor(i, n), 'symbol': i%5, 'size': 5+i/10.} for i in range(n)]
-s2.addPoints(spots)
-w2.addItem(s2)
-s2.sigClicked.connect(clicked)
-
-
-## 3) Spots are not transform-invariant, not identical (bottom-left).
-## This is the slowest case, since all spots must be completely re-drawn
-## every time because their apparent transformation may have changed.
-
-s3 = pg.ScatterPlotItem(pxMode=False)   ## Set pxMode=False to allow spots to transform with the view
-spots3 = []
-for i in range(10):
-    for j in range(10):
-        spots3.append({'pos': (1e-6*i, 1e-6*j), 'size': 1e-6, 'pen': {'color': 'w', 'width': 2}, 'brush':pg.intColor(i*10+j, 100)})
-s3.addPoints(spots3)
-w3.addItem(s3)
-s3.sigClicked.connect(clicked)
+d2[:, 0, 0] = [255, 0, 0, 100]
+d2[0, :, 0] = [0, 255, 0, 100]
+d2[0, 0, :] = [0, 0, 255, 100]
 
 
-## Test performance of large scatterplots
+v = gl.GLVolumeItem(d2)
+v.translate(-50, -50, -100)
+w.addItem(v)
 
-s4 = pg.ScatterPlotItem(size=10, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 20))
-pos = np.random.normal(size=(2,10000), scale=1e-9)
-s4.addPoints(x=pos[0], y=pos[1])
-w4.addItem(s4)
-s4.sigClicked.connect(clicked)
+ax = gl.GLAxisItem()
+w.addItem(ax)
 
-
+print(d2.shape)
 
 ## Start Qt event loop unless running in interactive mode.
 if __name__ == '__main__':
     import sys
+
     if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
         QtGui.QApplication.instance().exec_()

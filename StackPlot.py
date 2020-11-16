@@ -331,3 +331,16 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.image_roi.addRotateHandle([self.sz // 2, self.sz // 2], [2, 2])
 
     '''
+
+class ScatterPlot(QtWidgets.QMainWindow):
+
+    def __init__(self, img1, img2, img3):
+        super(XANESViewer, self).__init__()
+
+        uic.loadUi('XANESViewer.ui', self)
+        self.img1 = img3
+        self.img2 = img3
+        self.img3 = img3
+
+
+

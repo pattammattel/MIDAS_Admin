@@ -286,11 +286,11 @@ class Ui(QtWidgets.QMainWindow):
 
         #self.image_roi.addScaleHandle([10, 1], [0, 0])
         self.image_roi.addRotateHandle([sz//2, sz//2], [2, 2])
+        rbrush = pg.mkBrush(200, 200, 200, 200)
 
         self.image_view.addItem(self.image_roi)
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
-                                            self.stack_center + self.stack_width), bounds = [0,self.dim1]
-                                            )
+                                            self.stack_center + self.stack_width), bounds = [0,self.dim1])
                                                     
         self.spec_roi_math = pg.LinearRegionItem(values=(self.stack_center//2 - self.stack_width,
                                                 self.stack_center//2 + self.stack_width), pen = 'r',

@@ -289,10 +289,11 @@ class Ui(QtWidgets.QMainWindow):
 
         self.image_view.addItem(self.image_roi)
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
-                                                    self.stack_center + self.stack_width))
+                                                    self.stack_center + self.stack_width), bounds = [0,self.dim1])
                                                     
         self.spec_roi_math = pg.LinearRegionItem(values=(self.stack_center//2 - self.stack_width,
-                                                    self.stack_center//2 + self.stack_width))
+                                                self.stack_center//2 + self.stack_width), pen = 'r',
+                                                 brush = QtGui.QColor(0, 255, 200, 50), bounds = [0,self.dim1])
         self.spec_roi.setBounds([0, self.dim1])
         self.sb_roi_spec_s.setValue(self.stack_center - self.stack_width)
         self.sb_roi_spec_e.setValue(self.stack_center + self.stack_width)
@@ -337,10 +338,11 @@ class Ui(QtWidgets.QMainWindow):
         self.update_image_roi()
         
     def spec_roi_calc(self):
+        calc = {'Divide':np.divide, 'Subtract': np.subtract, 'Add': np.add}
         self.spec_lo_m, self.spec_hi_m = self.spec_roi_math.getRegion()
         img1 = self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0)
         img2 = self.updated_stack[int(self.spec_lo_m):int(self.spec_hi_m), :, :].mean(0)
-        self.image_view.setImage(remove_nan_inf(img1/img2))
+        self.image_view.setImage(remove_nan_inf(calc[self.cb_roi_operation.currentText()](img1,img2)))
 
 
     def save_stack(self):

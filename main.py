@@ -289,11 +289,13 @@ class Ui(QtWidgets.QMainWindow):
 
         self.image_view.addItem(self.image_roi)
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
-                                                    self.stack_center + self.stack_width), bounds = [0,self.dim1])
+                                            self.stack_center + self.stack_width), bounds = [0,self.dim1]
+                                            )
                                                     
         self.spec_roi_math = pg.LinearRegionItem(values=(self.stack_center//2 - self.stack_width,
                                                 self.stack_center//2 + self.stack_width), pen = 'r',
-                                                 brush = QtGui.QColor(0, 255, 200, 50), bounds = [0,self.dim1])
+                                                 brush = QtGui.QColor(0, 255, 200, 50), bounds = [0,self.dim1]
+                                                 )
         self.spec_roi.setBounds([0, self.dim1])
         self.sb_roi_spec_s.setValue(self.stack_center - self.stack_width)
         self.sb_roi_spec_e.setValue(self.stack_center + self.stack_width)
@@ -329,8 +331,10 @@ class Ui(QtWidgets.QMainWindow):
 
     def math_roi_flag(self):
         if self.rb_math_roi.isChecked():
+            self.rb_math_roi.setStyleSheet("color : green")
             self.spectrum_view.addItem(self.spec_roi_math)
         else:
+            self.rb_math_roi.setStyleSheet("color : red")
             self.spectrum_view.removeItem(self.spec_roi_math)
 
     def update_image_roi(self):

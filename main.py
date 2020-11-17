@@ -188,6 +188,7 @@ class Ui(QtWidgets.QMainWindow):
         logger.info(f'completed image shape {np.shape(self.im_stack)}')
 
     def reset_and_load_stack(self):
+        self.rb_math_roi_img.setChecked(False)
         self.cb_log.setChecked(False)
         self.cb_remove_edges.setChecked(False)
         self.cb_norm.setChecked(False)
@@ -258,6 +259,7 @@ class Ui(QtWidgets.QMainWindow):
 
         try:
             self.image_view.removeItem(self.image_roi)
+            self.image_view.removeItem(self.image_roi_math)
         except:
             pass
 
@@ -281,14 +283,19 @@ class Ui(QtWidgets.QMainWindow):
         cn = int(self.dim2 // 2)
         sz = np.max([int(self.dim2 * 0.15),int(self.dim3 * 0.15)])
         self.image_roi = pg.PolyLineROI([[0,0], [0,sz], [sz,sz], [sz,0]],
-                                        pos =(int(self.dim3 // 2), int(self.dim2 // 2)), closed=True)
+                                        pos =(int(self.dim3 // 2), int(self.dim2 // 2)),
+                                        maxBounds = QtCore.QRect(0, 0, self.dim3, self.dim2),
+                                        closed=True)
 
-        self.image_roi_math = pg.PolyLineROI([[0,0], [0,sz], [sz,sz], [sz,0]],
-                                        pos =(int(self.dim3 // 4), int(self.dim2 // 4)), closed=True)
+        self.image_roi_math = pg.PolyLineROI([[0,0], [0,sz//2], [sz//2,sz//2], [sz//2,0]],
+                                        pos =(0, 0),
+                                        closed=True)
 
 
-        #self.image_roi.addScaleHandle([10, 1], [0, 0])
-        self.image_roi.addRotateHandle([sz//2, sz//2], [2, 2])
+        self.image_roi.addTranslateHandle([sz//2, sz//2], [2, 2])
+        #self.image_roi.addRotateHandle([sz//4, sz//4], [2, 2])
+
+        self.image_roi_math.addTranslateHandle([sz // 2, sz // 2], [2, 2])
 
         self.image_view.addItem(self.image_roi)
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
@@ -312,6 +319,7 @@ class Ui(QtWidgets.QMainWindow):
         self.spec_roi_math.sigRegionChanged.connect(self.spec_roi_calc)
         self.rb_math_roi.clicked.connect(self.update_spectrum)
         self.rb_math_roi_img.clicked.connect(self.math_img_roi_flag)
+        self.image_roi_math.sigRegionChanged.connect(self.image_roi_calc)
         # self.pb_play_stack.clicked.connect(self.play_stack)
 
     def update_region(self):
@@ -340,6 +348,13 @@ class Ui(QtWidgets.QMainWindow):
             self.rb_math_roi.setStyleSheet("color : red")
             self.spectrum_view.removeItem(self.spec_roi_math)
 
+    def spec_roi_calc(self):
+        calc = {'Divide':np.divide, 'Subtract': np.subtract, 'Add': np.add}
+        self.spec_lo_m, self.spec_hi_m = self.spec_roi_math.getRegion()
+        img1 = self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0)
+        img2 = self.updated_stack[int(self.spec_lo_m):int(self.spec_hi_m), :, :].mean(0)
+        self.image_view.setImage(remove_nan_inf(calc[self.cb_roi_operation.currentText()](img1,img2)))
+
     def math_img_roi_flag(self):
         if self.rb_math_roi_img.isChecked():
             self.rb_math_roi_img.setStyleSheet("color : green")
@@ -348,7 +363,18 @@ class Ui(QtWidgets.QMainWindow):
             self.rb_math_roi_img.setStyleSheet("color : red")
             self.image_view.removeItem(self.image_roi_math)
 
-    #def image_calc(self):
+    def image_roi_calc(self):
+
+        if self.rb_math_roi_img.isChecked():
+            calc = {'Divide':np.divide, 'Subtract': np.subtract, 'Add': np.add}
+            ref_region = self.image_roi_math.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
+            ref_reg_avg = ref_region[int(self.spec_lo):int(self.spec_hi), :, :].mean()
+            currentImage = self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0)
+            self.image_view.setImage(calc[self.cb_img_roi_action.currentText()]
+                                     (currentImage,(ref_reg_avg+currentImage*0)),
+                                     autoLevels=False, autoHistogramRange=True)
+        else:
+            pass
 
 
     def update_image_roi(self):
@@ -361,13 +387,6 @@ class Ui(QtWidgets.QMainWindow):
         self.spec_lo_, self.spec_hi_ = int(self.sb_roi_spec_s.value()), int(self.sb_roi_spec_e.value())
         self.spec_roi.setRegion((self.spec_lo_, self.spec_hi_))
         self.update_image_roi()
-        
-    def spec_roi_calc(self):
-        calc = {'Divide':np.divide, 'Subtract': np.subtract, 'Add': np.add}
-        self.spec_lo_m, self.spec_hi_m = self.spec_roi_math.getRegion()
-        img1 = self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0)
-        img2 = self.updated_stack[int(self.spec_lo_m):int(self.spec_hi_m), :, :].mean(0)
-        self.image_view.setImage(remove_nan_inf(calc[self.cb_roi_operation.currentText()](img1,img2)))
 
     def save_stack(self):
         try:

@@ -7,69 +7,55 @@ import sklearn.cluster as sc
 import matplotlib.pyplot as plt
 import h5py
 import tifffile as tf
+from pyqtgraph.Qt import QtCore, QtGui
+import pyqtgraph.opengl as gl
 
 from scipy.signal import savgol_filter
 import sys
-
 import pyqtgraph as pg
-import pyqtgraph.opengl as gl
 
-### something to graph ######
-from numpy import *
-pi=3.1415
-X=linspace(-10,10,100)
-Y1=2+sin(X)
-Y2=-2+Y1*Y1
-Y3=cos(1*Y1)/(X+0.0131415)
-Y4=4+sin(X)*cos(2*X)
-Z=exp(-0.1*X*X)*cos(0.3*(X.reshape(100,1)**2+X.reshape(1,100)**2))
-#############################
-# you need this call ONCE
-app=pg.QtGui.QApplication([])
-#############################
 
-##### plot 3D surface data  ####
+img = tf.imread('test_stack.tiff')
+# -*- coding: utf-8 -*-
+
+
+img1 = img[10].flatten()
+img2 = img[20].flatten()
+img3 = img[30].flatten()
+
+app = QtGui.QApplication([])
 w = gl.GLViewWidget()
-## Saddle example with x and y specified
-p = gl.GLSurfacePlotItem(x=X, y=X, z=Z, shader='heightColor')
-w.addItem(p)
-# show
 w.show()
-pg.QtGui.QApplication.exec_()
-
-#==============================================
-
-##### plot 3D line data  ####
-w = gl.GLViewWidget()
-# first line
-Z=zeros(size(X))
-p=array([X,Y2,Z])
-p=p.transpose()
-C=pg.glColor('w')
-###### SCATTER ######
-plt = gl.GLScatterPlotItem(pos=p, color=C)
-w.addItem(plt)
-# second line
-Z=zeros(size(X))
-p=array([X,Z,Y3])
-p=p.transpose()
-C=pg.glColor('b')
-######## LINE  ############
-plt = gl.GLLinePlotItem(pos=p, connected=False,width=20.5,color=C)
-w.addItem(plt)
-# third line
-Z=zeros(size(X))
-p=array([Z,Y1,X])
-p=p.transpose()
-C=pg.glColor('g')
-
-
-########### SCATTER #############
-plt = gl.GLScatterPlotItem(pos=p, color=C, size=20)
-w.addItem(plt)
-############# GRID #################
-g=gl.GLGridItem()
+g = gl.GLGridItem()
 w.addItem(g)
-# show
-w.show()
-pg.QtGui.QApplication.exec_()
+
+#generate random points from -10 to 10, z-axis positive
+pos = np.array((img1,img2)).T
+pos[:,2] = np.abs(pos[:,2])
+
+sp2 = gl.GLScatterPlotItem(pos=pos)
+w.addItem(sp2)
+
+#generate a color opacity gradient
+color = np.zeros((pos.shape[0],4), dtype=np.float32)
+color[:,0] = 1
+color[:,1] = 0
+color[:,2] = 0.5
+color[0:100,3] = np.arange(0,100)/100.
+
+def update():
+    ## update volume colors
+    global color
+    color = np.roll(color,1, axis=0)
+    sp2.setData(color=color)
+
+t = QtCore.QTimer()
+t.timeout.connect(update)
+t.start(50)
+
+
+if __name__ == '__main__':
+    import sys
+
+    if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
+        QtGui.QApplication.instance().exec_()

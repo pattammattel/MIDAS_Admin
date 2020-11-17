@@ -308,7 +308,7 @@ background-color: rgb(240, 240, 240);</string>
               <bool>true</bool>
              </property>
              <property name="checked">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -461,7 +461,7 @@ color: rgb(255, 0, 127);
          <x>0</x>
          <y>0</y>
          <width>367</width>
-         <height>783</height>
+         <height>793</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_9">
@@ -485,7 +485,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>345</width>
-             <height>219</height>
+             <height>269</height>
             </rect>
            </property>
            <attribute name="label">
@@ -660,7 +660,7 @@ color: rgb(255, 0, 127);
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_20">
                   <property name="text">
-                   <string>Slice Range </string>
+                   <string>Stack Range </string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1291,7 +1291,7 @@ color: rgb(255, 0, 127);
      <x>0</x>
      <y>0</y>
      <width>1249</width>
-     <height>27</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuManual">

@@ -334,13 +334,15 @@ class XANESViewer(QtWidgets.QMainWindow):
 
 class ScatterPlot(QtWidgets.QMainWindow):
 
-    def __init__(self, img1, img2, img3):
-        super(XANESViewer, self).__init__()
+    def __init__(self, img1, img2):
+        super(ScatterPlot, self).__init__()
 
-        uic.loadUi('XANESViewer.ui', self)
-        self.img1 = img3
-        self.img2 = img3
-        self.img3 = img3
+        uic.loadUi('ScatterView.ui', self)
+        self.img1 = img1.flatten()
+        self.img2 = img2.flatten()
+        self.scatterViewer = pg.ScatterPlotItem(size=10, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 20))
+
+
 
 
 

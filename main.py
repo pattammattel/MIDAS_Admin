@@ -283,10 +283,12 @@ class Ui(QtWidgets.QMainWindow):
         self.image_roi = pg.PolyLineROI([[0,0], [0,sz], [sz,sz], [sz,0]],
                                         pos =(int(self.dim3 // 2), int(self.dim2 // 2)), closed=True)
 
+        self.image_roi_math = pg.PolyLineROI([[0,0], [0,sz], [sz,sz], [sz,0]],
+                                        pos =(int(self.dim3 // 4), int(self.dim2 // 4)), closed=True)
+
 
         #self.image_roi.addScaleHandle([10, 1], [0, 0])
         self.image_roi.addRotateHandle([sz//2, sz//2], [2, 2])
-        rbrush = pg.mkBrush(200, 200, 200, 200)
 
         self.image_view.addItem(self.image_roi)
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
@@ -309,6 +311,7 @@ class Ui(QtWidgets.QMainWindow):
         self.sb_roi_spec_e.valueChanged.connect(self.set_spec_roi)
         self.spec_roi_math.sigRegionChanged.connect(self.spec_roi_calc)
         self.rb_math_roi.clicked.connect(self.update_spectrum)
+        self.rb_math_roi_img.clicked.connect(self.math_img_roi_flag)
         # self.pb_play_stack.clicked.connect(self.play_stack)
 
     def update_region(self):
@@ -337,6 +340,17 @@ class Ui(QtWidgets.QMainWindow):
             self.rb_math_roi.setStyleSheet("color : red")
             self.spectrum_view.removeItem(self.spec_roi_math)
 
+    def math_img_roi_flag(self):
+        if self.rb_math_roi_img.isChecked():
+            self.rb_math_roi_img.setStyleSheet("color : green")
+            self.image_view.addItem(self.image_roi_math)
+        else:
+            self.rb_math_roi_img.setStyleSheet("color : red")
+            self.image_view.removeItem(self.image_roi_math)
+
+    #def image_calc(self):
+
+
     def update_image_roi(self):
         self.spec_lo, self.spec_hi = self.spec_roi.getRegion()
         self.le_spec_roi.setText(str(int(self.spec_lo)) + ':'+ str(int(self.spec_hi)))
@@ -354,7 +368,6 @@ class Ui(QtWidgets.QMainWindow):
         img1 = self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0)
         img2 = self.updated_stack[int(self.spec_lo_m):int(self.spec_hi_m), :, :].mean(0)
         self.image_view.setImage(remove_nan_inf(calc[self.cb_roi_operation.currentText()](img1,img2)))
-
 
     def save_stack(self):
         try:

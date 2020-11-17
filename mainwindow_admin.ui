@@ -76,19 +76,6 @@ background-color: rgb(240, 240, 240);</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_28">
-           <property name="styleSheet">
-            <string notr="true">font: 75 10pt &quot;MS Shell Dlg 2&quot;;</string>
-           </property>
-           <property name="text">
-            <string>Size</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
          <item row="3" column="1">
           <widget class="QLineEdit" name="le_roi_size">
            <property name="sizePolicy">
@@ -116,7 +103,7 @@ background-color: rgb(240, 240, 240);</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="6" column="1">
           <spacer name="verticalSpacer_8">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -128,6 +115,19 @@ background-color: rgb(240, 240, 240);</string>
             </size>
            </property>
           </spacer>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_28">
+           <property name="styleSheet">
+            <string notr="true">font: 75 10pt &quot;MS Shell Dlg 2&quot;;</string>
+           </property>
+           <property name="text">
+            <string>Size</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
          </item>
          <item row="0" column="1">
           <spacer name="verticalSpacer_10">
@@ -146,6 +146,42 @@ background-color: rgb(240, 240, 240);</string>
           <widget class="QLabel" name="label_7">
            <property name="text">
             <string>Image ROI Readout</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QRadioButton" name="rb_math_roi_img">
+           <property name="text">
+            <string>Math ROI</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QComboBox" name="cb_img_roi_action">
+           <item>
+            <property name="text">
+             <string>Divide</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Subtract</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Add</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_14">
+           <property name="text">
+            <string>Action</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -276,7 +312,7 @@ background-color: rgb(240, 240, 240);</string>
              <item row="0" column="0">
               <widget class="QLabel" name="label_13">
                <property name="text">
-                <string>Operation:</string>
+                <string>Action:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -298,6 +334,11 @@ background-color: rgb(240, 240, 240);</string>
                <item>
                 <property name="text">
                  <string>Add</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Correlation Plot</string>
                 </property>
                </item>
               </widget>

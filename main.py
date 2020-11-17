@@ -316,10 +316,13 @@ class Ui(QtWidgets.QMainWindow):
         self.sb_roi_spec_s.valueChanged.connect(self.set_spec_roi)
         self.sb_roi_spec_e.valueChanged.connect(self.set_spec_roi)
         self.spec_roi_math.sigRegionChanged.connect(self.spec_roi_calc)
+        self.spec_roi_math.sigRegionChangeFinished.connect(self.correlation_plot)
         self.rb_math_roi.clicked.connect(self.update_spectrum)
         self.rb_math_roi_img.clicked.connect(self.math_img_roi_flag)
-        self.image_roi_math.sigRegionChanged.connect(self.image_roi_calc)
+        #self.image_roi_math.sigRegionChanged.connect(self.image_roi_calc)
+
         # self.pb_play_stack.clicked.connect(self.play_stack)
+
 
     def update_region(self):
         region = self.image_roi.getArrayRegion(self.updated_stack,self.image_view.imageItem, axes=(1,2))
@@ -354,6 +357,12 @@ class Ui(QtWidgets.QMainWindow):
         img2 = self.updated_stack[int(self.spec_lo_m):int(self.spec_hi_m), :, :].mean(0)
         self.image_view.setImage(remove_nan_inf(calc[self.cb_roi_operation.currentText()](img1,img2)))
 
+    def correlation_plot(self):
+        img1 = self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0)
+        img2 = self.updated_stack[int(self.spec_lo_m):int(self.spec_hi_m), :, :].mean(0)
+        self.scatter_window = ScatterPlot(img1,img2)
+        self.scatter_window.show()
+
     def math_img_roi_flag(self):
         if self.rb_math_roi_img.isChecked():
             self.rb_math_roi_img.setStyleSheet("color : green")
@@ -378,11 +387,10 @@ class Ui(QtWidgets.QMainWindow):
     def update_spec_image_roi(self):
         main_roi_reg = self.image_roi.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
         math_roi_reg = self.image_roi_math.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
-        calc_spec = self.calc[self.cb_img_roi_action.currentText()](get_mean_spectra(main_roi_reg),
+        calc_spec = self.calc[self.cb_img_roi_action.currentText()](get_mean_spectra(math_roi_reg),
                                                                     get_mean_spectra(math_roi_reg))
         self.spectrum_view.plot(self.xdata, calc_spec, clear=True)
         self.spectrum_view.addItem(self.spec_roi)
-
 
     def update_image_roi(self):
         self.spec_lo, self.spec_hi = self.spec_roi.getRegion()

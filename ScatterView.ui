@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="ScatterPlotItem" name="scatterViewer"/>
+     <widget class="PlotWidget" name="scatterViewer"/>
     </item>
    </layout>
   </widget>
@@ -34,7 +34,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ScatterPlotItem</class>
+   <class>PlotWidget</class>
    <extends>QGraphicsView</extends>
    <header>pyqtgraph</header>
   </customwidget>

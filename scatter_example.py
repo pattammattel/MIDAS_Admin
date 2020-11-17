@@ -1,116 +1,69 @@
+# -*- coding: utf-8 -*-
 """
-Demonstrates use of GLScatterPlotItem with rapidly-updating plots.
+Demonstration of ScatterPlotWidget for exploring structure in tabular data.
+
+The widget consists of four components:
+
+1) A list of column names from which the user may select 1 or 2 columns
+    to plot. If one column is selected, the data for that column will be
+    plotted in a histogram-like manner by using pg.pseudoScatter().
+    If two columns are selected, then the
+    scatter plot will be generated with x determined by the first column
+    that was selected and y by the second.
+2) A DataFilter that allows the user to select a subset of the data by
+    specifying multiple selection criteria.
+3) A ColorMap that allows the user to determine how points are colored by
+    specifying multiple criteria.
+4) A PlotWidget for displaying the data.
 
 """
+#import initExample  ## Add path to library (just for examples; you do not need this)
 
-## Add path to library (just for examples; you do not need this)
-
+import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
-import pyqtgraph.opengl as gl
 import numpy as np
 
-app = QtGui.QApplication([])
-w = gl.GLViewWidget()
-w.opts['distance'] = 20
-w.show()
-w.setWindowTitle('pyqtgraph example: GLScatterPlotItem')
+pg.mkQApp()
 
-g = gl.GLGridItem()
-w.addItem(g)
+# Make up some tabular data with structure
+data = np.empty(1000, dtype=[('x_pos', float), ('y_pos', float),
+                             ('count', int), ('amplitude', float),
+                             ('decay', float), ('type', 'S10')])
+strings = ['Type-A', 'Type-B', 'Type-C', 'Type-D', 'Type-E']
+typeInds = np.random.randint(5, size=1000)
+data['type'] = np.array(strings)[typeInds]
+data['x_pos'] = np.random.normal(size=1000)
+data['x_pos'][data['type'] == 'Type-A'] -= 1
+data['x_pos'][data['type'] == 'Type-B'] -= 1
+data['x_pos'][data['type'] == 'Type-C'] += 2
+data['x_pos'][data['type'] == 'Type-D'] += 2
+data['x_pos'][data['type'] == 'Type-E'] += 2
+data['y_pos'] = np.random.normal(size=1000) + data['x_pos'] * 0.1
+data['y_pos'][data['type'] == 'Type-A'] += 3
+data['y_pos'][data['type'] == 'Type-B'] += 3
+data['amplitude'] = data['x_pos'] * 1.4 + data['y_pos'] + np.random.normal(size=1000, scale=0.4)
+data['count'] = (np.random.exponential(size=1000, scale=100) * data['x_pos']).astype(int)
+data['decay'] = np.random.normal(size=1000, scale=1e-3) + data['amplitude'] * 1e-4
+data['decay'][data['type'] == 'Type-A'] /= 2
+data['decay'][data['type'] == 'Type-E'] *= 3
 
-##
-##  First example is a set of points with pxMode=False
-##  These demonstrate the ability to have points with real size down to a very small scale
-##
-pos = np.empty((53, 3))
-size = np.empty((53))
-color = np.empty((53, 4))
-pos[0] = (1, 0, 0);
-size[0] = 0.5;
-color[0] = (1.0, 0.0, 0.0, 0.5)
-pos[1] = (0, 1, 0);
-size[1] = 0.2;
-color[1] = (0.0, 0.0, 1.0, 0.5)
-pos[2] = (0, 0, 1);
-size[2] = 2. / 3.;
-color[2] = (0.0, 1.0, 0.0, 0.5)
+print(data.shape)
 
-z = 0.5
-d = 6.0
-for i in range(3, 53):
-    pos[i] = (0, 0, z)
-    size[i] = 2. / d
-    color[i] = (0.0, 1.0, 0.0, 0.5)
-    z *= 0.5
-    d *= 2.0
+# Create ScatterPlotWidget and configure its fields
+spw = pg.ScatterPlotWidget()
+spw.setFields([
+    ('x_pos', {'units': 'm'}),
+    ('y_pos', {'units': 'm'}),
+    ('count', {}),
+    ('amplitude', {'units': 'V'}),
+    ('decay', {'units': 's'}),
+    ('type', {'mode': 'enum', 'values': strings}),
+])
 
+spw.setData(data)
+spw.show()
 
-sp1 = gl.GLScatterPlotItem(pos=pos, size=size, color=color, pxMode=False)
-sp1.translate(5, 5, 0)
-w.addItem(sp1)
-
-##
-##  Second example shows a volume of points with rapidly updating color
-##  and pxMode=True
-##
-
-pos = np.random.random(size=(100000, 3))
-pos *= [10, -10, 10]
-pos[0] = (0, 0, 0)
-color = np.ones((pos.shape[0], 4))
-d2 = (pos ** 2).sum(axis=1) ** 0.5
-print(pos.shape)
-size = np.random.random(size=pos.shape[0]) * 10
-sp2 = gl.GLScatterPlotItem(pos=pos, color=(1, 1, 1, 1), size=size)
-phase = 0.
-
-w.addItem(sp2)
-
-##
-##  Third example shows a grid of points with rapidly updating position
-##  and pxMode = False
-##
-
-pos3 = np.zeros((100, 100, 3))
-pos3[:, :, :2] = np.mgrid[:100, :100].transpose(1, 2, 0) * [-0.1, 0.1]
-pos3 = pos3.reshape(10000, 3)
-d3 = (pos3 ** 2).sum(axis=1) ** 0.5
-
-sp3 = gl.GLScatterPlotItem(pos=pos3, color=(1, 1, 1, .3), size=0.1, pxMode=False)
-print(pos3.shape)
-
-w.addItem(sp3)
-
-
-def update():
-    ## update volume colors
-    global phase, sp2, d2
-    s = -np.cos(d2 * 2 + phase)
-    color = np.empty((len(d2), 4), dtype=np.float32)
-    color[:, 3] = np.clip(s * 0.1, 0, 1)
-    color[:, 0] = np.clip(s * 3.0, 0, 1)
-    color[:, 1] = np.clip(s * 1.0, 0, 1)
-    color[:, 2] = np.clip(s ** 3, 0, 1)
-    sp2.setData(color=color)
-    phase -= 0.1
-
-    ## update surface positions and colors
-    global sp3, d3, pos3
-    z = -np.cos(d3 * 2 + phase)
-    pos3[:, 2] = z
-    color = np.empty((len(d3), 4), dtype=np.float32)
-    color[:, 3] = 0.3
-    color[:, 0] = np.clip(z * 3.0, 0, 1)
-    color[:, 1] = np.clip(z * 1.0, 0, 1)
-    color[:, 2] = np.clip(z ** 3, 0, 1)
-    sp3.setData(pos=pos3, color=color)
-
-
-t = QtCore.QTimer()
-t.timeout.connect(update)
-t.start(50)
-
-## Start Qt event loop unless running in interactive mode.
+## Start Qt event loop unless running in interactive mode or using pyside.
 if __name__ == '__main__':
     import sys
 

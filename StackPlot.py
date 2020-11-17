@@ -340,8 +340,8 @@ class ScatterPlot(QtWidgets.QMainWindow):
         uic.loadUi('ScatterView.ui', self)
         self.img1 = img1.flatten()
         self.img2 = img2.flatten()
-        self.scatterViewer = pg.ScatterPlotItem(size=10, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 20))
 
+        self.scatterViewer.plot(self.img1 , self.img2, pen='r', name="Data", clear=True, connect = array)
 
 
 

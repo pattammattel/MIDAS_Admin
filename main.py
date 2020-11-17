@@ -288,14 +288,13 @@ class Ui(QtWidgets.QMainWindow):
                                         closed=True)
 
         self.image_roi_math = pg.PolyLineROI([[0,0], [0,sz//2], [sz//2,sz//2], [sz//2,0]],
-                                        pos =(0, 0),
-                                        closed=True)
+                                        pos =(0, 0), pen = 'r', closed=True)
 
 
         self.image_roi.addTranslateHandle([sz//2, sz//2], [2, 2])
         #self.image_roi.addRotateHandle([sz//4, sz//4], [2, 2])
 
-        self.image_roi_math.addTranslateHandle([sz // 2, sz // 2], [2, 2])
+        self.image_roi_math.addTranslateHandle([sz // 4, sz // 4], [2, 2])
 
         self.image_view.addItem(self.image_roi)
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
@@ -328,7 +327,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def update_spectrum(self):
 
-        xdata = np.arange(self.sb_zrange1.value(), self.sb_zrange2.value(), 1)
+        self.xdata = np.arange(self.sb_zrange1.value(), self.sb_zrange2.value(), 1)
         #ydata = remove_nan_inf(get_sum_spectra(self.updated_stack[:, xmin:xmax,ymin:ymax]))
         ydata = self.image_roi.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
         sizex, sizey = ydata.shape[1], ydata.shape[2]
@@ -336,7 +335,7 @@ class Ui(QtWidgets.QMainWindow):
         self.le_roi.setText(str(int(posx))+':' +str(int(posy)))
         self.le_roi_size.setText(str(sizex) +','+ str(sizey))
 
-        self.spectrum_view.plot(xdata, get_sum_spectra(ydata), clear=True)
+        self.spectrum_view.plot(self.xdata, get_sum_spectra(ydata), clear=True)
         self.spectrum_view.addItem(self.spec_roi)
         self.math_roi_flag()
 
@@ -366,15 +365,23 @@ class Ui(QtWidgets.QMainWindow):
     def image_roi_calc(self):
 
         if self.rb_math_roi_img.isChecked():
-            calc = {'Divide':np.divide, 'Subtract': np.subtract, 'Add': np.add}
+            self.calc = {'Divide':np.divide, 'Subtract': np.subtract, 'Add': np.add}
             ref_region = self.image_roi_math.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
             ref_reg_avg = ref_region[int(self.spec_lo):int(self.spec_hi), :, :].mean()
             currentImage = self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0)
-            self.image_view.setImage(calc[self.cb_img_roi_action.currentText()]
-                                     (currentImage,(ref_reg_avg+currentImage*0)),
-                                     autoLevels=False, autoHistogramRange=True)
+            self.image_view.setImage(self.calc[self.cb_img_roi_action.currentText()]
+                                     (currentImage,(ref_reg_avg+currentImage*0)))
+            self.update_spec_image_roi()
         else:
             pass
+
+    def update_spec_image_roi(self):
+        main_roi_reg = self.image_roi.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
+        math_roi_reg = self.image_roi_math.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
+        calc_spec = self.calc[self.cb_img_roi_action.currentText()](get_mean_spectra(main_roi_reg),
+                                                                    get_mean_spectra(math_roi_reg))
+        self.spectrum_view.plot(self.xdata, calc_spec, clear=True)
+        self.spectrum_view.addItem(self.spec_roi)
 
 
     def update_image_roi(self):

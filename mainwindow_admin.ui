@@ -160,17 +160,22 @@ background-color: rgb(240, 240, 240);</string>
           <widget class="QComboBox" name="cb_img_roi_action">
            <item>
             <property name="text">
-             <string>Divide</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
              <string>Subtract</string>
             </property>
            </item>
            <item>
             <property name="text">
+             <string>Divide</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>Add</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Correlation Plot</string>
             </property>
            </item>
           </widget>

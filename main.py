@@ -318,10 +318,7 @@ class Ui(QtWidgets.QMainWindow):
         self.spec_roi_math.sigRegionChangeFinished.connect(self.spec_roi_calc)
         self.rb_math_roi.clicked.connect(self.update_spectrum)
         self.rb_math_roi_img.clicked.connect(self.math_img_roi_flag)
-        #self.image_roi_math.sigRegionChanged.connect(self.image_roi_calc)
-
-        # self.pb_play_stack.clicked.connect(self.play_stack)
-
+        self.image_roi_math.sigRegionChanged.connect(self.image_roi_calc)
 
     def update_region(self):
         region = self.image_roi.getArrayRegion(self.updated_stack,self.image_view.imageItem, axes=(1,2))
@@ -363,7 +360,7 @@ class Ui(QtWidgets.QMainWindow):
             self.image_view.setImage(remove_nan_inf(calc[self.cb_roi_operation.currentText()](img1,img2)))
 
     def correlation_plot(self):
-        screen = QDesktopWidget().availableGeometry().topRight()
+
         img1 = self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0)
         img2 = self.updated_stack[int(self.spec_lo_m):int(self.spec_hi_m), :, :].mean(0)
 
@@ -374,8 +371,7 @@ class Ui(QtWidgets.QMainWindow):
         py = self.geometry().y()
         dw = self.scatter_window.width()
         dh = self.scatter_window.height()
-        #self.scatter_window.moveCenter(screen)
-        self.scatter_window.setGeometry(px+0.5*pw, py + ph - dh, dw, dh)
+        self.scatter_window.setGeometry(px+0.65*pw, py + ph - 2*dh-5, dw, dh)
         self.scatter_window.show()
 
     def math_img_roi_flag(self):
@@ -402,9 +398,13 @@ class Ui(QtWidgets.QMainWindow):
     def update_spec_image_roi(self):
         main_roi_reg = self.image_roi.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
         math_roi_reg = self.image_roi_math.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
-        calc_spec = self.calc[self.cb_img_roi_action.currentText()](get_mean_spectra(math_roi_reg),
+        calc_spec = self.calc[self.cb_img_roi_action.currentText()](get_mean_spectra(main_roi_reg),
                                                                     get_mean_spectra(math_roi_reg))
-        self.spectrum_view.plot(self.xdata, calc_spec, clear=True)
+        self.spectrum_view.addLegend()
+        self.spectrum_view.plot(self.xdata, calc_spec, clear=True, pen ='r',
+                                name =self.cb_img_roi_action.currentText()+"ed")
+        self.spectrum_view.plot(self.xdata, get_mean_spectra(main_roi_reg), pen ='g',
+                                name = "raw")
         self.spectrum_view.addItem(self.spec_roi)
 
     def update_image_roi(self):

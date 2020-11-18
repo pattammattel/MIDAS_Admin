@@ -8,7 +8,7 @@ import webbrowser
 
 from subprocess import Popen
 from PyQt5 import QtWidgets, uic
-from PyQt5.QtWidgets import QMessageBox, QFileDialog
+from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDesktopWidget
 from xrf_xanes_3ID_gui import xrf_3ID
 from StackPlot import *
 
@@ -315,8 +315,7 @@ class Ui(QtWidgets.QMainWindow):
         self.image_roi.sigRegionChanged.connect(self.update_spectrum)
         self.sb_roi_spec_s.valueChanged.connect(self.set_spec_roi)
         self.sb_roi_spec_e.valueChanged.connect(self.set_spec_roi)
-        self.spec_roi_math.sigRegionChanged.connect(self.spec_roi_calc)
-        self.spec_roi_math.sigRegionChangeFinished.connect(self.correlation_plot)
+        self.spec_roi_math.sigRegionChangeFinished.connect(self.spec_roi_calc)
         self.rb_math_roi.clicked.connect(self.update_spectrum)
         self.rb_math_roi_img.clicked.connect(self.math_img_roi_flag)
         #self.image_roi_math.sigRegionChanged.connect(self.image_roi_calc)
@@ -351,15 +350,23 @@ class Ui(QtWidgets.QMainWindow):
             self.spectrum_view.removeItem(self.spec_roi_math)
 
     def spec_roi_calc(self):
-        calc = {'Divide':np.divide, 'Subtract': np.subtract, 'Add': np.add}
+
         self.spec_lo_m, self.spec_hi_m = self.spec_roi_math.getRegion()
-        img1 = self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0)
-        img2 = self.updated_stack[int(self.spec_lo_m):int(self.spec_hi_m), :, :].mean(0)
-        self.image_view.setImage(remove_nan_inf(calc[self.cb_roi_operation.currentText()](img1,img2)))
+
+        if self.cb_roi_operation.currentText() == "Correlation Plot":
+            self.correlation_plot()
+
+        else:
+            calc = {'Divide':np.divide, 'Subtract': np.subtract, 'Add': np.add}
+            img1 = self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0)
+            img2 = self.updated_stack[int(self.spec_lo_m):int(self.spec_hi_m), :, :].mean(0)
+            self.image_view.setImage(remove_nan_inf(calc[self.cb_roi_operation.currentText()](img1,img2)))
 
     def correlation_plot(self):
+        screen = QDesktopWidget().availableGeometry().topRight()
         img1 = self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0)
         img2 = self.updated_stack[int(self.spec_lo_m):int(self.spec_hi_m), :, :].mean(0)
+
         self.scatter_window = ScatterPlot(img1,img2)
         ph = self.geometry().height()
         pw = self.geometry().width()
@@ -367,7 +374,8 @@ class Ui(QtWidgets.QMainWindow):
         py = self.geometry().y()
         dw = self.scatter_window.width()
         dh = self.scatter_window.height()
-        self.scatter_window.setGeometry(px+pw, py + ph - dh, dw, dh)
+        #self.scatter_window.moveCenter(screen)
+        self.scatter_window.setGeometry(px+0.5*pw, py + ph - dh, dw, dh)
         self.scatter_window.show()
 
     def math_img_roi_flag(self):

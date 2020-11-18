@@ -345,7 +345,18 @@ class ScatterPlot(QtWidgets.QMainWindow):
         s1.setData(self.img1,self.img2)
         w1.addItem(s1)
 
+class ScatterPlot2(QtWidgets.QMainWindow):
 
+    def __init__(self, img1, img2):
+        super(ScatterPlot2, self).__init__()
+
+        uic.loadUi('ScatterView.ui', self)
+        w1 = self.scatterViewer.addPlot()
+        self.img1 = img1.flatten()
+        self.img2 = img2.flatten()
+        s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(0, 255, 255, 120))
+        s1.setData(self.img1,self.img2)
+        w1.addItem(s1)
 
 
 

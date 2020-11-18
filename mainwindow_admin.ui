@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>1249</width>
-    <height>860</height>
+    <height>863</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -460,8 +460,8 @@ color: rgb(255, 0, 127);
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>367</width>
-         <height>793</height>
+         <width>368</width>
+         <height>786</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_9">
@@ -484,8 +484,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>345</width>
-             <height>269</height>
+             <width>346</width>
+             <height>222</height>
             </rect>
            </property>
            <attribute name="label">
@@ -709,7 +709,7 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>324</width>
+             <width>325</width>
              <height>234</height>
             </rect>
            </property>
@@ -929,7 +929,7 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>345</width>
+             <width>346</width>
              <height>201</height>
             </rect>
            </property>
@@ -1059,7 +1059,7 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>345</width>
+             <width>346</width>
              <height>201</height>
             </rect>
            </property>
@@ -1184,7 +1184,7 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>345</width>
+             <width>346</width>
              <height>237</height>
             </rect>
            </property>
@@ -1291,7 +1291,7 @@ color: rgb(255, 0, 127);
      <x>0</x>
      <y>0</y>
      <width>1249</width>
-     <height>22</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuManual">

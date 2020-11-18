@@ -361,6 +361,13 @@ class Ui(QtWidgets.QMainWindow):
         img1 = self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0)
         img2 = self.updated_stack[int(self.spec_lo_m):int(self.spec_hi_m), :, :].mean(0)
         self.scatter_window = ScatterPlot(img1,img2)
+        ph = self.geometry().height()
+        pw = self.geometry().width()
+        px = self.geometry().x()
+        py = self.geometry().y()
+        dw = self.scatter_window.width()
+        dh = self.scatter_window.height()
+        self.scatter_window.setGeometry(px+pw, py + ph - dh, dw, dh)
         self.scatter_window.show()
 
     def math_img_roi_flag(self):

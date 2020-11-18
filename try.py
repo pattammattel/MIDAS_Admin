@@ -16,46 +16,38 @@ import pyqtgraph as pg
 
 
 img = tf.imread('test_stack.tiff')
-# -*- coding: utf-8 -*-
-
 
 img1 = img[10].flatten()
-img2 = img[20].flatten()
-img3 = img[30].flatten()
+img2 = img[50].flatten()
 
 app = QtGui.QApplication([])
-w = gl.GLViewWidget()
-w.show()
-g = gl.GLGridItem()
-w.addItem(g)
+mw = QtGui.QMainWindow()
+mw.resize(800,800)
+view = pg.GraphicsLayoutWidget()  ## GraphicsView with GraphicsLayout inserted by default
+mw.setCentralWidget(view)
+mw.show()
+mw.setWindowTitle('pyqtgraph example: ScatterPlot')
 
-#generate random points from -10 to 10, z-axis positive
-pos = np.array((img1,img2)).T
-pos[:,2] = np.abs(pos[:,2])
+## create four areas to add plots
+w1 = view.addPlot()
 
-sp2 = gl.GLScatterPlotItem(pos=pos)
-w.addItem(sp2)
-
-#generate a color opacity gradient
-color = np.zeros((pos.shape[0],4), dtype=np.float32)
-color[:,0] = 1
-color[:,1] = 0
-color[:,2] = 0.5
-color[0:100,3] = np.arange(0,100)/100.
-
-def update():
-    ## update volume colors
-    global color
-    color = np.roll(color,1, axis=0)
-    sp2.setData(color=color)
-
-t = QtCore.QTimer()
-t.timeout.connect(update)
-t.start(50)
+## There are a few different ways we can draw scatter plots; each is optimized for different types of data:
 
 
+## 1) All spots identical and transform-invariant (top-left plot).
+## In this case we can get a huge performance boost by pre-rendering the spot
+## image and just drawing that image repeatedly.
+
+
+s1 = pg.ScatterPlotItem(size=10, pen=pg.mkPen(None), brush=pg.mkBrush(0, 255, 0, 120))
+pos = np.array((img1,img2))
+s1.setData(spots)
+w1.addItem(s1)
+
+print(np.shape(spots))
+
+## Start Qt event loop unless running in interactive mode.
 if __name__ == '__main__':
     import sys
-
     if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
         QtGui.QApplication.instance().exec_()

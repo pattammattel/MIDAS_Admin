@@ -930,7 +930,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>346</width>
-             <height>201</height>
+             <height>203</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1060,7 +1060,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>346</width>
-             <height>201</height>
+             <height>203</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1330,7 +1330,7 @@ color: rgb(255, 0, 127);
    <addaction name="menuOpen"/>
    <addaction name="menuManual"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="statusbar_main"/>
   <action name="actionOpen_PDF">
    <property name="text">
     <string>Open PDF</string>

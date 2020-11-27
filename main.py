@@ -8,8 +8,9 @@ import logging, sys, webbrowser
 from subprocess import Popen
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDesktopWidget
-from xrf_xanes_3ID_gui import xrf_3ID
+
 from StackPlot import *
+from StackCalcs import *
 logger = logging.getLogger()
 
 
@@ -25,15 +26,7 @@ class Ui(QtWidgets.QMainWindow):
         self.actionOpen_Image_Data.triggered.connect(self.browse_file)
         self.actionSave_as.triggered.connect(self.save_stack)
         self.actionExit.triggered.connect(self.close)
-
-        self.actionOpen_PyXRF.triggered.connect(self.open_pyxrf)
-        self.actionOpen_Image_J.triggered.connect(self.open_imagej)
-        self.actionOpen_TomViz.triggered.connect(self.open_tomviz)
-        self.actionOpen_Mantis.triggered.connect(self.open_mantis)
-        self.actionOpen_Athena.triggered.connect(self.open_athena)
         self.actionOpen_in_GitHub.triggered.connect(self.open_github_link)
-
-        self.actionOpen_HXN_DB.triggered.connect(self.open_db_tools_3id)
 
         self.cb_log.stateChanged.connect(self.view_stack)
         self.cb_remove_edges.stateChanged.connect(self.view_stack)
@@ -63,72 +56,6 @@ class Ui(QtWidgets.QMainWindow):
 
     def open_github_link(self):
         webbrowser.open('https://github.com/pattammattel/NSLS-II-MIDAS')
-
-    def open_db_tools_3id(self):
-        self._new_window = xrf_3ID()
-        self._new_window.show()
-        logger.info('opening new working window for HXN-3ID')
-
-    def select_wd(self):
-        folder_path = QFileDialog().getExistingDirectory(self, "Select Folder")
-        self.le_wd.setText(str(folder_path))
-        global dest
-        dest = self.le_wd.text()
-
-    def open_pyxrf(self):
-        logger.info('opening pyXRF GUI')
-        try:
-            Popen(['pyxrf'])
-
-        except ModuleNotFoundError:
-
-            logger.error('Not connected to the beamline account or not in pyxrf conda env')
-
-    def open_athena(self):
-        logger.info('opening ATHENA')
-        try:
-
-            athena_path = r'C:\Users\pattammattel\AppData\Roaming\DemeterPerl\perl\site\bin\dathena.bat'
-            Popen([athena_path])
-
-        except FileNotFoundError:
-
-            logger.error('Wrong dathena.bat path')
-
-    def open_imagej(self):
-        logger.info('opening ImgaeJ')
-        try:
-            imagej_path = r'C:\Users\pattammattel\Fiji.app\ImageJ-win64.exe'
-            Popen([imagej_path])
-
-        except FileNotFoundError:
-
-            logger.error('Wrong ImageJ.exe path')
-
-    def open_smak(self):
-        smak_path = r'C:\Program Files\smak\smak.exe'
-        Popen([smak_path])
-
-    def open_mantis(self):
-
-        logger.info('opening  Mantis')
-        try:
-            mantis_path = r'C:\Users\pattammattel\mantis-2.3.02.amd64.exe'
-            Popen([mantis_path])
-
-        except FileNotFoundError:
-            logger.error('Wrong Mantis.exe path')
-
-    def open_tomviz(self):
-
-        logger.info('opening TomViz')
-
-        try:
-            tomviz_path = r'C:\Program Files\tomviz\bin\tomviz.exe'
-            Popen([tomviz_path, self.le_tiff_file.text()])
-
-        except FileNotFoundError:
-            logger.error('Wrong tomviz.exe path')
 
     # XRF Loading
 

@@ -1309,25 +1309,7 @@ color: rgb(255, 0, 127);
     <addaction name="actionSave_as"/>
     <addaction name="actionExit"/>
    </widget>
-   <widget class="QMenu" name="menuOpen">
-    <property name="title">
-     <string>Options</string>
-    </property>
-    <addaction name="actionOpen_PyXRF"/>
-    <addaction name="actionOpen_Image_J"/>
-    <addaction name="actionOpen_TomViz"/>
-    <addaction name="actionOpen_Mantis"/>
-    <addaction name="actionOpen_Athena"/>
-   </widget>
-   <widget class="QMenu" name="menuData_Broker">
-    <property name="title">
-     <string>Data Broker</string>
-    </property>
-    <addaction name="actionOpen_HXN_DB"/>
-   </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuData_Broker"/>
-   <addaction name="menuOpen"/>
    <addaction name="menuManual"/>
   </widget>
   <widget class="QStatusBar" name="statusbar_main"/>

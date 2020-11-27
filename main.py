@@ -3,15 +3,13 @@
 # Author: Ajith Pattammattel
 # Date:06-23-2020
 
-import logging
-import webbrowser
+import logging, sys, webbrowser
 
 from subprocess import Popen
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDesktopWidget
 from xrf_xanes_3ID_gui import xrf_3ID
 from StackPlot import *
-
 logger = logging.getLogger()
 
 
@@ -298,11 +296,11 @@ class Ui(QtWidgets.QMainWindow):
 
         self.image_view.addItem(self.image_roi)
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
-                                            self.stack_center + self.stack_width), bounds = [0,self.dim1])
+                                            self.stack_center + self.stack_width))
                                                     
         self.spec_roi_math = pg.LinearRegionItem(values=(self.stack_center//2 - self.stack_width,
                                                 self.stack_center//2 + self.stack_width), pen = 'r',
-                                                 brush = QtGui.QColor(0, 255, 200, 50), bounds = [0,self.dim1]
+                                                 brush = QtGui.QColor(0, 255, 200, 50)
                                                  )
         self.spec_roi.setBounds([0, self.dim1])
         self.sb_roi_spec_s.setValue(self.stack_center - self.stack_width)
@@ -401,7 +399,7 @@ class Ui(QtWidgets.QMainWindow):
         calc_spec = self.calc[self.cb_img_roi_action.currentText()](get_mean_spectra(main_roi_reg),
                                                                     get_mean_spectra(math_roi_reg))
         self.spectrum_view.addLegend()
-        self.spectrum_view.plot(self.xdata, calc_spec, clear=True, pen ='r',
+        self.spectrum_view.plot(self.xdata, calc_spec, clear=True, pen ='m',
                                 name =self.cb_img_roi_action.currentText()+"ed")
         self.spectrum_view.plot(self.xdata, get_mean_spectra(main_roi_reg), pen ='g',
                                 name = "raw")

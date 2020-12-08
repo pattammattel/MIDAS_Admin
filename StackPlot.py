@@ -24,7 +24,7 @@ class StackSpecViewer(QtWidgets.QMainWindow):
         uic.loadUi('StackViewer.ui', self)
         self.im_stack = im_stack
         (self.dim1, self.dim3, self.dim2) = self.im_stack.shape
-
+        self.x_energy = np.arange(0,self.dim1)
         self.image_view.setImage(self.im_stack)
         self.image_view.ui.menuBtn.hide()
         self.image_view.ui.roiBtn.hide()
@@ -88,8 +88,9 @@ class StackSpecViewer(QtWidgets.QMainWindow):
 
         # print(self.updated_im_stack[:, xmax, ymax])
         self.xdata = np.arange(0, self.dim1, 1)
+
         ydata = remove_nan_inf(get_sum_spectra(self.updated_im_stack[:, xmin:xmax, ymin:ymax]))
-        self.spectrum_view.plot(self.xdata, ydata, clear=True)
+        self.spectrum_view.plot(self.x_energy, ydata, clear=True)
         self.spectrum_view.addItem(self.spec_roi)
 
     def update_image_roi(self):

@@ -259,6 +259,7 @@ class Ui(QtWidgets.QMainWindow):
         self.le_roi.setText(str(int(posx))+':' +str(int(posy)))
         self.le_roi_size.setText(str(sizex) +','+ str(sizey))
 
+        #self.spectrum_view.plot(self.xdata, get_sum_spectra(ydata), clear=True)
         self.spectrum_view.plot(self.xdata, get_sum_spectra(ydata), clear=True)
         self.spectrum_view.addItem(self.spec_roi)
         self.math_roi_flag()
@@ -416,7 +417,7 @@ class Ui(QtWidgets.QMainWindow):
         file_name = QFileDialog().getOpenFileName(self, "Open reference file", '', 'text file (*.txt *.nor)')
         try:
             self.refs = np.loadtxt(str(file_name[0]))
-            if bool(self.refs.max()):
+            if self.refs:
                 self.change_color_on_load(self.pb_ref_xanes)
                 plot_xanes_refs(self.refs)
 
@@ -429,7 +430,7 @@ class Ui(QtWidgets.QMainWindow):
         file_name = QFileDialog().getOpenFileName(self, "Open energy list", '', 'text file (*.txt)')
         try:
             self.energy = np.loadtxt(str(file_name[0]))
-            if bool(self.energy.max()) == True:
+            if self.energy:
                 self.change_color_on_load(self.pb_elist_xanes)
 
         except OSError:

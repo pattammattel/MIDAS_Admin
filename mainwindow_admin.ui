@@ -1306,6 +1306,7 @@ color: rgb(255, 0, 127);
      <string>File</string>
     </property>
     <addaction name="actionOpen_Image_Data"/>
+    <addaction name="actionLoad_Energy"/>
     <addaction name="actionSave_as"/>
     <addaction name="actionExit"/>
    </widget>
@@ -1385,6 +1386,11 @@ color: rgb(255, 0, 127);
   <action name="actionOpen_HXN_DB">
    <property name="text">
     <string>Open HXN DB</string>
+   </property>
+  </action>
+  <action name="actionLoad_Energy">
+   <property name="text">
+    <string>Load Energy</string>
    </property>
   </action>
  </widget>

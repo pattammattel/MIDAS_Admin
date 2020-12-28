@@ -109,7 +109,7 @@ class Ui(QtWidgets.QMainWindow):
 
         except:
             logger.error('No image file loaded')
-            pass
+            #pass
 
         logger.info(f'completed image shape {np.shape(self.im_stack)}')
 
@@ -194,19 +194,12 @@ class Ui(QtWidgets.QMainWindow):
         self.image_view.ui.menuBtn.hide()
         self.image_view.ui.roiBtn.hide()
         self.image_view.setPredefinedGradient('viridis')
-        self.stack_center = int(self.dim1 // 2)
         self.stack_width = int(self.dim1 * 0.05)
-        self.image_view.setCurrentIndex(self.stack_center)
-        self.energy = np.arange(self.dim1*10)
+        self.image_view.setCurrentIndex(self.dim1//2)
+        self.energy = np.arange(self.dim1)*10
+        self.stack_center = int(self.energy.max() // 2)
+        print('passed')
 
-        '''
-        self.image_roi = pg.ROI(
-            pos=(int(self.dim2 // 2), int(self.dim3 // 2)),
-            size=(int(self.dim2 * 0.1), int(self.dim3 * 0.1)),
-            scaleSnap=True, translateSnap=True, rotateSnap=True, removable=True
-        )
-
-        '''
         cn = int(self.dim2 // 2)
         sz = np.max([int(self.dim2 * 0.15),int(self.dim3 * 0.15)])
         self.image_roi = pg.PolyLineROI([[0,0], [0,sz], [sz,sz], [sz,0]],
@@ -224,8 +217,11 @@ class Ui(QtWidgets.QMainWindow):
         self.image_roi_math.addTranslateHandle([sz // 4, sz // 4], [2, 2])
 
         self.image_view.addItem(self.image_roi)
+
+
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
                                             self.stack_center + self.stack_width))
+
                                                     
         self.spec_roi_math = pg.LinearRegionItem(values=(self.stack_center//2 - self.stack_width,
                                                 self.stack_center//2 + self.stack_width), pen = 'r',
@@ -419,7 +415,7 @@ class Ui(QtWidgets.QMainWindow):
         file_name = QFileDialog().getOpenFileName(self, "Open reference file", '', 'text file (*.txt *.nor)')
         try:
             self.refs = np.loadtxt(str(file_name[0]))
-            if self.refs:
+            if self.refs.any():
                 self.change_color_on_load(self.pb_ref_xanes)
                 plot_xanes_refs(self.refs)
 

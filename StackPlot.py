@@ -239,7 +239,7 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.sz = np.max([int(self.dim2 * 0.25),int(self.dim3 * 0.25)])
         self.image_roi = pg.PolyLineROI([[0,0], [0,self.sz], [self.sz,self.sz], [self.sz,0]],
                                         pos =(int(self.dim2 // 2), int(self.dim3 // 2)), closed=True)
-        self.image_roi.addRotateHandle([self.sz // 2, self.sz // 2], [2, 2])
+        self.image_roi.addTranslateHandle([self.sz//2, self.sz//2], [2, 2])
         self.image_view.setImage(self.im_stack)
         self.image_view.ui.menuBtn.hide()
         self.image_view.ui.roiBtn.hide()

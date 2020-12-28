@@ -27,6 +27,7 @@ class Ui(QtWidgets.QMainWindow):
         self.actionSave_as.triggered.connect(self.save_stack)
         self.actionExit.triggered.connect(self.close)
         self.actionOpen_in_GitHub.triggered.connect(self.open_github_link)
+        self.actionLoad_Energy.triggered.connect(self.select_elist)
 
         self.cb_log.stateChanged.connect(self.view_stack)
         self.cb_remove_edges.stateChanged.connect(self.view_stack)
@@ -196,6 +197,7 @@ class Ui(QtWidgets.QMainWindow):
         self.stack_center = int(self.dim1 // 2)
         self.stack_width = int(self.dim1 * 0.05)
         self.image_view.setCurrentIndex(self.stack_center)
+        self.energy = np.arange(self.dim1*10)
 
         '''
         self.image_roi = pg.ROI(
@@ -251,7 +253,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def update_spectrum(self):
 
-        self.xdata = np.arange(self.sb_zrange1.value(), self.sb_zrange2.value(), 1)
+        self.xdata = self.energy[self.sb_zrange1.value():self.sb_zrange2.value()]
         #ydata = remove_nan_inf(get_sum_spectra(self.updated_stack[:, xmin:xmax,ymin:ymax]))
         ydata = self.image_roi.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
         sizex, sizey = ydata.shape[1], ydata.shape[2]
@@ -430,8 +432,11 @@ class Ui(QtWidgets.QMainWindow):
         file_name = QFileDialog().getOpenFileName(self, "Open energy list", '', 'text file (*.txt)')
         try:
             self.energy = np.loadtxt(str(file_name[0]))
-            if self.energy:
+            logger.info ('Energy file loaded')
+            if self.energy.any():
                 self.change_color_on_load(self.pb_elist_xanes)
+
+            assert len(self.energy) == self.dim1
 
         except OSError:
             logger.error('No file selected')

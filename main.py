@@ -261,6 +261,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def update_image_roi(self):
         self.spec_lo, self.spec_hi = self.spec_roi.getRegion()
+        print(self.spec_lo, self.spec_hi)
         self.le_spec_roi.setText(str(int(self.spec_lo)) + ':'+ str(int(self.spec_hi)))
         self.le_spec_roi_size.setText(str(int(self.spec_hi-self.spec_lo)))
         self.image_view.setImage(self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0))
@@ -272,6 +273,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def select_elist(self):
         file_name = QFileDialog().getOpenFileName(self, "Open energy list", '', 'text file (*.txt)')
+
         try:
             self.energy = np.loadtxt(str(file_name[0]))
             logger.info ('Energy file loaded')
@@ -281,6 +283,7 @@ class Ui(QtWidgets.QMainWindow):
             assert len(self.energy) == self.dim1
             self.spectrum_view.plot(self.xdata, get_sum_spectra(self.ydata), clear=True)
             self.spectrum_view.addItem(self.spec_roi)
+
         except OSError:
             logger.error('No file selected')
             pass

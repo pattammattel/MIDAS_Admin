@@ -199,7 +199,7 @@ class Ui(QtWidgets.QMainWindow):
         self.image_view.ui.roiBtn.hide()
         self.image_view.setPredefinedGradient('viridis')
         self.image_view.setCurrentIndex(self.dim1//2)
-        self.energy = np.arange(self.z1, self.z2)*10
+        self.energy = np.arange(self.z2)*10
         logger.info("Arbitary X-axis used in the plot for XANES")
         self.stack_center = int(self.energy[len(self.energy)//2])
         self.stack_width = int((self.energy.max()-self.energy.min()) * 0.05)

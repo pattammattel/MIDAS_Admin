@@ -485,11 +485,11 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>346</width>
-             <height>222</height>
+             <height>256</height>
             </rect>
            </property>
            <attribute name="label">
-            <string>Image Dimensions</string>
+            <string>Adjust Image Dimensions</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_21">
             <item row="0" column="0">
@@ -696,7 +696,7 @@ color: rgb(255, 0, 127);
 </string>
                 </property>
                 <property name="text">
-                 <string>Crop</string>
+                 <string>Update</string>
                 </property>
                </widget>
               </item>
@@ -709,8 +709,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>325</width>
-             <height>234</height>
+             <width>346</width>
+             <height>256</height>
             </rect>
            </property>
            <attribute name="label">
@@ -922,7 +922,7 @@ color: rgb(255, 0, 127);
         <item row="3" column="0">
          <widget class="QToolBox" name="toolBox_2">
           <property name="currentIndex">
-           <number>2</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="page_5">
            <property name="geometry">
@@ -1391,6 +1391,9 @@ color: rgb(255, 0, 127);
   <action name="actionLoad_Energy">
    <property name="text">
     <string>Load Energy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
    </property>
   </action>
  </widget>

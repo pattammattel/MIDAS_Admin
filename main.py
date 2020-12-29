@@ -197,7 +197,10 @@ class Ui(QtWidgets.QMainWindow):
         self.image_view.setPredefinedGradient('viridis')
         self.image_view.setCurrentIndex(self.dim1//2)
         self.energy = np.arange(self.dim1)*10
-        self.update_spec_roi_values()
+        logger.info("Arbitary X-axis used in the plot for XANES")
+        self.stack_center = int(self.energy[len(self.energy)//2])
+        self.stack_width = int((self.energy.max()-self.energy.min()) * 0.05)
+        print("Pass")
 
         #ROI settings for image, used plyline roi with non rectangular shape
         sz = np.max([int(self.dim2 * 0.1),int(self.dim3 * 0.1)]) #size of the roi set to be 10% of the image area
@@ -267,6 +270,7 @@ class Ui(QtWidgets.QMainWindow):
         self.spec_hi_idx = (np.abs(self.energy - self.spec_hi)).argmin()
         self.le_spec_roi.setText(str(int(self.spec_lo)) + ':'+ str(int(self.spec_hi)))
         self.le_spec_roi_size.setText(str(int(self.spec_hi-self.spec_lo)))
+        self.update_spec_roi_values()
         self.image_view.setImage(self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0))
 
     def set_spec_roi(self):
@@ -284,8 +288,8 @@ class Ui(QtWidgets.QMainWindow):
                 self.change_color_on_load(self.pb_elist_xanes)
 
             assert len(self.energy) == self.dim1
-            self.spectrum_view.plot(self.xdata, get_sum_spectra(self.ydata), clear=True)
-            self.spectrum_view.addItem(self.spec_roi)
+            self.update_image_roi()
+            self.update_spectrum()
 
         except OSError:
             logger.error('No file selected')
@@ -302,20 +306,22 @@ class Ui(QtWidgets.QMainWindow):
     def spec_roi_calc(self):
 
         self.spec_lo_m, self.spec_hi_m = self.spec_roi_math.getRegion()
+        self.spec_lo_m_idx = (np.abs(self.energy - self.spec_lo_m)).argmin()
+        self.spec_hi_m_idx = (np.abs(self.energy - self.spec_hi_m)).argmin()
 
         if self.cb_roi_operation.currentText() == "Correlation Plot":
             self.correlation_plot()
 
         else:
             calc = {'Divide':np.divide, 'Subtract': np.subtract, 'Add': np.add}
-            img1 = self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0)
-            img2 = self.updated_stack[int(self.spec_lo_m):int(self.spec_hi_m), :, :].mean(0)
+            img1 = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0)
+            img2 = self.updated_stack[int(self.spec_lo_m_idx):int(self.spec_hi_m_idx), :, :].mean(0)
             self.image_view.setImage(remove_nan_inf(calc[self.cb_roi_operation.currentText()](img1,img2)))
 
     def correlation_plot(self):
 
-        img1 = self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0)
-        img2 = self.updated_stack[int(self.spec_lo_m):int(self.spec_hi_m), :, :].mean(0)
+        img1 = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0)
+        img2 = self.updated_stack[int(self.spec_lo_m_idx):int(self.spec_hi_m_idx), :, :].mean(0)
 
         self.scatter_window = ScatterPlot(img1,img2)
         ph = self.geometry().height()

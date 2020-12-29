@@ -137,18 +137,20 @@ class Ui(QtWidgets.QMainWindow):
         logger.info('Stack info has been updated')
 
     def crop_to_dim(self):
-        x1, x2 = self.sb_xrange1.value(),self.sb_xrange2.value()
-        y1, y2 = self.sb_yrange1.value(), self.sb_yrange2.value()
-        z1, z2 = self.sb_zrange1.value(), self.sb_zrange2.value()
+        self.x1, self.x2 = self.sb_xrange1.value(),self.sb_xrange2.value()
+        self.y1, self.y2 = self.sb_yrange1.value(), self.sb_yrange2.value()
+        self.z1, self.z2 = self.sb_zrange1.value(), self.sb_zrange2.value()
 
-        self.updated_stack = remove_nan_inf(self.im_stack[z1:z2, x1:x2, y1:y2])
+        self.updated_stack = remove_nan_inf(self.im_stack[self.z1:self.z2,
+                                            self.x1:self.x2, self.y1:self.y2])
 
     def update_stack(self):
 
         self.crop_to_dim()
 
         if self.cb_remove_outliers.isChecked():
-            self.updated_stack = remove_hot_pixels(self.updated_stack, NSigma=self.sb_tolerence.value())
+            self.updated_stack = remove_hot_pixels(self.updated_stack,
+                                                   NSigma=self.sb_tolerence.value())
             logger.info(f'Removing Outliers with NSigma {self.sb_tolerence.value()}')
 
         if self.cb_remove_edges.isChecked():
@@ -158,15 +160,16 @@ class Ui(QtWidgets.QMainWindow):
 
         if self.cb_remove_bg.isChecked():
             logger.info('Removing background')
-            self.updated_stack = clean_stack(self.updated_stack, auto_bg= self.cb_bg_auto.isChecked(),
-                                                         bg_percentage=self.dsb_bg_fraction.value())
+            self.updated_stack = clean_stack(self.updated_stack,
+                                             auto_bg= self.cb_bg_auto.isChecked(),
+                                             bg_percentage=self.dsb_bg_fraction.value())
 
         if self.cb_log.isChecked():
             self.updated_stack = remove_nan_inf(np.log(self.updated_stack))
             logger.info('Log Stack is in use')
 
         if self.cb_smooth.isChecked():
-            self.updated_stack = smoothen(self.updated_stack, w_size = self.sb_smooth_size.value() )
+            self.updated_stack = smoothen(self.updated_stack, w_size = self.sb_smooth_size.value())
             logger.info('Spectrum Smoothening Applied')
 
         if self.cb_norm.isChecked():
@@ -196,11 +199,11 @@ class Ui(QtWidgets.QMainWindow):
         self.image_view.ui.roiBtn.hide()
         self.image_view.setPredefinedGradient('viridis')
         self.image_view.setCurrentIndex(self.dim1//2)
-        self.energy = np.arange(self.dim1)*10
+        self.energy = np.arange(self.z1, self.z2)*10
         logger.info("Arbitary X-axis used in the plot for XANES")
         self.stack_center = int(self.energy[len(self.energy)//2])
         self.stack_width = int((self.energy.max()-self.energy.min()) * 0.05)
-        print("Pass")
+        print(self.stack_center,self.stack_width)
 
         #ROI settings for image, used plyline roi with non rectangular shape
         sz = np.max([int(self.dim2 * 0.1),int(self.dim3 * 0.1)]) #size of the roi set to be 10% of the image area

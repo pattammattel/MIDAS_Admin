@@ -248,8 +248,8 @@ class Ui(QtWidgets.QMainWindow):
         self.stack_width = int((self.energy.max()-self.energy.min()) * 0.05)
         #self.spec_roi.setRegion(self.stack_center - self.stack_width, self.stack_center + self.stack_width)
         #self.spec_roi_math.setRegion(self.stack_center - self.stack_width-10, self.stack_center + self.stack_width-10)
-        self.spec_roi.setBounds([self.energy[0], self.energy[-1]]) # if want to set bounds for the spec roi
-        self.spec_roi_math.setBounds([self.energy[0], self.energy[-1]])
+        self.spec_roi.setBounds([self.xdata[0], self.xdata[-1]]) # if want to set bounds for the spec roi
+        self.spec_roi_math.setBounds([self.xdata[0], self.xdata[-1]])
         self.sb_roi_spec_s.setValue(self.stack_center - self.stack_width)
         self.sb_roi_spec_e.setValue(self.stack_center + self.stack_width)
 

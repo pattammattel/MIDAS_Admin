@@ -197,9 +197,7 @@ class Ui(QtWidgets.QMainWindow):
         self.image_view.setPredefinedGradient('viridis')
         self.image_view.setCurrentIndex(self.dim1//2)
         self.energy = np.arange(self.dim1)*10
-        self.stack_center = int(self.energy.max() // 2)
-        self.stack_width = int(self.energy.max() * 0.05)
-        print('passed')
+        self.update_spec_roi_values()
 
         #ROI settings for image, used plyline roi with non rectangular shape
         sz = np.max([int(self.dim2 * 0.1),int(self.dim3 * 0.1)]) #size of the roi set to be 10% of the image area
@@ -207,26 +205,25 @@ class Ui(QtWidgets.QMainWindow):
                                         pos =(int(self.dim3 // 2), int(self.dim2 // 2)),
                                         maxBounds = QtCore.QRect(0, 0, self.dim3, self.dim2),
                                         closed=True)
+        logger.info("Image ROI Added")
 
         # a second optional ROI for calculations follow
         self.image_roi_math = pg.PolyLineROI([[0,0], [0,sz//2], [sz//2,sz//2], [sz//2,0]],
                                         pos =(0, 0), pen = 'r', closed=True)
+
         self.image_roi.addTranslateHandle([sz//2, sz//2], [2, 2])
         self.image_roi_math.addTranslateHandle([sz // 4, sz // 4], [2, 2])
         self.image_view.addItem(self.image_roi)
 
-
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
-                                            self.stack_center + self.stack_width))
-                                                    
-        self.spec_roi_math = pg.LinearRegionItem(values=(self.stack_center//2 - self.stack_width,
-                                                self.stack_center//2 + self.stack_width), pen = 'r',
-                                                 brush = QtGui.QColor(0, 255, 200, 50)
-                                                 )
-        #self.spec_roi.setBounds([0, self.dim1]) # if want to set bounds for the spec roi
-        self.sb_roi_spec_s.setValue(self.stack_center - self.stack_width)
-        self.sb_roi_spec_e.setValue(self.stack_center + self.stack_width)
+                                                    self.stack_center + self.stack_width))
 
+        logger.info('Spectrum ROI Added')
+
+        self.spec_roi_math = pg.LinearRegionItem(values=(self.stack_center - self.stack_width-10,
+                                                         self.stack_center + self.stack_width-10), pen='r',
+                                                 brush=QtGui.QColor(0, 255, 200, 50)
+                                                 )
         self.update_spectrum()
         self.update_image_roi()
 
@@ -240,31 +237,37 @@ class Ui(QtWidgets.QMainWindow):
         self.rb_math_roi_img.clicked.connect(self.math_img_roi_flag)
         self.image_roi_math.sigRegionChanged.connect(self.image_roi_calc)
 
-    def update_region(self):
-        region = self.image_roi.getArrayRegion(self.updated_stack,self.image_view.imageItem, axes=(1,2))
-        print(region.shape)
+    def update_spec_roi_values(self):
+        self.stack_center = int(self.energy[len(self.energy)//2])
+        self.stack_width = int((self.energy.max()-self.energy.min()) * 0.05)
+        #self.spec_roi.setRegion(self.stack_center - self.stack_width, self.stack_center + self.stack_width)
+        #self.spec_roi_math.setRegion(self.stack_center - self.stack_width-10, self.stack_center + self.stack_width-10)
+        self.spec_roi.setBounds([self.energy[0], self.energy[-1]]) # if want to set bounds for the spec roi
+        self.spec_roi_math.setBounds([self.energy[0], self.energy[-1]])
+        self.sb_roi_spec_s.setValue(self.stack_center - self.stack_width)
+        self.sb_roi_spec_e.setValue(self.stack_center + self.stack_width)
+
 
     def update_spectrum(self):
 
         self.xdata = self.energy[self.sb_zrange1.value():self.sb_zrange2.value()]
-        #ydata = remove_nan_inf(get_sum_spectra(self.updated_stack[:, xmin:xmax,ymin:ymax]))
         self.ydata = self.image_roi.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
         sizex, sizey = self.ydata.shape[1], self.ydata.shape[2]
         posx, posy = self.image_roi.pos()
         self.le_roi.setText(str(int(posx))+':' +str(int(posy)))
         self.le_roi_size.setText(str(sizex) +','+ str(sizey))
-
-        #self.spectrum_view.plot(self.xdata, get_sum_spectra(ydata), clear=True)
         self.spectrum_view.plot(self.xdata, get_sum_spectra(self.ydata), clear=True)
         self.spectrum_view.addItem(self.spec_roi)
+        self.update_spec_roi_values()
         self.math_roi_flag()
 
     def update_image_roi(self):
         self.spec_lo, self.spec_hi = self.spec_roi.getRegion()
-        print(self.spec_lo, self.spec_hi)
+        self.spec_lo_idx = (np.abs(self.energy - self.spec_lo)).argmin()
+        self.spec_hi_idx = (np.abs(self.energy - self.spec_hi)).argmin()
         self.le_spec_roi.setText(str(int(self.spec_lo)) + ':'+ str(int(self.spec_hi)))
         self.le_spec_roi_size.setText(str(int(self.spec_hi-self.spec_lo)))
-        self.image_view.setImage(self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0))
+        self.image_view.setImage(self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0))
 
     def set_spec_roi(self):
         self.spec_lo_, self.spec_hi_ = int(self.sb_roi_spec_s.value()), int(self.sb_roi_spec_e.value())

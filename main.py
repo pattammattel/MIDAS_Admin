@@ -6,13 +6,12 @@
 import logging, sys, webbrowser
 
 from subprocess import Popen
-from PyQt5 import QtWidgets, uic
-from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDesktopWidget
+from PyQt5 import QtWidgets, uic, QtCore
+from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDesktopWidget, QApplication
 
 from StackPlot import *
 from StackCalcs import *
 logger = logging.getLogger()
-
 
 class Ui(QtWidgets.QMainWindow):
     def __init__(self, im_stack=None, energy=None, refs = None):
@@ -203,7 +202,6 @@ class Ui(QtWidgets.QMainWindow):
         logger.info("Arbitary X-axis used in the plot for XANES")
         self.stack_center = int(self.energy[len(self.energy)//2])
         self.stack_width = int((self.energy.max()-self.energy.min()) * 0.05)
-        print(self.stack_center,self.stack_width)
 
         #ROI settings for image, used plyline roi with non rectangular shape
         sz = np.max([int(self.dim2 * 0.1),int(self.dim3 * 0.1)]) #size of the roi set to be 10% of the image area
@@ -485,6 +483,7 @@ if __name__ == "__main__":
     logger.addHandler(stream_handler)
 
     app = QtWidgets.QApplication(sys.argv)
+    app.setAttribute(QtCore.Qt.AA_Use96Dpi)
     window = Ui()
     window.show()
     sys.exit(app.exec_())

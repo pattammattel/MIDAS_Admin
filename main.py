@@ -75,7 +75,7 @@ class Ui(QtWidgets.QMainWindow):
             stack_, mono_e = get_xrf_data(self.file_name)
             self.sb_zrange2.setMaximum(100000)
             self.sb_zrange2.setValue(mono_e/10)
-            self.sb_zrange1.setValue(100)
+            self.sb_zrange1.setValue(0)
 
         elif self.file_name.endswith('.tiff') or self.file_name.endswith('.tif'):
             stack_ = tf.imread(self.file_name).transpose(1, 2, 0)

@@ -73,14 +73,14 @@ class Ui(QtWidgets.QMainWindow):
 
         if self.file_name.endswith('.h5'):
             stack_, mono_e = get_xrf_data(self.file_name)
-            self.sb_zrange2.setMaximum(10000)
+            self.sb_zrange2.setMaximum(100000)
             self.sb_zrange2.setValue(mono_e/10)
             self.sb_zrange1.setValue(100)
 
         elif self.file_name.endswith('.tiff') or self.file_name.endswith('.tif'):
             stack_ = tf.imread(self.file_name).transpose(1, 2, 0)
             self.sb_zrange1.setValue(0)
-            self.sb_zrange2.setMaximum(10000)
+            self.sb_zrange2.setMaximum(100000)
             self.sb_zrange2.setValue(stack_.shape[-1])
 
         else:
@@ -105,11 +105,12 @@ class Ui(QtWidgets.QMainWindow):
 
         try:
             self.view_stack()
+            logger.info("Stack displayed correctly")
             self.update_stack_info()
 
         except:
-            logger.error('No image file loaded')
-            #pass
+            logger.error("Trouble with stack display")
+            pass
 
         logger.info(f'completed image shape {np.shape(self.im_stack)}')
 
@@ -194,42 +195,38 @@ class Ui(QtWidgets.QMainWindow):
         self.image_view.ui.menuBtn.hide()
         self.image_view.ui.roiBtn.hide()
         self.image_view.setPredefinedGradient('viridis')
-        self.stack_width = int(self.dim1 * 0.05)
         self.image_view.setCurrentIndex(self.dim1//2)
         self.energy = np.arange(self.dim1)*10
         self.stack_center = int(self.energy.max() // 2)
+        self.stack_width = int(self.energy.max() * 0.05)
         print('passed')
 
-        cn = int(self.dim2 // 2)
-        sz = np.max([int(self.dim2 * 0.15),int(self.dim3 * 0.15)])
+        #ROI settings for image, used plyline roi with non rectangular shape
+        sz = np.max([int(self.dim2 * 0.1),int(self.dim3 * 0.1)]) #size of the roi set to be 10% of the image area
         self.image_roi = pg.PolyLineROI([[0,0], [0,sz], [sz,sz], [sz,0]],
                                         pos =(int(self.dim3 // 2), int(self.dim2 // 2)),
                                         maxBounds = QtCore.QRect(0, 0, self.dim3, self.dim2),
                                         closed=True)
 
+        # a second optional ROI for calculations follow
         self.image_roi_math = pg.PolyLineROI([[0,0], [0,sz//2], [sz//2,sz//2], [sz//2,0]],
                                         pos =(0, 0), pen = 'r', closed=True)
-
-
         self.image_roi.addTranslateHandle([sz//2, sz//2], [2, 2])
-        #self.image_roi.addRotateHandle([sz//4, sz//4], [2, 2])
-
         self.image_roi_math.addTranslateHandle([sz // 4, sz // 4], [2, 2])
-
         self.image_view.addItem(self.image_roi)
 
 
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
                                             self.stack_center + self.stack_width))
-
                                                     
         self.spec_roi_math = pg.LinearRegionItem(values=(self.stack_center//2 - self.stack_width,
                                                 self.stack_center//2 + self.stack_width), pen = 'r',
                                                  brush = QtGui.QColor(0, 255, 200, 50)
                                                  )
-        self.spec_roi.setBounds([0, self.dim1])
+        #self.spec_roi.setBounds([0, self.dim1]) # if want to set bounds for the spec roi
         self.sb_roi_spec_s.setValue(self.stack_center - self.stack_width)
         self.sb_roi_spec_e.setValue(self.stack_center + self.stack_width)
+
         self.update_spectrum()
         self.update_image_roi()
 
@@ -251,16 +248,42 @@ class Ui(QtWidgets.QMainWindow):
 
         self.xdata = self.energy[self.sb_zrange1.value():self.sb_zrange2.value()]
         #ydata = remove_nan_inf(get_sum_spectra(self.updated_stack[:, xmin:xmax,ymin:ymax]))
-        ydata = self.image_roi.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
-        sizex, sizey = ydata.shape[1], ydata.shape[2]
+        self.ydata = self.image_roi.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
+        sizex, sizey = self.ydata.shape[1], self.ydata.shape[2]
         posx, posy = self.image_roi.pos()
         self.le_roi.setText(str(int(posx))+':' +str(int(posy)))
         self.le_roi_size.setText(str(sizex) +','+ str(sizey))
 
         #self.spectrum_view.plot(self.xdata, get_sum_spectra(ydata), clear=True)
-        self.spectrum_view.plot(self.xdata, get_sum_spectra(ydata), clear=True)
+        self.spectrum_view.plot(self.xdata, get_sum_spectra(self.ydata), clear=True)
         self.spectrum_view.addItem(self.spec_roi)
         self.math_roi_flag()
+
+    def update_image_roi(self):
+        self.spec_lo, self.spec_hi = self.spec_roi.getRegion()
+        self.le_spec_roi.setText(str(int(self.spec_lo)) + ':'+ str(int(self.spec_hi)))
+        self.le_spec_roi_size.setText(str(int(self.spec_hi-self.spec_lo)))
+        self.image_view.setImage(self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0))
+
+    def set_spec_roi(self):
+        self.spec_lo_, self.spec_hi_ = int(self.sb_roi_spec_s.value()), int(self.sb_roi_spec_e.value())
+        self.spec_roi.setRegion((self.spec_lo_, self.spec_hi_))
+        self.update_image_roi()
+
+    def select_elist(self):
+        file_name = QFileDialog().getOpenFileName(self, "Open energy list", '', 'text file (*.txt)')
+        try:
+            self.energy = np.loadtxt(str(file_name[0]))
+            logger.info ('Energy file loaded')
+            if self.energy.any():
+                self.change_color_on_load(self.pb_elist_xanes)
+
+            assert len(self.energy) == self.dim1
+            self.spectrum_view.plot(self.xdata, get_sum_spectra(self.ydata), clear=True)
+            self.spectrum_view.addItem(self.spec_roi)
+        except OSError:
+            logger.error('No file selected')
+            pass
 
     def math_roi_flag(self):
         if self.rb_math_roi.isChecked():
@@ -331,16 +354,7 @@ class Ui(QtWidgets.QMainWindow):
                                 name = "raw")
         self.spectrum_view.addItem(self.spec_roi)
 
-    def update_image_roi(self):
-        self.spec_lo, self.spec_hi = self.spec_roi.getRegion()
-        self.le_spec_roi.setText(str(int(self.spec_lo)) + ':'+ str(int(self.spec_hi)))
-        self.le_spec_roi_size.setText(str(int(self.spec_hi-self.spec_lo)))
-        self.image_view.setImage(self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0))
 
-    def set_spec_roi(self):
-        self.spec_lo_, self.spec_hi_ = int(self.sb_roi_spec_s.value()), int(self.sb_roi_spec_e.value())
-        self.spec_roi.setRegion((self.spec_lo_, self.spec_hi_))
-        self.update_image_roi()
 
     def save_stack(self):
         try:
@@ -423,20 +437,6 @@ class Ui(QtWidgets.QMainWindow):
             logger.error('No file selected')
             pass
 
-
-    def select_elist(self):
-        file_name = QFileDialog().getOpenFileName(self, "Open energy list", '', 'text file (*.txt)')
-        try:
-            self.energy = np.loadtxt(str(file_name[0]))
-            logger.info ('Energy file loaded')
-            if self.energy.any():
-                self.change_color_on_load(self.pb_elist_xanes)
-
-            assert len(self.energy) == self.dim1
-
-        except OSError:
-            logger.error('No file selected')
-            pass
 
     def change_color_on_load(self, button_name):
         button_name.setStyleSheet("background-color : green")

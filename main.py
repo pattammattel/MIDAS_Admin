@@ -267,8 +267,10 @@ class Ui(QtWidgets.QMainWindow):
 
     def update_image_roi(self):
         self.spec_lo, self.spec_hi = self.spec_roi.getRegion()
+        print(self.spec_lo, self.spec_hi)
         self.spec_lo_idx = (np.abs(self.energy - self.spec_lo)).argmin()
         self.spec_hi_idx = (np.abs(self.energy - self.spec_hi)).argmin()
+        print(self.spec_lo_idx, self.spec_hi_idx)
         self.le_spec_roi.setText(str(int(self.spec_lo)) + ':'+ str(int(self.spec_hi)))
         self.le_spec_roi_size.setText(str(int(self.spec_hi-self.spec_lo)))
         self.update_spec_roi_values()
@@ -289,8 +291,8 @@ class Ui(QtWidgets.QMainWindow):
                 self.change_color_on_load(self.pb_elist_xanes)
 
             assert len(self.energy) == self.dim1
-            self.update_image_roi()
             self.update_spectrum()
+            self.update_image_roi()
 
         except OSError:
             logger.error('No file selected')

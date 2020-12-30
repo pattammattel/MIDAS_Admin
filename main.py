@@ -274,7 +274,13 @@ class Ui(QtWidgets.QMainWindow):
         self.le_spec_roi.setText(str(int(self.spec_lo)) + ':'+ str(int(self.spec_hi)))
         self.le_spec_roi_size.setText(str(int(self.spec_hi-self.spec_lo)))
         self.update_spec_roi_values()
-        self.image_view.setImage(self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0))
+
+        try:
+            self.image_view.setImage(self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0))
+        except:
+            logger.error("Indices are out of range; Image cannot be created")
+            pass
+
 
     def set_spec_roi(self):
         self.spec_lo_, self.spec_hi_ = int(self.sb_roi_spec_s.value()), int(self.sb_roi_spec_e.value())

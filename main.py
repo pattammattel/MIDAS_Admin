@@ -284,7 +284,9 @@ class Ui(QtWidgets.QMainWindow):
 
     def set_spec_roi(self):
         self.spec_lo_, self.spec_hi_ = int(self.sb_roi_spec_s.value()), int(self.sb_roi_spec_e.value())
-        self.spec_roi.setRegion((self.spec_lo_, self.spec_hi_))
+        self.spec_lo_idx_ = (np.abs(self.energy - self.spec_lo_)).argmin()
+        self.spec_hi_idx_ = (np.abs(self.energy - self.spec_hi_)).argmin()
+        self.spec_roi.setRegion((self.spec_lo_idx_, self.spec_hi_idx_))
         self.update_image_roi()
 
     def select_elist(self):

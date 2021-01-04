@@ -274,7 +274,7 @@ class Ui(QtWidgets.QMainWindow):
             self.roi_img = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :]
             self.image_view.setImage(self.roi_img.mean(0))
         except:
-            logger.warning("Indices are out of range; Image cannot be created")
+            #logger.warning("Indices are out of range; Image cannot be created")
             pass
 
 
@@ -282,8 +282,7 @@ class Ui(QtWidgets.QMainWindow):
         self.spec_lo_, self.spec_hi_ = int(self.sb_roi_spec_s.value()), int(self.sb_roi_spec_e.value())
         self.spec_lo_idx_ = (np.abs(self.energy - self.spec_lo_)).argmin()
         self.spec_hi_idx_ = (np.abs(self.energy - self.spec_hi_)).argmin()
-        print(self.spec_lo_idx_, self.spec_hi_idx_)
-        self.spec_roi.setRegion((self.spec_lo_idx_, self.spec_hi_idx_))
+        self.spec_roi.setRegion((self.xdata[self.spec_lo_idx_], self.xdata[self.spec_hi_idx_]))
         self.update_image_roi()
 
     def select_elist(self):

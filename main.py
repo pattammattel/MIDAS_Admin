@@ -244,8 +244,6 @@ class Ui(QtWidgets.QMainWindow):
     def update_spec_roi_values(self):
         self.stack_center = int(self.energy[len(self.energy)//2])
         self.stack_width = int((self.energy.max()-self.energy.min()) * 0.05)
-        #self.spec_roi.setRegion(self.stack_center - self.stack_width, self.stack_center + self.stack_width)
-        #self.spec_roi_math.setRegion(self.stack_center - self.stack_width-10, self.stack_center + self.stack_width-10)
         self.spec_roi.setBounds([self.xdata[0], self.xdata[-1]]) # if want to set bounds for the spec roi
         self.spec_roi_math.setBounds([self.xdata[0], self.xdata[-1]])
         self.sb_roi_spec_s.setValue(self.stack_center - self.stack_width)
@@ -253,7 +251,6 @@ class Ui(QtWidgets.QMainWindow):
 
 
     def update_spectrum(self):
-
         self.xdata = self.energy[self.sb_zrange1.value():self.sb_zrange2.value()]
         self.ydata = self.image_roi.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
         sizex, sizey = self.ydata.shape[1], self.ydata.shape[2]
@@ -267,18 +264,17 @@ class Ui(QtWidgets.QMainWindow):
 
     def update_image_roi(self):
         self.spec_lo, self.spec_hi = self.spec_roi.getRegion()
-        print(self.spec_lo, self.spec_hi)
         self.spec_lo_idx = (np.abs(self.energy - self.spec_lo)).argmin()
         self.spec_hi_idx = (np.abs(self.energy - self.spec_hi)).argmin()
-        print(self.spec_lo_idx, self.spec_hi_idx)
         self.le_spec_roi.setText(str(int(self.spec_lo)) + ':'+ str(int(self.spec_hi)))
         self.le_spec_roi_size.setText(str(int(self.spec_hi-self.spec_lo)))
         self.update_spec_roi_values()
 
         try:
-            self.image_view.setImage(self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0))
+            self.roi_img = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :]
+            self.image_view.setImage(self.roi_img.mean(0))
         except:
-            logger.error("Indices are out of range; Image cannot be created")
+            logger.warning("Indices are out of range; Image cannot be created")
             pass
 
 
@@ -286,6 +282,7 @@ class Ui(QtWidgets.QMainWindow):
         self.spec_lo_, self.spec_hi_ = int(self.sb_roi_spec_s.value()), int(self.sb_roi_spec_e.value())
         self.spec_lo_idx_ = (np.abs(self.energy - self.spec_lo_)).argmin()
         self.spec_hi_idx_ = (np.abs(self.energy - self.spec_hi_)).argmin()
+        print(self.spec_lo_idx_, self.spec_hi_idx_)
         self.spec_roi.setRegion((self.spec_lo_idx_, self.spec_hi_idx_))
         self.update_image_roi()
 
@@ -299,7 +296,14 @@ class Ui(QtWidgets.QMainWindow):
                 self.change_color_on_load(self.pb_elist_xanes)
 
             assert len(self.energy) == self.dim1
+
             self.update_spectrum()
+            self.spec_roi.setRegion((self.stack_center - self.stack_width, self.stack_center + self.stack_width))
+            self.spec_roi_math.setRegion(
+                                        (self.stack_center - self.stack_width - 10,
+                                         self.stack_center + self.stack_width - 10)
+                                        )
+
             self.update_image_roi()
 
         except OSError:

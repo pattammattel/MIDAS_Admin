@@ -251,7 +251,6 @@ class Ui(QtWidgets.QMainWindow):
         self.sb_roi_spec_s.setValue(self.stack_center - self.stack_width)
         self.sb_roi_spec_e.setValue(self.stack_center + self.stack_width)
 
-
     def update_spectrum(self):
         self.xdata = self.energy[self.sb_zrange1.value():self.sb_zrange2.value()]
         self.ydata = self.image_roi.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
@@ -259,7 +258,8 @@ class Ui(QtWidgets.QMainWindow):
         posx, posy = self.image_roi.pos()
         self.le_roi.setText(str(int(posx))+':' +str(int(posy)))
         self.le_roi_size.setText(str(sizex) +','+ str(sizey))
-        self.spectrum_view.plot(self.xdata, get_sum_spectra(self.ydata), clear=True)
+        self.spectrum_view.plot(self.xdata, get_mean_spectra(self.ydata), clear=True)
+        self.curr_spec = np.column_stack((self.xdata,get_mean_spectra(self.ydata)))
         self.spectrum_view.addItem(self.spec_roi)
         self.update_spec_roi_values()
         self.math_roi_flag()
@@ -278,7 +278,6 @@ class Ui(QtWidgets.QMainWindow):
         except:
             #logger.warning("Indices are out of range; Image cannot be created")
             pass
-
 
     def set_spec_roi(self):
         self.spec_lo_, self.spec_hi_ = int(self.sb_roi_spec_s.value()), int(self.sb_roi_spec_e.value())
@@ -381,6 +380,8 @@ class Ui(QtWidgets.QMainWindow):
                                 name =self.cb_img_roi_action.currentText()+"ed")
         self.spectrum_view.plot(self.xdata, get_mean_spectra(main_roi_reg), pen ='g',
                                 name = "raw")
+        self.curr_spec = np.column_stack((self.xdata,calc_spec,get_mean_spectra(main_roi_reg)))
+
         self.spectrum_view.addItem(self.spec_roi)
 
 

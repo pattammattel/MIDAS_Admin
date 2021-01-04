@@ -261,6 +261,8 @@ class Ui(QtWidgets.QMainWindow):
         self.le_roi.setText(str(int(posx))+':' +str(int(posy)))
         self.le_roi_size.setText(str(sizex) +','+ str(sizey))
         self.spectrum_view.plot(self.xdata, get_mean_spectra(self.ydata), clear=True)
+        self.spectrum_view.setLabel('bottom','Energy', 'eV')
+        self.spectrum_view.setLabel('left', 'Intensity', 'A.U.')
         self.curr_spec = np.column_stack((self.xdata,get_mean_spectra(self.ydata)))
         self.spectrum_view.addItem(self.spec_roi)
         self.update_spec_roi_values()
@@ -390,8 +392,6 @@ class Ui(QtWidgets.QMainWindow):
 
         self.spectrum_view.addItem(self.spec_roi)
 
-
-
     def save_stack(self):
         try:
             self.update_stack()
@@ -488,7 +488,6 @@ class Ui(QtWidgets.QMainWindow):
             logger.error('No file selected')
             pass
 
-
     def change_color_on_load(self, button_name):
         button_name.setStyleSheet("background-color : green")
 
@@ -506,8 +505,6 @@ class Ui(QtWidgets.QMainWindow):
 
         self._new_window5 = XANESViewer(xanes_maps.T, self.updated_stack, e_list1, ref1)
         self._new_window5.show()
-
-
 
 if __name__ == "__main__":
 

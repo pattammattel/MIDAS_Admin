@@ -366,8 +366,7 @@ class Ui(QtWidgets.QMainWindow):
             ref_region = self.image_roi_math.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
             ref_reg_avg = ref_region[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean()
             currentImage = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0)
-            if self.calc[self.cb_img_roi_action.currentText()] == 'Correlation Plot':
-
+            if self.calc[self.cb_img_roi_action.currentText()] == 'Compare':
                 pass
 
             else:

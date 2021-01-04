@@ -346,15 +346,16 @@ class ScatterPlot(QtWidgets.QMainWindow):
         s1.setData(self.img1,self.img2)
         w1.addItem(s1)
 
-class ScatterPlot2(QtWidgets.QMainWindow):
+class ComparisonPlot(QtWidgets.QMainWindow):
 
-    def __init__(self, img1, img2):
-        super(ScatterPlot2, self).__init__()
+    def __init__(self, xdata, spec1, spec2):
+        super(ComparisonPlot, self).__init__()
 
-        uic.loadUi('ScatterView.ui', self)
+        uic.loadUi('ComparisonPlot.ui', self)
         w1 = self.scatterViewer.addPlot()
-        self.img1 = img1.flatten()
-        self.img2 = img2.flatten()
+        self.xdata = xdata
+        self.spec1 = spec1
+        self.spec2 = spec2
         s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(0, 255, 255, 120))
         s1.setData(self.img1,self.img2)
         w1.addItem(s1)

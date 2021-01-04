@@ -1033,7 +1033,7 @@ background-color: rgb(240, 240, 240);</string>
            </item>
            <item>
             <property name="text">
-             <string>Correlation Plot</string>
+             <string>Compare</string>
             </property>
            </item>
           </widget>

@@ -43,8 +43,10 @@ class Ui(QtWidgets.QMainWindow):
         self.pb_crop.clicked.connect(self.view_stack)
         self.pb_ref_xanes.clicked.connect(self.select_ref_file)
         self.pb_elist_xanes.clicked.connect(self.select_elist)
-
         self.pb_set_spec_roi.clicked.connect(self.set_spec_roi)
+
+        #save_options
+        self.pb_save_disp_img.clicked.connect(self.save_disp_img)
 
         # Analysis
         self.pb_pca_scree.clicked.connect(self.pca_scree_)
@@ -271,8 +273,8 @@ class Ui(QtWidgets.QMainWindow):
         self.update_spec_roi_values()
 
         try:
-            self.roi_img = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :]
-            self.image_view.setImage(self.roi_img.mean(0))
+            self.disp_img = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :]
+            self.image_view.setImage(self.disp_img.mean(0))
         except:
             #logger.warning("Indices are out of range; Image cannot be created")
             pass
@@ -330,7 +332,8 @@ class Ui(QtWidgets.QMainWindow):
             calc = {'Divide':np.divide, 'Subtract': np.subtract, 'Add': np.add}
             img1 = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0)
             img2 = self.updated_stack[int(self.spec_lo_m_idx):int(self.spec_hi_m_idx), :, :].mean(0)
-            self.image_view.setImage(remove_nan_inf(calc[self.cb_roi_operation.currentText()](img1,img2)))
+            self.disp_img = remove_nan_inf(calc[self.cb_roi_operation.currentText()](img1,img2))
+            self.image_view.setImage(self.disp_img)
 
     def correlation_plot(self):
 
@@ -392,10 +395,15 @@ class Ui(QtWidgets.QMainWindow):
             logger.error('No file to save')
             pass
 
-    def open_xrf_stack_imagej(self):
-        tf.imsave(f'{self.le_wd.text()}/tmp_image.tiff', np.float32(self.updated_stack), imagej=True)
-        imagej_path = r'C:\Users\pattammattel\Fiji.app\ImageJ-win64.exe'
-        Popen([imagej_path, f'{self.le_wd.text()}/tmp_image.tiff'])
+    def save_disp_img(self):
+        try:
+            file_name = QFileDialog().getSaveFileName(self, "", '', 'image file(*tiff *tif )')
+            tf.imsave(str(file_name[0])+'.tiff', self.disp_img.T)
+            logger.info(f'Updated Image Saved: {str(file_name[0])}')
+
+        except:
+            logger.error('No file to save')
+            pass
 
     # Component Analysis
 

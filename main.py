@@ -47,6 +47,7 @@ class Ui(QtWidgets.QMainWindow):
 
         #save_options
         self.pb_save_disp_img.clicked.connect(self.save_disp_img)
+        self.pb_save_disp_spec.clicked.connect(self.save_disp_spec)
 
         # Analysis
         self.pb_pca_scree.clicked.connect(self.pca_scree_)
@@ -214,11 +215,12 @@ class Ui(QtWidgets.QMainWindow):
         logger.info("Image ROI Added")
 
         # a second optional ROI for calculations follow
-        self.image_roi_math = pg.PolyLineROI([[0,0], [0,sz//2], [sz//2,sz//2], [sz//2,0]],
-                                        pos =(0, 0), pen = 'r', closed=True)
+        self.image_roi_math = pg.PolyLineROI([[0,0], [0,sz], [sz,sz], [sz,0]],
+                                        pos =(int(self.dim3 // 3), int(self.dim2 // 3)),
+                                        pen = 'r', closed=True)
 
         self.image_roi.addTranslateHandle([sz//2, sz//2], [2, 2])
-        self.image_roi_math.addTranslateHandle([sz // 4, sz // 4], [2, 2])
+        self.image_roi_math.addTranslateHandle([sz // 2, sz // 2], [2, 2])
         self.image_view.addItem(self.image_roi)
 
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
@@ -362,9 +364,14 @@ class Ui(QtWidgets.QMainWindow):
         if self.rb_math_roi_img.isChecked():
             self.calc = {'Divide':np.divide, 'Subtract': np.subtract, 'Add': np.add}
             ref_region = self.image_roi_math.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
-            ref_reg_avg = ref_region[int(self.spec_lo):int(self.spec_hi), :, :].mean()
-            currentImage = self.updated_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0)
-            self.image_view.setImage(self.calc[self.cb_img_roi_action.currentText()]
+            ref_reg_avg = ref_region[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean()
+            currentImage = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0)
+            if self.calc[self.cb_img_roi_action.currentText()] == 'Correlation Plot':
+
+                pass
+
+            else:
+                self.image_view.setImage(self.calc[self.cb_img_roi_action.currentText()]
                                      (currentImage,(ref_reg_avg+currentImage*0)))
             self.update_spec_image_roi()
         else:
@@ -389,7 +396,7 @@ class Ui(QtWidgets.QMainWindow):
     def save_stack(self):
         try:
             self.update_stack()
-            file_name = QFileDialog().getSaveFileName(self, "", '', 'image file(*tiff *tif )')
+            file_name = QFileDialog().getSaveFileName(self, "Save image data", '', 'image file(*tiff *tif )')
             tf.imsave(str(file_name[0]), self.updated_stack.transpose(0,2,1))
             logger.info(f'Updated Image Saved: {str(file_name[0])}')
         except:
@@ -398,9 +405,19 @@ class Ui(QtWidgets.QMainWindow):
 
     def save_disp_img(self):
         try:
-            file_name = QFileDialog().getSaveFileName(self, "", '', 'image file(*tiff *tif )')
+            file_name = QFileDialog().getSaveFileName(self, "Save image data", '', 'image file(*tiff *tif )')
             tf.imsave(str(file_name[0])+'.tiff', self.disp_img.T)
             logger.info(f'Updated Image Saved: {str(file_name[0])}')
+
+        except:
+            logger.error('No file to save')
+            pass
+
+    def save_disp_spec(self):
+        try:
+            file_name = QFileDialog().getSaveFileName(self, "Save Spectrum Data", '', 'txt file(*txt)')
+            np.savetxt(str(file_name[0])+'.txt', self.curr_spec)
+            logger.info(f'Spectrum Saved: {str(file_name[0])}')
 
         except:
             logger.error('No file to save')

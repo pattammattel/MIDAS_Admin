@@ -30,6 +30,7 @@ def get_xrf_data( h='h5file'):
 
 
 def remove_nan_inf(im):
+    im = np.array(im, dtype = np.float32)
     im[im < 0] = 0
     im[np.isnan(im)] = 0
     im[np.isinf(im)] = 0

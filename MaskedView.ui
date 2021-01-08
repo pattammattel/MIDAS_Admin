@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>MaskedXANES</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_10">
     <item row="0" column="0">
@@ -20,7 +23,8 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label_4">
         <property name="styleSheet">
-         <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+         <string notr="true">color: rgb(255, 0, 0);
+font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
         </property>
         <property name="text">
          <string>XANES Stack</string>
@@ -40,7 +44,8 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label_7">
         <property name="styleSheet">
-         <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+         <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;
+color: rgb(255, 0, 0);</string>
         </property>
         <property name="text">
          <string>Mask</string>
@@ -109,7 +114,8 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
       <item row="0" column="0">
        <widget class="QLabel" name="label_2">
         <property name="styleSheet">
-         <string notr="true">font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
+         <string notr="true">font: 75 12pt &quot;MS Shell Dlg 2&quot;;
+color: rgb(255, 0, 0);</string>
         </property>
         <property name="text">
          <string>Mean Spectrum</string>
@@ -144,7 +150,8 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
         <item row="0" column="1">
          <widget class="QLabel" name="label_5">
           <property name="styleSheet">
-           <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+           <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;
+color: rgb(255, 0, 0);</string>
           </property>
           <property name="text">
            <string>XRF Map</string>
@@ -157,7 +164,8 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
         <item row="0" column="3">
          <widget class="QLineEdit" name="le_sldr_vals">
           <property name="styleSheet">
-           <string notr="true">font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
+           <string notr="true">font: 10pt &quot;MS Shell Dlg 2&quot;;
+color: rgb(255, 0, 0);</string>
           </property>
          </widget>
         </item>
@@ -205,6 +213,9 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
               <property name="sliderPosition">
                <number>0</number>
               </property>
+              <property name="tracking">
+               <bool>false</bool>
+              </property>
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
@@ -239,6 +250,9 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
               </property>
               <property name="sliderPosition">
                <number>100</number>
+              </property>
+              <property name="tracking">
+               <bool>false</bool>
               </property>
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -280,6 +294,9 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionLoad_XANES_Stack"/>
+    <addaction name="actionLoad_Energy_List"/>
+    <addaction name="actionLoad_XRF_Map"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_XRF_Map"/>
     <addaction name="actionSave_Spectrum"/>
@@ -300,6 +317,21 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
   <action name="actionSave_Spectrum">
    <property name="text">
     <string>Save Spectrum</string>
+   </property>
+  </action>
+  <action name="actionLoad_Energy_List">
+   <property name="text">
+    <string>Load Energy List</string>
+   </property>
+  </action>
+  <action name="actionLoad_XRF_Map">
+   <property name="text">
+    <string>Load XRF Map</string>
+   </property>
+  </action>
+  <action name="actionLoad_XANES_Stack">
+   <property name="text">
+    <string>Load XANES Stack</string>
    </property>
   </action>
  </widget>

@@ -18,7 +18,7 @@ logger = logging.getLogger()
 
 class MaskSpecViewer(QtWidgets.QMainWindow):
 
-    def __init__(self, xanes_stack=None, xrf_map=None, energy=None):
+    def __init__(self, xanes_stack=None, xrf_map=None, energy=[]):
         super(MaskSpecViewer, self).__init__()
         uic.loadUi('MaskedView.ui', self)
 
@@ -47,10 +47,13 @@ class MaskSpecViewer(QtWidgets.QMainWindow):
         self.sldr_xrf_low.valueChanged.connect(self.create_mask)
         self.sldr_xrf_high.valueChanged.connect(self.create_mask)
         self.pb_apply_mask.clicked.connect(self.apply_mask_to_xanes)
+        self.actionLoad_Energy_List.triggered.connect(self.load_energy)
 
     def create_mask(self):
         self.threshold_low = np.around(self.sldr_xrf_low.value()*0.01,3)
         self.threshold_high = np.around(self.sldr_xrf_high.value() * 0.01,3)
+        self.sldr_xrf_low.setMaximum(self.sldr_xrf_high.value()+1)
+        self.sldr_xrf_high.setMinimum(self.sldr_xrf_low.value()+1)
         self.norm_xrf_map = remove_nan_inf(self.xrf_map)/remove_nan_inf(self.xrf_map.max())
         self.norm_xrf_map[self.norm_xrf_map<self.threshold_low] = 0
         self.norm_xrf_map[self.norm_xrf_map > self.threshold_high] = 0
@@ -65,7 +68,17 @@ class MaskSpecViewer(QtWidgets.QMainWindow):
         """To load energy list that will be used for plotting the spectra.
         number of stack should match length of energy list"""
 
-        pass
+        file_name = QFileDialog().getOpenFileName(self, "Open energy list", '', 'text file (*.txt)')
+
+        try:
+            self.energy = np.loadtxt(str(file_name[0]))
+            logger.info ('Energy file loaded')
+            assert len(self.energy) == self.dim1
+
+        except OSError:
+            logger.error("No File selected")
+            pass
+
 
     def apply_mask_to_xanes(self):
 
@@ -78,7 +91,7 @@ class MaskSpecViewer(QtWidgets.QMainWindow):
         self.statusbar.showMessage('Mask Applied to XANES')
         self.mask_spec = get_mean_spectra(self.masked_xanes)
 
-        if self.energy != None:
+        if len(self.energy) != 0:
             self.xdata = self.energy
         else:
             self.xdata = np.arange(0,self.dim1)

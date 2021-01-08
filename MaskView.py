@@ -56,17 +56,35 @@ class MaskSpecViewer(QtWidgets.QMainWindow):
         self.norm_xrf_map[self.norm_xrf_map > self.threshold_high] = 0
         self.xrf_view.setImage(self.norm_xrf_map)
         self.le_sldr_vals.setText(str(self.threshold_low)+' to '+str(self.threshold_high))
-        self.statusbar.clearMessage()
         self.statusbar.showMessage('New Threshold Applied')
         self.xrf_mask  = np.where(self.norm_xrf_map > 0 , self.norm_xrf_map, 0)
         self.xrf_mask[self.xrf_mask>0] = 1
         self.mask_view.setImage(self.xrf_mask)
 
+    def load_energy(self):
+        """To load energy list that will be used for plotting the spectra.
+        number of stack should match length of energy list"""
+
+        pass
+
     def apply_mask_to_xanes(self):
+
+        """Generates a mask with 0 and 1 from the choosen threshold and multply with the xanes stack.
+        A spectrum will be generated from the new masked stack """
+
         self.masked_xanes = self.xanes_stack*self.xrf_mask
         self.xanes_view.setImage(self.masked_xanes)
         self.xanes_view.setCurrentIndex(self.dim1 // 2)
         self.statusbar.showMessage('Mask Applied to XANES')
+        self.mask_spec = get_mean_spectra(self.masked_xanes)
+
+        if self.energy != None:
+            self.xdata = self.energy
+        else:
+            self.xdata = np.arange(0,self.dim1)
+            self.statusbar.showMessage('No Energy List Available; Integer values are used for plotting')
+
+        self.spectrum_view.plot(self.xdata, self.mask_spec, clear=True)
 
     def import_a_mask(self):
         self.statusbar.showMessage('A New Mask Imported')

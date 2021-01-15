@@ -214,7 +214,7 @@ color: rgb(255, 0, 0);</string>
                <number>0</number>
               </property>
               <property name="tracking">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -252,7 +252,7 @@ color: rgb(255, 0, 0);</string>
                <number>100</number>
               </property>
               <property name="tracking">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="orientation">
                <enum>Qt::Vertical</enum>

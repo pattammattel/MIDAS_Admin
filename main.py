@@ -14,7 +14,7 @@ from StackCalcs import *
 logger = logging.getLogger()
 
 class Ui(QtWidgets.QMainWindow):
-    def __init__(self, im_stack=None, energy=None, refs = None):
+    def __init__(self, im_stack=None, energy=[], refs = None):
         super(Ui, self).__init__()
         uic.loadUi('mainwindow_admin.ui', self)
         self.im_stack = im_stack
@@ -40,7 +40,7 @@ class Ui(QtWidgets.QMainWindow):
         self.dsb_bg_fraction.valueChanged.connect(self.view_stack)
         self.pb_reset_img.clicked.connect(self.reset_and_load_stack)
         self.pb_crop.clicked.connect(self.crop_to_dim)
-        self.pb_crop.clicked.connect(self.view_stack)
+        #self.pb_crop.clicked.connect(self.view_stack)
         self.pb_ref_xanes.clicked.connect(self.select_ref_file)
         self.pb_elist_xanes.clicked.connect(self.select_elist)
         self.pb_set_spec_roi.clicked.connect(self.set_spec_roi)
@@ -201,8 +201,9 @@ class Ui(QtWidgets.QMainWindow):
         self.image_view.ui.roiBtn.hide()
         self.image_view.setPredefinedGradient('viridis')
         self.image_view.setCurrentIndex(self.dim1//2)
-        self.energy = np.arange(self.z2)*10
-        logger.info("Arbitary X-axis used in the plot for XANES")
+        if len(self.energy) ==0:
+            self.energy = np.arange(self.z2)*10
+            logger.info("Arbitary X-axis used in the plot for XANES")
         self.stack_center = int(self.energy[len(self.energy)//2])
         self.stack_width = int((self.energy.max()-self.energy.min()) * 0.05)
 
@@ -495,7 +496,11 @@ class Ui(QtWidgets.QMainWindow):
 
         logger.info('Process started..')
 
-        e_list1 = self.energy
+        if self.cb_kev_flag.isChecked():
+            e_list1 = self.energy*1000
+
+        else:
+            e_list1 = self.energy
         ref1 = self.refs
         self.update_stack()
 

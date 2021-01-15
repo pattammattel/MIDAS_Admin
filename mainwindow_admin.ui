@@ -493,7 +493,7 @@ color: rgb(255, 0, 127);
            <string notr="true">font: 10pt &quot;Segoe UI&quot;;</string>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="page">
            <property name="geometry">
@@ -1239,22 +1239,33 @@ color: rgb(255, 0, 127);
             <item row="0" column="0">
              <layout class="QGridLayout" name="gridLayout_2">
               <item row="0" column="0">
-               <widget class="QPushButton" name="pb_ref_xanes">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">background-color: rgb(175, 236, 255);
+               <layout class="QHBoxLayout" name="horizontalLayout_6">
+                <item>
+                 <widget class="QPushButton" name="pb_ref_xanes">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(175, 236, 255);
 color: rgb(255, 0, 127);
 </string>
-                </property>
-                <property name="text">
-                 <string>Load Ref. Spec.</string>
-                </property>
-               </widget>
+                  </property>
+                  <property name="text">
+                   <string>Load Ref. Spec.</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="cb_ref_kev_flag">
+                  <property name="text">
+                   <string>keV</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
               <item row="1" column="0">
                <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -1286,36 +1297,40 @@ color: rgb(255, 0, 127);
                </layout>
               </item>
               <item row="2" column="0">
-               <widget class="QComboBox" name="cb_xanes_fitting_method">
+               <layout class="QHBoxLayout" name="horizontalLayout_7">
                 <item>
-                 <property name="text">
-                  <string>NNLS</string>
-                 </property>
+                 <widget class="QComboBox" name="cb_xanes_fitting_method">
+                  <item>
+                   <property name="text">
+                    <string>NNLS</string>
+                   </property>
+                  </item>
+                 </widget>
                 </item>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QPushButton" name="pb_xanes_fit">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">background-color: rgb(175, 236, 255);
+                <item>
+                 <widget class="QPushButton" name="pb_xanes_fit">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(175, 236, 255);
 color: rgb(255, 0, 127);
 </string>
-                </property>
-                <property name="text">
-                 <string> Fit</string>
-                </property>
-               </widget>
+                  </property>
+                  <property name="text">
+                   <string> Fit</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
-              <item row="4" column="0">
+              <item row="3" column="0">
                <spacer name="verticalSpacer">
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>

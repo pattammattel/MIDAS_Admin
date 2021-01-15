@@ -162,12 +162,12 @@ class ComponentViewer(QtWidgets.QMainWindow):
 
     def show_all_spec(self):
         self.spectrum_view.clear()
-        plt_clrs = ['g', 'r', 'c', 'm', 'y', 'w'] * 2
+        self.plt_colors = ['g', 'r', 'c', 'm', 'y', 'w'] * 2
         offsets = np.arange(0, 2, 0.2)
         self.spectrum_view.addLegend()
         for ii in range(self.decon_spectra.shape[1]):
             self.spectrum_view.plot((self.decon_spectra[:, ii] / self.decon_spectra[:, ii].max()) + offsets[ii],
-                                    pen=plt_clrs[ii], name="component" + str(ii + 1))
+                                    pen=self.plt_colors[ii], name="component" + str(ii + 1))
 
     def save_comp_data(self):
         file_name = QFileDialog().getSaveFileName(self, "", '', 'data(*tiff *tif *txt *png )')
@@ -267,12 +267,12 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.image_view_maps.setPredefinedGradient('bipolar')
         self.image_view_maps.ui.menuBtn.hide()
         self.image_view_maps.ui.roiBtn.hide()
-        new_ref = interploate_E(self.refs, self.xdata)
+        inter_ref = interploate_E(self.refs, self.xdata)
 
-        plt_clrs = ['c', 'm', 'y', 'w']*2
+        self.plt_colors = ['c', 'm', 'y', 'w']*2
         self.spectrum_view_refs.addLegend()
-        for ii in range(new_ref.shape[0]):
-            self.spectrum_view_refs.plot(self.xdata, new_ref[ii], pen=plt_clrs[ii], name="ref" + str(ii + 1))
+        for ii in range(inter_ref.shape[0]):
+            self.spectrum_view_refs.plot(self.xdata, inter_ref[ii], pen=self.plt_colors[ii], name="ref" + str(ii + 1))
 
     def update_spectrum(self):
 
@@ -284,14 +284,18 @@ class XANESViewer(QtWidgets.QMainWindow):
 
         self.xdata1 = self.e_list + self.sb_e_shift.value()
         self.ydata1 = get_sum_spectra(self.roi_img)
-        new_ref = interploate_E(self.refs, self.xdata1)
-        coeffs, r = opt.nnls(new_ref.T, self.ydata1)
-        self.fit_ = np.dot(coeffs, new_ref)
+        inter_ref = interploate_E(self.refs, self.xdata1)
+        coeffs, r = opt.nnls(inter_ref.T, self.ydata1)
+        self.fit_ = np.dot(coeffs, inter_ref)
         pen = pg.mkPen('g', width=1.5)
         pen2 = pg.mkPen('r', width=1.5)
+        pen3 = pg.mkPen('y', width=1.5)
         self.spectrum_view.addLegend()
         self.spectrum_view.plot(self.xdata1, self.ydata1, pen=pen, name="Data", clear=True)
         self.spectrum_view.plot(self.xdata1, self.fit_, name="Fit", pen=pen2)
+        for n, (coff, ref, plt_clr) in enumerate(zip(coeffs,inter_ref, self.plt_colors)):
+            self.spectrum_view.plot(self.xdata1, np.dot(coff,ref), name=f'ref{n+1}', pen=plt_clr)
+
         self.le_r_sq.setText(str(np.around(r / self.ydata1.sum(), 4)))
 
     def re_fit_xanes(self):

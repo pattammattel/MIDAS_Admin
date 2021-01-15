@@ -106,6 +106,7 @@ class Ui(QtWidgets.QMainWindow):
             pass
 
         try:
+            self.energy = []
             self.view_stack()
             logger.info("Stack displayed correctly")
             self.update_stack_info()
@@ -262,7 +263,12 @@ class Ui(QtWidgets.QMainWindow):
         self.le_roi.setText(str(int(posx))+':' +str(int(posy)))
         self.le_roi_size.setText(str(sizex) +','+ str(sizey))
         self.spectrum_view.plot(self.xdata, get_mean_spectra(self.ydata), clear=True)
-        self.spectrum_view.setLabel('bottom','Energy', 'eV')
+        if self.energy[-1]>1000:
+            self.e_unit = 'eV'
+        else:
+            self.e_unit = 'keV'
+
+        self.spectrum_view.setLabel('bottom','Energy', self.e_unit)
         self.spectrum_view.setLabel('left', 'Intensity', 'A.U.')
         self.curr_spec = np.column_stack((self.xdata,get_mean_spectra(self.ydata)))
         self.spectrum_view.addItem(self.spec_roi)

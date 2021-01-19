@@ -40,7 +40,7 @@ class Ui(QtWidgets.QMainWindow):
         self.dsb_bg_fraction.valueChanged.connect(self.view_stack)
         self.pb_reset_img.clicked.connect(self.reset_and_load_stack)
         self.pb_crop.clicked.connect(self.crop_to_dim)
-        #self.pb_crop.clicked.connect(self.view_stack)
+        self.pb_crop.clicked.connect(self.view_stack)
         self.pb_ref_xanes.clicked.connect(self.select_ref_file)
         self.pb_elist_xanes.clicked.connect(self.select_elist)
         self.pb_set_spec_roi.clicked.connect(self.set_spec_roi)

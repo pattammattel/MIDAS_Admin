@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>1249</width>
-    <height>946</height>
+    <height>951</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -477,7 +477,7 @@ color: rgb(255, 0, 127);
          <x>0</x>
          <y>0</y>
          <width>352</width>
-         <height>869</height>
+         <height>874</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_9">
@@ -501,7 +501,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>346</width>
-             <height>277</height>
+             <height>279</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1229,7 +1229,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>330</width>
-             <height>244</height>
+             <height>247</height>
             </rect>
            </property>
            <attribute name="label">

@@ -55,6 +55,7 @@ class Ui(QtWidgets.QMainWindow):
         self.pb_kmeans_elbow.clicked.connect(self.kmeans_elbow)
         self.pb_calc_cluster.clicked.connect(self.clustering_)
         self.pb_xanes_fit.clicked.connect(self.fast_xanes_fitting)
+        self.pb_plot_refs.clicked.connect(self.plt_xanes_refs)
         self.show()
 
     def open_github_link(self):
@@ -487,13 +488,17 @@ class Ui(QtWidgets.QMainWindow):
         file_name = QFileDialog().getOpenFileName(self, "Open reference file", '', 'text file (*.txt *.nor)')
         try:
             self.refs = np.loadtxt(str(file_name[0]))
-            if self.refs.any():
-                self.change_color_on_load(self.pb_ref_xanes)
-                plot_xanes_refs(self.refs)
+            self.plt_xanes_refs()
 
         except OSError:
             logger.error('No file selected')
             pass
+
+    def plt_xanes_refs(self):
+        if self.refs.any():
+            self.change_color_on_load(self.pb_ref_xanes)
+            plot_xanes_refs(self.refs)
+
 
     def change_color_on_load(self, button_name):
         button_name.setStyleSheet("background-color : green")

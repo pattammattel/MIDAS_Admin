@@ -476,7 +476,7 @@ color: rgb(255, 0, 127);
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>352</width>
+         <width>368</width>
          <height>874</height>
         </rect>
        </property>
@@ -493,7 +493,7 @@ color: rgb(255, 0, 127);
            <string notr="true">font: 10pt &quot;Segoe UI&quot;;</string>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="page">
            <property name="geometry">
@@ -501,7 +501,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>346</width>
-             <height>279</height>
+             <height>300</height>
             </rect>
            </property>
            <attribute name="label">
@@ -725,8 +725,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>330</width>
-             <height>298</height>
+             <width>346</width>
+             <height>300</height>
             </rect>
            </property>
            <attribute name="label">
@@ -973,8 +973,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>330</width>
-             <height>244</height>
+             <width>346</width>
+             <height>247</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1103,8 +1103,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>330</width>
-             <height>244</height>
+             <width>346</width>
+             <height>247</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1228,7 +1228,7 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>330</width>
+             <width>346</width>
              <height>247</height>
             </rect>
            </property>
@@ -1259,9 +1259,13 @@ color: rgb(255, 0, 127);
                  </widget>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="cb_ref_kev_flag">
+                 <widget class="QPushButton" name="pb_plot_refs">
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(175, 236, 255);
+color: rgb(255, 0, 127);</string>
+                  </property>
                   <property name="text">
-                   <string>keV</string>
+                   <string>Plot</string>
                   </property>
                  </widget>
                 </item>

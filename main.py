@@ -14,7 +14,7 @@ from StackCalcs import *
 logger = logging.getLogger()
 
 class Ui(QtWidgets.QMainWindow):
-    def __init__(self, im_stack=None, energy=[], refs = None):
+    def __init__(self, im_stack=None, energy=[], refs = []):
         super(Ui, self).__init__()
         uic.loadUi('mainwindow_admin.ui', self)
         self.im_stack = im_stack
@@ -73,6 +73,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def load_stack(self):
         logger.info('Loading.. please wait...')
+        self.statusbar_main.showMessage('Loading.. please wait...')
 
         if self.file_name.endswith('.h5'):
             stack_, mono_e = get_xrf_data(self.file_name)
@@ -114,9 +115,11 @@ class Ui(QtWidgets.QMainWindow):
 
         except:
             logger.error("Trouble with stack display")
+            self.statusbar_main.showMessage("Error: Trouble with stack display")
             pass
 
         logger.info(f'completed image shape {np.shape(self.im_stack)}')
+        self.statusbar_main.showMessage(f'Loaded: {self.file_name}')
 
     def reset_and_load_stack(self):
         self.rb_math_roi_img.setChecked(False)
@@ -495,7 +498,7 @@ class Ui(QtWidgets.QMainWindow):
             pass
 
     def plt_xanes_refs(self):
-        if self.refs.any():
+        if len(self.refs) != 0:
             self.change_color_on_load(self.pb_ref_xanes)
             plot_xanes_refs(self.refs)
 

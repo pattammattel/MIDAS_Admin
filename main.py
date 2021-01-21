@@ -370,13 +370,14 @@ class Ui(QtWidgets.QMainWindow):
                                         f'{int(self.spec_lo_m_idx)}:{int(self.spec_hi_m_idx)}')
 
         self.scatter_window = ScatterPlot(self.img1,self.img2)
+
         ph = self.geometry().height()
         pw = self.geometry().width()
         px = self.geometry().x()
         py = self.geometry().y()
         dw = self.scatter_window.width()
         dh = self.scatter_window.height()
-        self.scatter_window.setGeometry(px+0.65*pw, py + ph - 2*dh-5, dw, dh)
+        #self.scatter_window.setGeometry(px+0.65*pw, py + ph - 2*dh-5, dw, dh)
         self.scatter_window.show()
 
     def math_img_roi_flag(self):
@@ -465,7 +466,7 @@ class Ui(QtWidgets.QMainWindow):
         ims, comp_spec, decon_spec, decomp_map = decompose_stack(self.updated_stack,
             decompose_method=method_ , n_components_=n_components)
 
-        self._new_window3 = ComponentViewer(ims, comp_spec, decon_spec,decomp_map)
+        self._new_window3 = ComponentViewer(ims,self.xdata, comp_spec, decon_spec,decomp_map)
         self._new_window3.show()
 
         logger.info('Process complete')
@@ -492,7 +493,7 @@ class Ui(QtWidgets.QMainWindow):
                                                    decompose_method=self.cb_comp_method.currentText(),
                                                    decompose_comp = self.sb_ncomp.value())
 
-        self._new_window4 = ClusterViewer(decon_images,X_cluster, decon_spectra)
+        self._new_window4 = ClusterViewer(decon_images,self.xdata, X_cluster, decon_spectra)
         self._new_window4.show()
 
         logger.info('Process complete')

@@ -404,6 +404,9 @@ color: rgb(255, 0, 127);</string>
              <property name="enabled">
               <bool>false</bool>
              </property>
+             <property name="decimals">
+              <number>0</number>
+             </property>
              <property name="maximum">
               <double>50000.000000000000000</double>
              </property>
@@ -416,6 +419,9 @@ color: rgb(255, 0, 127);</string>
             <widget class="QDoubleSpinBox" name="sb_roi_spec_e">
              <property name="enabled">
               <bool>false</bool>
+             </property>
+             <property name="decimals">
+              <number>0</number>
              </property>
              <property name="maximum">
               <double>50000.000000000000000</double>

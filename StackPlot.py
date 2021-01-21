@@ -123,16 +123,18 @@ class StackSpecViewer(QtWidgets.QMainWindow):
 
 class ComponentViewer(QtWidgets.QMainWindow):
 
-    def __init__(self, comp_stack, comp_spectra, decon_spectra, decomp_map):
+    def __init__(self,  comp_stack, energy, comp_spectra, decon_spectra, decomp_map):
         super(ComponentViewer, self).__init__()
 
         # Load the UI Page
         uic.loadUi('ComponentView.ui', self)
 
         self.comp_stack = comp_stack
+        self.energy = energy
         self.comp_spectra = comp_spectra
         self.decon_spectra = decon_spectra
         self.decomp_map = decomp_map
+
 
         (self.dim1, self.dim3, self.dim2) = self.comp_stack.shape
         self.hs_comp_number.setMaximum(self.dim1 - 1)
@@ -155,8 +157,8 @@ class ComponentViewer(QtWidgets.QMainWindow):
 
     def update_image(self):
         im_index = self.hs_comp_number.value()
-        self.spectrum_view.plot(self.decon_spectra[:, im_index], clear=True)
-        self.component_view.plot(self.comp_spectra[:, im_index], clear=True)
+        self.spectrum_view.plot(self.energy, self.decon_spectra[:, im_index], clear=True)
+        self.component_view.plot(self.energy,self.comp_spectra[:, im_index], clear=True)
         # self.image_view.setCurrentIndex(im_index-1)
         self.image_view.setImage(self.comp_stack[im_index])
 
@@ -166,13 +168,13 @@ class ComponentViewer(QtWidgets.QMainWindow):
         offsets = np.arange(0, 2, 0.2)
         self.spectrum_view.addLegend()
         for ii in range(self.decon_spectra.shape[1]):
-            self.spectrum_view.plot((self.decon_spectra[:, ii] / self.decon_spectra[:, ii].max()) + offsets[ii],
+            self.spectrum_view.plot(self.energy,(self.decon_spectra[:, ii] / self.decon_spectra[:, ii].max()) + offsets[ii],
                                     pen=self.plt_colors[ii], name="component" + str(ii + 1))
 
     def save_comp_data(self):
         file_name = QFileDialog().getSaveFileName(self, "", '', 'data(*tiff *tif *txt *png )')
         tf.imsave(str(file_name[0]) + '_components.tiff', np.float32(self.comp_stack.transpose(0, 2, 1)), imagej=True)
-        plt.imsave(str(file_name[0]) + '_component_map.png', np.float32(self.decomp_map.T))
+        tf.imsave(str(file_name[0]) + '_component_masks.tiff', np.float32(self.decomp_map.T),imagej=True)
         np.savetxt(str(file_name[0]) + '_deconv_spec.txt', self.decon_spectra)
         np.savetxt(str(file_name[0]) + '_component_spec.txt', self.comp_spectra)
 
@@ -181,17 +183,18 @@ class ComponentViewer(QtWidgets.QMainWindow):
 
 class ClusterViewer(QtWidgets.QMainWindow):
 
-    def __init__(self, decon_images, X_cluster, decon_spectra):
+    def __init__(self, decon_images, energy, X_cluster, decon_spectra):
         super(ClusterViewer, self).__init__()
 
         # Load the UI Page
         uic.loadUi('ClusterView.ui', self)
 
         self.decon_images = decon_images
+        self.energy = energy
         self.X_cluster = X_cluster
         self.decon_spectra = decon_spectra
         (self.dim1, self.dim3, self.dim2) = self.decon_images.shape
-        self.hs_comp_number.setMaximum(self.dim1 - 1)
+        self.hsb_cluster_number.setMaximum(self.dim1 - 1)
         self.X_cluster = X_cluster
 
         self.image_view.setImage(self.decon_images, autoHistogramRange=True, autoLevels=True)
@@ -207,19 +210,19 @@ class ClusterViewer(QtWidgets.QMainWindow):
 
         # connection
         self.update()
-        self.hs_comp_number.valueChanged.connect(self.update)
+        self.hsb_cluster_number.valueChanged.connect(self.update)
         self.actionSave.triggered.connect(self.save_clust_data)
 
     def update(self):
-        im_index = self.hs_comp_number.value()
-        self.component_view.plot(self.decon_spectra[:, im_index], clear=True)
+        im_index = self.hsb_cluster_number.value()
+        self.component_view.plot(self.energy, self.decon_spectra[:, im_index], clear=True)
         # self.image_view.setCurrentIndex(im_index-1)
         self.image_view.setImage(self.decon_images[im_index])
 
     def save_clust_data(self):
         file_name = QFileDialog().getSaveFileName(self, "", '', 'data(*tiff *tif *txt *png )')
         tf.imsave(str(file_name[0]) + '_cluster.tiff', np.float32(self.decon_images.transpose(0, 2, 1)), imagej=True)
-        plt.imsave(str(file_name[0]) + '_cluster_map.png', np.float32(self.X_cluster.T))
+        tf.imsave(str(file_name[0]) + '_cluster_map.tiff', np.float32(self.X_cluster.T),imagej=True)
         np.savetxt(str(file_name[0]) + '_deconv_spec.txt', self.decon_spectra)
 
 
@@ -344,11 +347,23 @@ class ScatterPlot(QtWidgets.QMainWindow):
 
         uic.loadUi('ScatterView.ui', self)
         w1 = self.scatterViewer.addPlot()
-        self.img1 = img1.flatten()
-        self.img2 = img2.flatten()
+        self.img1 = img1
+        self.img2 = img2
         s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(0, 255, 255, 120))
-        s1.setData(self.img1,self.img2)
+        s1.setData(self.img1.flatten(),self.img2.flatten())
         w1.addItem(s1)
+
+        self.image_view.setImage(self.img1)
+        self.image_view.ui.menuBtn.hide()
+        self.image_view.ui.roiBtn.hide()
+        self.image_view.setPredefinedGradient('viridis')
+
+        self.image_view2.setImage(self.img2)
+        self.image_view2.ui.menuBtn.hide()
+        self.image_view2.ui.roiBtn.hide()
+        self.image_view2.setPredefinedGradient('viridis')
+
+
 
 
 

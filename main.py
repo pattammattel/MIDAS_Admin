@@ -357,9 +357,11 @@ class Ui(QtWidgets.QMainWindow):
             else:
                 img1 = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0)
 
+            if int(self.spec_lo_m_idx) == int(self.spec_hi_m_idx):
+                img2 = self.updated_stack[int(self.spec_hi_m_idx), :, :]
+            else:
+                img2 = self.updated_stack[int(self.spec_lo_m_idx):int(self.spec_hi_m_idx), :, :].mean(0)
 
-
-            img2 = self.updated_stack[int(self.spec_lo_m_idx):int(self.spec_hi_m_idx), :, :].mean(0)
             self.disp_img = remove_nan_inf(calc[self.cb_roi_operation.currentText()](img1,img2))
             self.image_view.setImage(self.disp_img)
 

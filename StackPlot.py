@@ -157,7 +157,11 @@ class ComponentViewer(QtWidgets.QMainWindow):
 
     def update_image(self):
         im_index = self.hs_comp_number.value()
+        self.spectrum_view.setLabel('bottom','Energy')
+        self.spectrum_view.setLabel('left', 'Intensity', 'A.U.')
         self.spectrum_view.plot(self.energy, self.decon_spectra[:, im_index], clear=True)
+        self.component_view.setLabel('bottom','Energy')
+        self.component_view.setLabel('left', 'Weight', 'A.U.')
         self.component_view.plot(self.energy,self.comp_spectra[:, im_index], clear=True)
         # self.image_view.setCurrentIndex(im_index-1)
         self.image_view.setImage(self.comp_stack[im_index])
@@ -215,6 +219,8 @@ class ClusterViewer(QtWidgets.QMainWindow):
 
     def update(self):
         im_index = self.hsb_cluster_number.value()
+        self.component_view.setLabel('bottom','Energy')
+        self.component_view.setLabel('left', 'Intensity', 'A.U.')
         self.component_view.plot(self.energy, self.decon_spectra[:, im_index], clear=True)
         # self.image_view.setCurrentIndex(im_index-1)
         self.image_view.setImage(self.decon_images[im_index])
@@ -294,6 +300,8 @@ class XANESViewer(QtWidgets.QMainWindow):
         pen2 = pg.mkPen('r', width=1.5)
         pen3 = pg.mkPen('y', width=1.5)
         self.spectrum_view.addLegend()
+        self.spectrum_view.setLabel('bottom','Energy')
+        self.spectrum_view.setLabel('left', 'Intensity', 'A.U.')
         self.spectrum_view.plot(self.xdata1, self.ydata1, pen=pen, name="Data", clear=True)
         self.spectrum_view.plot(self.xdata1, self.fit_, name="Fit", pen=pen2)
         for n, (coff, ref, plt_clr) in enumerate(zip(coeffs,inter_ref, self.plt_colors)):
@@ -349,19 +357,21 @@ class ScatterPlot(QtWidgets.QMainWindow):
         w1 = self.scatterViewer.addPlot()
         self.img1 = img1
         self.img2 = img2
-        s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(0, 255, 255, 120))
+        s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 0, 120))
         s1.setData(self.img1.flatten(),self.img2.flatten())
+        w1.setLabel('bottom','Image ROI')
+        w1.setLabel('left', 'Math ROI')
         w1.addItem(s1)
 
         self.image_view.setImage(self.img1)
         self.image_view.ui.menuBtn.hide()
         self.image_view.ui.roiBtn.hide()
-        self.image_view.setPredefinedGradient('viridis')
+        self.image_view.setPredefinedGradient('thermal')
 
         self.image_view2.setImage(self.img2)
         self.image_view2.ui.menuBtn.hide()
         self.image_view2.ui.roiBtn.hide()
-        self.image_view2.setPredefinedGradient('viridis')
+        self.image_view2.setPredefinedGradient('thermal')
 
 
 

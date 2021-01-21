@@ -5,7 +5,6 @@
 
 import logging, sys, webbrowser
 
-from subprocess import Popen
 from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDesktopWidget, QApplication
 
@@ -60,8 +59,6 @@ class Ui(QtWidgets.QMainWindow):
 
     def open_github_link(self):
         webbrowser.open('https://github.com/pattammattel/NSLS-II-MIDAS')
-
-    # XRF Loading
 
     def browse_file(self):
         filename = QFileDialog().getOpenFileName(self, "Select image data", '', 'image file(*.hdf *.h5 *tiff *tif )')

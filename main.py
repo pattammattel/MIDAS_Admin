@@ -288,10 +288,17 @@ class Ui(QtWidgets.QMainWindow):
         self.update_spec_roi_values()
 
         try:
-            self.disp_img = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :]
-            self.image_view.setImage(self.disp_img.mean(0))
+            if int(self.spec_lo_idx) == int(self.spec_hi_idx):
+                self.disp_img = self.updated_stack[int(self.spec_hi_idx), :, :]
+                self.statusbar_main.showMessage(f'Image Display is stack # {self.spec_hi_idx}')
+
+            else:
+                self.disp_img = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0)
+                self.statusbar_main.showMessage(f'Image display is stack # range: '
+                                                f'{self.spec_lo_idx}:{self.spec_hi_idx}')
+            self.image_view.setImage(self.disp_img)
         except:
-            #logger.warning("Indices are out of range; Image cannot be created")
+            logger.warning("Indices are out of range; Image cannot be created")
             pass
 
     def set_spec_roi(self):
@@ -344,7 +351,14 @@ class Ui(QtWidgets.QMainWindow):
 
         else:
             calc = {'Divide':np.divide, 'Subtract': np.subtract, 'Add': np.add}
-            img1 = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0)
+
+            if int(self.spec_lo_idx)==int(self.spec_hi_idx):
+                img1 = self.updated_stack[int(self.spec_hi_idx), :, :]
+            else:
+                img1 = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0)
+
+
+
             img2 = self.updated_stack[int(self.spec_lo_m_idx):int(self.spec_hi_m_idx), :, :].mean(0)
             self.disp_img = remove_nan_inf(calc[self.cb_roi_operation.currentText()](img1,img2))
             self.image_view.setImage(self.disp_img)
@@ -433,8 +447,6 @@ class Ui(QtWidgets.QMainWindow):
             logger.error('No file to save')
             pass
 
-    # Component Analysis
-
     def pca_scree_(self):
         logger.info('Process started..')
         self.update_stack()
@@ -484,9 +496,6 @@ class Ui(QtWidgets.QMainWindow):
 
         logger.info('Process complete')
 
-
-    # XANES files
-
     def select_ref_file(self):
         file_name = QFileDialog().getOpenFileName(self, "Open reference file", '', 'text file (*.txt *.nor)')
         try:
@@ -501,7 +510,6 @@ class Ui(QtWidgets.QMainWindow):
         if len(self.refs) != 0:
             self.change_color_on_load(self.pb_ref_xanes)
             plot_xanes_refs(self.refs)
-
 
     def change_color_on_load(self, button_name):
         button_name.setStyleSheet("background-color : green")

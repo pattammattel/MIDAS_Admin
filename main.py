@@ -346,31 +346,33 @@ class Ui(QtWidgets.QMainWindow):
         self.spec_lo_m_idx = (np.abs(self.energy - self.spec_lo_m)).argmin()
         self.spec_hi_m_idx = (np.abs(self.energy - self.spec_hi_m)).argmin()
 
+        if int(self.spec_lo_idx) == int(self.spec_hi_idx):
+            self.img1 = self.updated_stack[int(self.spec_hi_idx), :, :]
+
+        else:
+            self.img1 = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0)
+
+        if int(self.spec_lo_m_idx) == int(self.spec_hi_m_idx):
+            self.img2 = self.updated_stack[int(self.spec_hi_m_idx), :, :]
+
+        else:
+            self.img2 = self.updated_stack[int(self.spec_lo_m_idx):int(self.spec_hi_m_idx), :, :].mean(0)
+
         if self.cb_roi_operation.currentText() == "Correlation Plot":
             self.correlation_plot()
 
         else:
             calc = {'Divide':np.divide, 'Subtract': np.subtract, 'Add': np.add}
-
-            if int(self.spec_lo_idx)==int(self.spec_hi_idx):
-                img1 = self.updated_stack[int(self.spec_hi_idx), :, :]
-            else:
-                img1 = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0)
-
-            if int(self.spec_lo_m_idx) == int(self.spec_hi_m_idx):
-                img2 = self.updated_stack[int(self.spec_hi_m_idx), :, :]
-            else:
-                img2 = self.updated_stack[int(self.spec_lo_m_idx):int(self.spec_hi_m_idx), :, :].mean(0)
-
-            self.disp_img = remove_nan_inf(calc[self.cb_roi_operation.currentText()](img1,img2))
+            self.disp_img = remove_nan_inf(calc[self.cb_roi_operation.currentText()](self.img1,self.img2))
             self.image_view.setImage(self.disp_img)
 
     def correlation_plot(self):
 
-        img1 = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0)
-        img2 = self.updated_stack[int(self.spec_lo_m_idx):int(self.spec_hi_m_idx), :, :].mean(0)
 
-        self.scatter_window = ScatterPlot(img1,img2)
+        self.statusbar_main.showMessage(f'Correlation stack {int(self.spec_lo_idx)}:{int(self.spec_hi_idx)} with '
+                                        f'{int(self.spec_lo_m_idx)}:{int(self.spec_hi_m_idx)}')
+
+        self.scatter_window = ScatterPlot(self.img1,self.img2)
         ph = self.geometry().height()
         pw = self.geometry().width()
         px = self.geometry().x()

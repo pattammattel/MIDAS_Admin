@@ -516,7 +516,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>346</width>
-             <height>279</height>
+             <height>160</height>
             </rect>
            </property>
            <attribute name="label">
@@ -753,7 +753,7 @@ color: rgb(255, 0, 127);
               <property name="title">
                <string/>
               </property>
-              <layout class="QGridLayout" name="gridLayout_21">
+              <layout class="QGridLayout" name="gridLayout_24">
                <item row="0" column="0">
                 <layout class="QGridLayout" name="gridLayout_3">
                  <property name="bottomMargin">
@@ -799,15 +799,28 @@ color: rgb(255, 0, 127);
                 </layout>
                </item>
                <item row="1" column="0">
-                <layout class="QHBoxLayout" name="horizontalLayout">
-                 <item>
+                <layout class="QGridLayout" name="gridLayout_21">
+                 <item row="0" column="0">
                   <widget class="QCheckBox" name="cb_remove_outliers">
                    <property name="text">
                     <string>Remove Outliers</string>
                    </property>
                   </widget>
                  </item>
-                 <item>
+                 <item row="1" column="0">
+                  <widget class="QSlider" name="horizontalSlider_2">
+                   <property name="maximum">
+                    <number>20</number>
+                   </property>
+                   <property name="value">
+                    <number>3</number>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
                   <widget class="QLabel" name="label_6">
                    <property name="text">
                     <string>NSigma </string>
@@ -817,7 +830,7 @@ color: rgb(255, 0, 127);
                    </property>
                   </widget>
                  </item>
-                 <item>
+                 <item row="1" column="2">
                   <widget class="QSpinBox" name="sb_tolerence">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -839,14 +852,14 @@ color: rgb(255, 0, 127);
                    <item>
                     <widget class="QCheckBox" name="cb_remove_bg">
                      <property name="text">
-                      <string>Remove Background</string>
+                      <string>Thresholding</string>
                      </property>
                     </widget>
                    </item>
                    <item>
                     <widget class="QCheckBox" name="cb_bg_auto">
                      <property name="text">
-                      <string>Auto</string>
+                      <string>Try Auto</string>
                      </property>
                     </widget>
                    </item>
@@ -855,12 +868,21 @@ color: rgb(255, 0, 127);
                  <item row="1" column="0">
                   <layout class="QHBoxLayout" name="horizontalLayout_2">
                    <item>
-                    <widget class="QLabel" name="label_12">
-                     <property name="text">
-                      <string>or Lower</string>
+                    <widget class="QSlider" name="horizontalSlider">
+                     <property name="maximum">
+                      <number>100</number>
                      </property>
-                     <property name="alignment">
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     <property name="singleStep">
+                      <number>5</number>
+                     </property>
+                     <property name="pageStep">
+                      <number>5</number>
+                     </property>
+                     <property name="value">
+                      <number>5</number>
+                     </property>
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
                      </property>
                     </widget>
                    </item>
@@ -988,8 +1010,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>330</width>
-             <height>247</height>
+             <width>296</width>
+             <height>185</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1118,8 +1140,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>330</width>
-             <height>247</height>
+             <width>308</width>
+             <height>185</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1395,6 +1417,7 @@ color: rgb(255, 0, 127);
      <string>File</string>
     </property>
     <addaction name="actionOpen_Image_Data"/>
+    <addaction name="actionOpen_Multiple_Files"/>
     <addaction name="actionLoad_Energy"/>
     <addaction name="actionSave_as"/>
     <addaction name="actionExit"/>
@@ -1483,6 +1506,11 @@ color: rgb(255, 0, 127);
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionOpen_Multiple_Files">
+   <property name="text">
+    <string>Open Multiple Files</string>
    </property>
   </action>
  </widget>

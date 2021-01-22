@@ -22,6 +22,7 @@ class Ui(QtWidgets.QMainWindow):
         self.refs = refs
 
         self.actionOpen_Image_Data.triggered.connect(self.browse_file)
+        self.actionOpen_Multiple_Files.triggered.connect(self.load_mutliple_file)
         self.actionSave_as.triggered.connect(self.save_stack)
         self.actionExit.triggered.connect(self.close)
         self.actionOpen_in_GitHub.triggered.connect(self.open_github_link)
@@ -67,6 +68,13 @@ class Ui(QtWidgets.QMainWindow):
             self.reset_and_load_stack()
         except:
             pass
+
+    def load_mutliple_file(self):
+        filter = "TIFF (*.tiff);;TIF (*.tif)"
+        file_name = QFileDialog()
+        file_name.setFileMode(QFileDialog.ExistingFiles)
+        names = file_name.getOpenFileNames(self, "Open files", " ", filter)
+        print (names)
 
     def load_stack(self):
         logger.info('Loading.. please wait...')

@@ -79,26 +79,28 @@ class Ui(QtWidgets.QMainWindow):
     def load_stack(self):
         logger.info('Loading.. please wait...')
         self.statusbar_main.showMessage('Loading.. please wait...')
+        self.sb_zrange2.setMaximum(100000)
+        self.sb_zrange1.setValue(0)
 
         if self.file_name.endswith('.h5'):
-            stack_, mono_e = get_xrf_data(self.file_name)
-            self.sb_zrange2.setMaximum(100000)
+            self.stack_, mono_e = get_xrf_data(self.file_name)
             self.sb_zrange2.setValue(mono_e/10)
-            self.sb_zrange1.setValue(0)
 
         elif self.file_name.endswith('.tiff') or self.file_name.endswith('.tif'):
-            stack_ = tf.imread(self.file_name).transpose(1, 2, 0)
-            self.sb_zrange1.setValue(0)
-            self.sb_zrange2.setMaximum(100000)
-            self.sb_zrange2.setValue(stack_.shape[-1])
+            self.stack_ = tf.imread(self.file_name).transpose(1, 2, 0)
+            self.sb_zrange2.setValue(self.stack_.shape[-1])
 
         else:
             logger.error('Unknown data format')
 
+        self.set_stack_params()
+
+    def set_stack_params(self):
+
         try:
 
-            logger.info(f' loaded stack with {np.shape(stack_)} from the file')
-            self.im_stack = stack_.T
+            logger.info(f' loaded stack with {np.shape(self.stack_)} from the file')
+            self.im_stack = self.stack_.T
             self.init_dimZ = self.im_stack.shape[0]
             self.init_dimX = self.im_stack.shape[1]
             self.init_dimY = self.im_stack.shape[2]

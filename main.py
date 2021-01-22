@@ -77,10 +77,10 @@ class Ui(QtWidgets.QMainWindow):
         print (names)
 
     def load_stack(self):
-        logger.info('Loading.. please wait...')
-        self.statusbar_main.showMessage('Loading.. please wait...')
         self.sb_zrange2.setMaximum(100000)
         self.sb_zrange1.setValue(0)
+
+        self.statusbar_main.showMessage('Loading.. please wait...')
 
         if self.file_name.endswith('.h5'):
             self.stack_, mono_e = get_xrf_data(self.file_name)
@@ -96,6 +96,9 @@ class Ui(QtWidgets.QMainWindow):
         self.set_stack_params()
 
     def set_stack_params(self):
+
+        self.sb_zrange2.setMaximum(100000)
+        self.sb_zrange1.setValue(0)
 
         try:
 

@@ -516,7 +516,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>346</width>
-             <height>160</height>
+             <height>279</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1010,8 +1010,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>296</width>
-             <height>185</height>
+             <width>330</width>
+             <height>247</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1140,8 +1140,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>308</width>
-             <height>185</height>
+             <width>330</width>
+             <height>247</height>
             </rect>
            </property>
            <attribute name="label">

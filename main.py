@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Author: Ajith Pattammattel
-# Date:06-23-2020
+# First Version on:06-23-2020
 
 import logging, sys, webbrowser
 

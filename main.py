@@ -34,7 +34,6 @@ class Ui(QtWidgets.QMainWindow):
         self.cb_smooth.stateChanged.connect(self.view_stack)
         self.cb_remove_outliers.stateChanged.connect(self.view_stack)
         self.cb_remove_bg.stateChanged.connect(self.view_stack)
-        self.cb_bg_auto.stateChanged.connect(self.view_stack)
         self.sb_smooth_size.valueChanged.connect(self.view_stack)
         self.hs_nsigma.valueChanged.connect(self.view_stack)
         self.hs_bg_threshold.valueChanged.connect(self.view_stack)
@@ -141,7 +140,6 @@ class Ui(QtWidgets.QMainWindow):
         self.cb_smooth.setChecked(False)
         self.cb_remove_outliers.setChecked(False)
         self.cb_remove_bg.setChecked(False)
-        self.cb_bg_auto.setChecked(False)
         self.sb_xrange1.setValue(0)
         self.sb_yrange1.setValue(0)
         self.load_stack()
@@ -184,7 +182,7 @@ class Ui(QtWidgets.QMainWindow):
             bg_threshold = self.hs_bg_threshold.value()
             self.label_bg_threshold.setText(str(bg_threshold)+'%')
             self.updated_stack = clean_stack(self.updated_stack,
-                                             auto_bg= self.cb_bg_auto.isChecked(),
+                                             auto_bg= False,
                                              bg_percentage=bg_threshold)
 
         if self.cb_log.isChecked():

@@ -184,7 +184,7 @@ class Ui(QtWidgets.QMainWindow):
                                              bg_percentage=self.dsb_bg_fraction.value())
 
         if self.cb_log.isChecked():
-            self.updated_stack = remove_nan_inf(np.log(self.updated_stack/self.updated_stack.max()*100))
+            self.updated_stack = remove_nan_inf(np.log(self.updated_stack))
             logger.info('Log Stack is in use')
 
         if self.cb_smooth.isChecked():

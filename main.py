@@ -36,8 +36,8 @@ class Ui(QtWidgets.QMainWindow):
         self.cb_remove_bg.stateChanged.connect(self.view_stack)
         self.cb_bg_auto.stateChanged.connect(self.view_stack)
         self.sb_smooth_size.valueChanged.connect(self.view_stack)
-        self.sb_tolerence.valueChanged.connect(self.view_stack)
-        self.dsb_bg_fraction.valueChanged.connect(self.view_stack)
+        self.hs_nsigma.valueChanged.connect(self.view_stack)
+        self.hs_bg_threshold.valueChanged.connect(self.view_stack)
         self.pb_reset_img.clicked.connect(self.reset_and_load_stack)
         self.pb_crop.clicked.connect(self.crop_to_dim)
         self.pb_crop.clicked.connect(self.view_stack)
@@ -168,9 +168,11 @@ class Ui(QtWidgets.QMainWindow):
         self.crop_to_dim()
 
         if self.cb_remove_outliers.isChecked():
+            nsigma = self.hs_nsigma.value()/10
             self.updated_stack = remove_hot_pixels(self.updated_stack,
-                                                   NSigma=self.sb_tolerence.value())
-            logger.info(f'Removing Outliers with NSigma {self.sb_tolerence.value()}')
+                                                   NSigma=nsigma)
+            self.label_nsigma.setText(str(nsigma))
+            logger.info(f'Removing Outliers with NSigma {nsigma}')
 
         if self.cb_remove_edges.isChecked():
             self.updated_stack = remove_edges(self.updated_stack)
@@ -179,9 +181,11 @@ class Ui(QtWidgets.QMainWindow):
 
         if self.cb_remove_bg.isChecked():
             logger.info('Removing background')
+            bg_threshold = self.hs_bg_threshold.value()
+            self.label_bg_threshold.setText(str(bg_threshold)+'%')
             self.updated_stack = clean_stack(self.updated_stack,
                                              auto_bg= self.cb_bg_auto.isChecked(),
-                                             bg_percentage=self.dsb_bg_fraction.value())
+                                             bg_percentage=bg_threshold)
 
         if self.cb_log.isChecked():
             self.updated_stack = remove_nan_inf(np.log(self.updated_stack))

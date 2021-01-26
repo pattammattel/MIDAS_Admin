@@ -67,6 +67,7 @@ class Ui(QtWidgets.QMainWindow):
         try:
             self.reset_and_load_stack()
         except:
+            self.statusbar_main.showMessage("Error: Unable to Load Data")
             pass
 
     def load_mutliple_file(self):
@@ -83,7 +84,8 @@ class Ui(QtWidgets.QMainWindow):
         self.statusbar_main.showMessage('Loading.. please wait...')
 
         if self.file_name.endswith('.h5'):
-            self.stack_, mono_e = get_xrf_data(self.file_name)
+            self.stack_, mono_e, bl_name = get_xrf_data(self.file_name)
+            self.statusbar_main.showMessage(f'Data from {bl_name}')
             self.sb_zrange2.setValue(mono_e/10)
 
         elif self.file_name.endswith('.tiff') or self.file_name.endswith('.tif'):
@@ -182,7 +184,7 @@ class Ui(QtWidgets.QMainWindow):
                                              bg_percentage=self.dsb_bg_fraction.value())
 
         if self.cb_log.isChecked():
-            self.updated_stack = remove_nan_inf(np.log(self.updated_stack))
+            self.updated_stack = remove_nan_inf(np.log(self.updated_stack/self.updated_stack.max()*100))
             logger.info('Log Stack is in use')
 
         if self.cb_smooth.isChecked():
@@ -217,7 +219,7 @@ class Ui(QtWidgets.QMainWindow):
         self.image_view.setPredefinedGradient('viridis')
         self.image_view.setCurrentIndex(self.dim1//2)
         if len(self.energy) ==0:
-            self.energy = np.arange(self.z2)*10
+            self.energy = np.arange(self.z1,self.z2)*10
             logger.info("Arbitary X-axis used in the plot for XANES")
         self.stack_center = int(self.energy[len(self.energy)//2])
         self.stack_width = int((self.energy.max()-self.energy.min()) * 0.05)

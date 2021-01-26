@@ -11,12 +11,38 @@ from scipy.signal import savgol_filter
 logger = logging.getLogger()
 
 def get_xrf_data( h='h5file'):
+    global norm_xrf_stack, beamline
     f = h5py.File(h, 'r')
-    try:
-        xrf_stack = f['xrfmap/detsum/counts'][:,:,:]
 
-    except:
-        xrf_stack = f['xrmmap/mcasum/counts'][:,:,:]
+    if list(f.keys())[0] == 'xrfmap':
+        logger.info('Data from HXN/TES/SRX')
+        beamline = f['xrfmap/scan_metadata'].attrs['scan_instrument_id']
+
+        try:
+
+            beamline_scalar = {'HXN':2,'SRX':0, 'TES':0}
+
+            if beamline in beamline_scalar.keys():
+
+                Io = np.array(f['xrfmap/scalers/val'])[:,:,beamline_scalar[beamline]]
+                raw_xrf_stack = np.array(f['xrfmap/detsum/counts'])
+                norm_xrf_stack = raw_xrf_stack / Io[:,:, np.newaxis]
+            else:
+                logger.error('Unknown Beamline Scalar')
+        except:
+            logger.warning('Unknown Scalar: Raw Detector count in use')
+            norm_xrf_stack = np.array(f['xrfmap/detsum/counts'])
+
+    elif list(f.keys())[0] == 'xrmmap':
+        logger.info('Data from XFM')
+        beamline = 'XFM'
+        raw_xrf_stack = np.array(f['xrmmap/mcasum/counts'])
+        Io = np.array(f['xrmmap/scalars/I0'])
+        norm_xrf_stack = raw_xrf_stack / Io[:, :, np.newaxis]
+
+    else:
+        logger.error('Unknown Data Format')
+
 
     try:
         mono_e = int(f['xrfmap/scan_metadata'].attrs['instrument_mono_incident_energy'] * 1000)
@@ -24,17 +50,17 @@ def get_xrf_data( h='h5file'):
 
     except:
         mono_e = 12000
-        logger.info("Unable to get Excitation energy from the h5 data; using default value = 12 KeV ")
+        logger.info(f'Unable to get Excitation energy from the h5 data; using default value {mono_e} KeV')
 
-    return remove_nan_inf(xrf_stack), mono_e
+    return remove_nan_inf(norm_xrf_stack), mono_e+1000, beamline
 
 
 def remove_nan_inf(im):
     im = np.array(im, dtype = np.float32)
-    im[im < 0] = 0
     im[np.isnan(im)] = 0
     im[np.isinf(im)] = 0
     return im
+
 
 
 def remove_hot_pixels(image_array, NSigma=5):

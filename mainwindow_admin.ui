@@ -508,7 +508,7 @@ color: rgb(255, 0, 127);
            <string notr="true">font: 10pt &quot;Segoe UI&quot;;</string>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="page">
            <property name="geometry">
@@ -539,7 +539,7 @@ color: rgb(255, 0, 127);
                    <number>500</number>
                   </property>
                   <property name="value">
-                   <number>100</number>
+                   <number>0</number>
                   </property>
                   <property name="displayIntegerBase">
                    <number>10</number>

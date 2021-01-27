@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>1200</width>
-    <height>946</height>
+    <height>951</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -492,7 +492,7 @@ color: rgb(255, 0, 127);
          <x>0</x>
          <y>0</y>
          <width>352</width>
-         <height>869</height>
+         <height>884</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_9">
@@ -515,8 +515,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>346</width>
-             <height>160</height>
+             <width>330</width>
+             <height>321</height>
             </rect>
            </property>
            <attribute name="label">
@@ -739,9 +739,9 @@ color: rgb(255, 0, 127);
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>0</y>
-             <width>330</width>
-             <height>379</height>
+             <y>-2</y>
+             <width>309</width>
+             <height>381</height>
             </rect>
            </property>
            <attribute name="label">
@@ -762,45 +762,54 @@ color: rgb(255, 0, 127);
                  <property name="frameShadow">
                   <enum>QFrame::Raised</enum>
                  </property>
-                 <layout class="QGridLayout" name="gridLayout_27">
+                 <layout class="QGridLayout" name="gridLayout_3">
                   <item row="0" column="0">
+                   <widget class="QCheckBox" name="cb_smooth">
+                    <property name="toolTip">
+                     <string>uses savgol_filter to smooth data</string>
+                    </property>
+                    <property name="text">
+                     <string>Smoothen</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
                    <layout class="QHBoxLayout" name="horizontalLayout_4">
                     <item>
-                     <widget class="QCheckBox" name="cb_smooth">
-                      <property name="text">
-                       <string>Smoothen</string>
+                     <widget class="QSlider" name="hs_smooth_size">
+                      <property name="minimum">
+                       <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <number>12</number>
+                      </property>
+                      <property name="singleStep">
+                       <number>2</number>
+                      </property>
+                      <property name="pageStep">
+                       <number>2</number>
+                      </property>
+                      <property name="value">
+                       <number>3</number>
+                      </property>
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="tickPosition">
+                       <enum>QSlider::TicksBelow</enum>
+                      </property>
+                      <property name="tickInterval">
+                       <number>2</number>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLabel" name="label_23">
+                     <widget class="QLabel" name="smooth_winow_size">
                       <property name="text">
                        <string>Window size</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QSpinBox" name="sb_smooth_size">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="inputMethodHints">
-                       <set>Qt::ImhDigitsOnly</set>
-                      </property>
-                      <property name="minimum">
-                       <number>3</number>
-                      </property>
-                      <property name="singleStep">
-                       <number>2</number>
-                      </property>
-                      <property name="value">
-                       <number>3</number>
                       </property>
                      </widget>
                     </item>
@@ -971,6 +980,9 @@ color: rgb(255, 0, 127);
                         <verstretch>0</verstretch>
                        </sizepolicy>
                       </property>
+                      <property name="styleSheet">
+                       <string notr="true">font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
+                      </property>
                      </widget>
                     </item>
                    </layout>
@@ -1034,8 +1046,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>296</width>
-             <height>185</height>
+             <width>330</width>
+             <height>218</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1164,8 +1176,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>308</width>
-             <height>185</height>
+             <width>330</width>
+             <height>218</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1290,7 +1302,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>330</width>
-             <height>183</height>
+             <height>218</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1426,7 +1438,7 @@ color: rgb(255, 0, 127);
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>27</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuManual">

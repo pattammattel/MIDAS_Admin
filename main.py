@@ -32,9 +32,9 @@ class Ui(QtWidgets.QMainWindow):
         self.cb_remove_edges.stateChanged.connect(self.view_stack)
         self.cb_norm.stateChanged.connect(self.view_stack)
         self.cb_smooth.stateChanged.connect(self.view_stack)
+        self.hs_smooth_size.valueChanged.connect(self.view_stack)
         self.cb_remove_outliers.stateChanged.connect(self.view_stack)
         self.cb_remove_bg.stateChanged.connect(self.view_stack)
-        self.sb_smooth_size.valueChanged.connect(self.view_stack)
         self.hs_nsigma.valueChanged.connect(self.view_stack)
         self.hs_bg_threshold.valueChanged.connect(self.view_stack)
         self.pb_reset_img.clicked.connect(self.reset_and_load_stack)
@@ -190,7 +190,11 @@ class Ui(QtWidgets.QMainWindow):
             logger.info('Log Stack is in use')
 
         if self.cb_smooth.isChecked():
-            self.updated_stack = smoothen(self.updated_stack, w_size = self.sb_smooth_size.value())
+            window = self.hs_smooth_size.value()
+            if window % 2 == 0:
+                window =+1
+            self.smooth_winow_size.setText('Window size: '+str(window))
+            self.updated_stack = smoothen(self.updated_stack, w_size = window)
             logger.info('Spectrum Smoothening Applied')
 
         if self.cb_norm.isChecked():

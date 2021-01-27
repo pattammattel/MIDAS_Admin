@@ -28,6 +28,7 @@ class Ui(QtWidgets.QMainWindow):
         self.actionOpen_in_GitHub.triggered.connect(self.open_github_link)
         self.actionLoad_Energy.triggered.connect(self.select_elist)
 
+        self.cb_transpose.stateChanged.connect(self.transpose_stack)
         self.cb_log.stateChanged.connect(self.view_stack)
         self.cb_remove_edges.stateChanged.connect(self.view_stack)
         self.cb_norm.stateChanged.connect(self.view_stack)
@@ -161,6 +162,11 @@ class Ui(QtWidgets.QMainWindow):
         self.updated_stack = remove_nan_inf(self.im_stack[self.z1:self.z2,
                                             self.x1:self.x2, self.y1:self.y2])
 
+    def transpose_stack(self):
+        self.updated_stack = self.updated_stack.T
+        self.update_spectrum()
+        self.update_spec_image_roi()
+
     def update_stack(self):
 
         self.crop_to_dim()
@@ -284,7 +290,10 @@ class Ui(QtWidgets.QMainWindow):
         posx, posy = self.image_roi.pos()
         self.le_roi.setText(str(int(posx))+':' +str(int(posy)))
         self.le_roi_size.setText(str(sizex) +','+ str(sizey))
-        self.spectrum_view.plot(self.xdata, get_mean_spectra(self.ydata), clear=True)
+        try:
+            self.spectrum_view.plot(self.xdata, get_mean_spectra(self.ydata), clear=True)
+        except:
+            self.spectrum_view.plot(get_mean_spectra(self.ydata), clear=True)
         if self.energy[-1]>1000:
             self.e_unit = 'eV'
         else:
@@ -292,7 +301,10 @@ class Ui(QtWidgets.QMainWindow):
 
         self.spectrum_view.setLabel('bottom','Energy', self.e_unit)
         self.spectrum_view.setLabel('left', 'Intensity', 'A.U.')
-        self.curr_spec = np.column_stack((self.xdata,get_mean_spectra(self.ydata)))
+        try:
+            self.curr_spec = np.column_stack((self.xdata,get_mean_spectra(self.ydata)))
+        except:
+            self.curr_spec = np.array(get_mean_spectra(self.ydata))
         self.spectrum_view.addItem(self.spec_roi)
         self.update_spec_roi_values()
         self.math_roi_flag()

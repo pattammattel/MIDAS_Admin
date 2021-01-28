@@ -12,9 +12,9 @@ from StackPlot import *
 from StackCalcs import *
 logger = logging.getLogger()
 
-class Ui(QtWidgets.QMainWindow):
+class midasWindow(QtWidgets.QMainWindow):
     def __init__(self, im_stack=None, energy=[], refs = []):
-        super(Ui, self).__init__()
+        super(midasWindow, self).__init__()
         uic.loadUi('mainwindow_admin.ui', self)
         self.im_stack = im_stack
         self.updated_stack = self.im_stack
@@ -599,6 +599,6 @@ if __name__ == "__main__":
 
     app = QtWidgets.QApplication(sys.argv)
     app.setAttribute(QtCore.Qt.AA_Use96Dpi)
-    window = Ui()
+    window = midasWindow()
     window.show()
     sys.exit(app.exec_())

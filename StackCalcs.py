@@ -70,9 +70,6 @@ def rebin_image(im,bin_factor):
         shape = (arrx/bin_factor,arry/bin_factor)
         return im.reshape(shape).mean(-1).mean(1)
 
-
-
-
 def remove_hot_pixels(image_array, NSigma=5):
     image_array = remove_nan_inf(image_array)
     a, b, c = np.shape(image_array)

@@ -265,6 +265,7 @@ class XANESViewer(QtWidgets.QMainWindow):
         # connections
         self.sb_e_shift.valueChanged.connect(self.update_spectrum)
         self.sb_e_shift.valueChanged.connect(self.re_fit_xanes)
+        self.pb_edit_refs.clicked.connect(self.choose_refs)
         self.image_roi.sigRegionChanged.connect(self.update_spectrum)
         self.pb_save_chem_map.clicked.connect(self.save_chem_map)
         #self.pb_save_spe_fit.clicked.connect(self.reset_roi)
@@ -278,10 +279,15 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.image_view_maps.ui.roiBtn.hide()
         inter_ref = interploate_E(self.refs, self.xdata)
 
-        self.plt_colors = ['c', 'm', 'y', 'w']*2
+        self.plt_colors = ['c', 'm', 'y', 'w', 'k']*2
         self.spectrum_view_refs.addLegend()
         for ii in range(inter_ref.shape[0]):
             self.spectrum_view_refs.plot(self.xdata, inter_ref[ii], pen=self.plt_colors[ii], name="ref" + str(ii + 1))
+
+    def choose_refs(self):
+        'Interactively exclude some standards from the reference file'
+        edit_window = RefChooser(1,2,3)
+        edit_window.show()
 
     def update_spectrum(self):
 
@@ -373,6 +379,17 @@ class ScatterPlot(QtWidgets.QMainWindow):
         self.image_view2.ui.roiBtn.hide()
         self.image_view2.setPredefinedGradient('thermal')
 
+
+class RefChooser(QtWidgets.QMainWindow):
+
+    def __init__(self, *args):
+        super(RefChooser, self).__init__()
+        uic.loadUi('RefChooser.ui', self)
+
+        for i in range(len(args)):
+            self.rb_i = QtWidgets.QRadioButton(self)
+
+        print('opened')
 
 
 

@@ -29,15 +29,15 @@ class Ui(QtWidgets.QMainWindow):
         self.actionLoad_Energy.triggered.connect(self.select_elist)
 
         self.cb_transpose.stateChanged.connect(self.transpose_stack)
-        self.cb_log.stateChanged.connect(self.view_stack)
+        self.cb_log.stateChanged.connect(self.replot_image)
         self.cb_remove_edges.stateChanged.connect(self.view_stack)
-        self.cb_norm.stateChanged.connect(self.view_stack)
-        self.cb_smooth.stateChanged.connect(self.view_stack)
-        self.hs_smooth_size.valueChanged.connect(self.view_stack)
-        self.cb_remove_outliers.stateChanged.connect(self.view_stack)
-        self.cb_remove_bg.stateChanged.connect(self.view_stack)
-        self.hs_nsigma.valueChanged.connect(self.view_stack)
-        self.hs_bg_threshold.valueChanged.connect(self.view_stack)
+        self.cb_norm.stateChanged.connect(self.replot_image)
+        self.cb_smooth.stateChanged.connect(self.replot_image)
+        self.hs_smooth_size.valueChanged.connect(self.replot_image)
+        self.cb_remove_outliers.stateChanged.connect(self.replot_image)
+        self.cb_remove_bg.stateChanged.connect(self.replot_image)
+        self.hs_nsigma.valueChanged.connect(self.replot_image)
+        self.hs_bg_threshold.valueChanged.connect(self.replot_image)
         self.pb_reset_img.clicked.connect(self.reset_and_load_stack)
         self.pb_crop.clicked.connect(self.crop_to_dim)
         self.pb_crop.clicked.connect(self.view_stack)
@@ -287,6 +287,11 @@ class Ui(QtWidgets.QMainWindow):
         self.rb_math_roi.clicked.connect(self.update_spectrum)
         self.rb_math_roi_img.clicked.connect(self.math_img_roi_flag)
         self.image_roi_math.sigRegionChanged.connect(self.image_roi_calc)
+
+    def replot_image(self):
+        self.update_stack()
+        self.update_spectrum()
+        self.update_image_roi()
 
     def update_spec_roi_values(self):
         self.stack_center = int(self.energy[len(self.energy)//2])

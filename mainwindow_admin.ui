@@ -491,8 +491,8 @@ color: rgb(255, 0, 127);
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>352</width>
-         <height>884</height>
+         <width>307</width>
+         <height>874</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_9">
@@ -515,8 +515,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>330</width>
-             <height>321</height>
+             <width>346</width>
+             <height>279</height>
             </rect>
            </property>
            <attribute name="label">
@@ -739,9 +739,9 @@ color: rgb(255, 0, 127);
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>-2</y>
-             <width>309</width>
-             <height>381</height>
+             <y>-55</y>
+             <width>285</width>
+             <height>413</height>
             </rect>
            </property>
            <attribute name="label">
@@ -777,6 +777,9 @@ color: rgb(255, 0, 127);
                    <layout class="QHBoxLayout" name="horizontalLayout_4">
                     <item>
                      <widget class="QSlider" name="hs_smooth_size">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
                       <property name="minimum">
                        <number>3</number>
                       </property>
@@ -840,6 +843,9 @@ color: rgb(255, 0, 127);
                      <layout class="QHBoxLayout" name="horizontalLayout">
                       <item>
                        <widget class="QSlider" name="hs_nsigma">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
                         <property name="maximum">
                          <number>200</number>
                         </property>
@@ -894,6 +900,9 @@ color: rgb(255, 0, 127);
                      <layout class="QHBoxLayout" name="horizontalLayout_2">
                       <item>
                        <widget class="QSlider" name="hs_bg_threshold">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
                         <property name="maximum">
                          <number>100</number>
                         </property>
@@ -961,6 +970,9 @@ color: rgb(255, 0, 127);
                    <layout class="QHBoxLayout" name="horizontalLayout_9">
                     <item>
                      <widget class="QCheckBox" name="sb_bin">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                         <horstretch>0</horstretch>
@@ -974,6 +986,9 @@ color: rgb(255, 0, 127);
                     </item>
                     <item>
                      <widget class="QSpinBox" name="sb_bin_val">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                         <horstretch>0</horstretch>
@@ -982,6 +997,18 @@ color: rgb(255, 0, 127);
                       </property>
                       <property name="styleSheet">
                        <string notr="true">font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
+                      </property>
+                      <property name="minimum">
+                       <number>2</number>
+                      </property>
+                      <property name="maximum">
+                       <number>16</number>
+                      </property>
+                      <property name="singleStep">
+                       <number>2</number>
+                      </property>
+                      <property name="value">
+                       <number>2</number>
                       </property>
                      </widget>
                     </item>
@@ -1046,8 +1073,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>330</width>
-             <height>218</height>
+             <width>296</width>
+             <height>185</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1176,8 +1203,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>330</width>
-             <height>218</height>
+             <width>308</width>
+             <height>185</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1301,8 +1328,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>330</width>
-             <height>218</height>
+             <width>285</width>
+             <height>168</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1438,7 +1465,7 @@ color: rgb(255, 0, 127);
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>22</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuManual">

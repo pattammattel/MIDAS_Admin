@@ -172,11 +172,16 @@ class Ui(QtWidgets.QMainWindow):
         self.crop_to_dim()
 
         if self.cb_remove_outliers.isChecked():
+            self.hs_nsigma.setEnabled(True)
             nsigma = self.hs_nsigma.value()/10
             self.updated_stack = remove_hot_pixels(self.updated_stack,
                                                    NSigma=nsigma)
             self.label_nsigma.setText(str(nsigma))
             logger.info(f'Removing Outliers with NSigma {nsigma}')
+
+        elif self.cb_remove_outliers.isChecked() == False:
+            self.hs_nsigma.setEnabled(False)
+
 
         if self.cb_remove_edges.isChecked():
             self.updated_stack = remove_edges(self.updated_stack)
@@ -184,6 +189,7 @@ class Ui(QtWidgets.QMainWindow):
             self.update_stack_info()
 
         if self.cb_remove_bg.isChecked():
+            self.hs_bg_threshold.setEnabled(True)
             logger.info('Removing background')
             bg_threshold = self.hs_bg_threshold.value()
             self.label_bg_threshold.setText(str(bg_threshold)+'%')
@@ -191,17 +197,24 @@ class Ui(QtWidgets.QMainWindow):
                                              auto_bg= False,
                                              bg_percentage=bg_threshold)
 
+        elif self.cb_remove_bg.isChecked() == False:
+            self.hs_bg_threshold.setEnabled(False)
+
         if self.cb_log.isChecked():
             self.updated_stack = remove_nan_inf(np.log(self.updated_stack))
             logger.info('Log Stack is in use')
 
         if self.cb_smooth.isChecked():
+            self.hs_smooth_size.setEnabled(True)
             window = self.hs_smooth_size.value()
             if window % 2 == 0:
                 window =+1
             self.smooth_winow_size.setText('Window size: '+str(window))
             self.updated_stack = smoothen(self.updated_stack, w_size = window)
             logger.info('Spectrum Smoothening Applied')
+
+        elif self.cb_smooth.isChecked() == False:
+            self.hs_smooth_size.setEnabled(False)
 
         if self.cb_norm.isChecked():
             logger.info('Normalizing spectra')

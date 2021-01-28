@@ -61,6 +61,16 @@ def remove_nan_inf(im):
     im[np.isinf(im)] = 0
     return im
 
+def rebin_image(im,bin_factor):
+    arrx,arry = np.shape(im)
+    if arrx/bin_factor != int or arrx/bin_factor != int:
+        logger.error('Invalid Binning')
+
+    else:
+        shape = (arrx/bin_factor,arry/bin_factor)
+        return im.reshape(shape).mean(-1).mean(1)
+
+
 
 
 def remove_hot_pixels(image_array, NSigma=5):

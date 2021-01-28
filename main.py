@@ -303,15 +303,15 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def update_spectrum(self):
         self.xdata = self.energy[self.sb_zrange1.value():self.sb_zrange2.value()]
-        self.ydata = self.image_roi.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
-        sizex, sizey = self.ydata.shape[1], self.ydata.shape[2]
+        self.roi_img_stk = self.image_roi.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
+        sizex, sizey = self.roi_img_stk.shape[1], self.roi_img_stk.shape[2]
         posx, posy = self.image_roi.pos()
         self.le_roi.setText(str(int(posx))+':' +str(int(posy)))
         self.le_roi_size.setText(str(sizex) +','+ str(sizey))
         try:
-            self.spectrum_view.plot(self.xdata, get_mean_spectra(self.ydata), clear=True)
+            self.spectrum_view.plot(self.xdata, get_mean_spectra(self.roi_img_stk), clear=True)
         except:
-            self.spectrum_view.plot(get_mean_spectra(self.ydata), clear=True)
+            self.spectrum_view.plot(get_mean_spectra(self.roi_img_stk), clear=True)
         if self.energy[-1]>1000:
             self.e_unit = 'eV'
         else:
@@ -320,9 +320,9 @@ class midasWindow(QtWidgets.QMainWindow):
         self.spectrum_view.setLabel('bottom','Energy', self.e_unit)
         self.spectrum_view.setLabel('left', 'Intensity', 'A.U.')
         try:
-            self.curr_spec = np.column_stack((self.xdata,get_mean_spectra(self.ydata)))
+            self.curr_spec = np.column_stack((self.xdata,get_mean_spectra(self.roi_img_stk)))
         except:
-            self.curr_spec = np.array(get_mean_spectra(self.ydata))
+            self.curr_spec = np.array(get_mean_spectra(self.roi_img_stk))
         self.spectrum_view.addItem(self.spec_roi)
         self.update_spec_roi_values()
         self.math_roi_flag()

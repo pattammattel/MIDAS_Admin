@@ -277,17 +277,17 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.image_view_maps.setPredefinedGradient('bipolar')
         self.image_view_maps.ui.menuBtn.hide()
         self.image_view_maps.ui.roiBtn.hide()
-        inter_ref = interploate_E(self.refs, self.xdata)
+        self.inter_ref = interploate_E(self.refs, self.xdata)
 
         self.plt_colors = ['c', 'm', 'y', 'w', 'k']*2
         self.spectrum_view_refs.addLegend()
-        for ii in range(inter_ref.shape[0]):
-            self.spectrum_view_refs.plot(self.xdata, inter_ref[ii], pen=self.plt_colors[ii], name="ref" + str(ii + 1))
+        for ii in range(self.inter_ref.shape[0]):
+            self.spectrum_view_refs.plot(self.xdata, self.inter_ref[ii], pen=self.plt_colors[ii], name="ref" + str(ii + 1))
 
     def choose_refs(self):
         'Interactively exclude some standards from the reference file'
-        edit_window = RefChooser(1,2,3)
-        edit_window.show()
+        self.edit_window = RefChooser()
+        self.edit_window.show()
 
     def update_spectrum(self):
 
@@ -299,9 +299,9 @@ class XANESViewer(QtWidgets.QMainWindow):
 
         self.xdata1 = self.e_list + self.sb_e_shift.value()
         self.ydata1 = get_sum_spectra(self.roi_img)
-        inter_ref = interploate_E(self.refs, self.xdata1)
-        coeffs, r = opt.nnls(inter_ref.T, self.ydata1)
-        self.fit_ = np.dot(coeffs, inter_ref)
+        self.inter_ref = interploate_E(self.refs, self.xdata1)
+        coeffs, r = opt.nnls(self.inter_ref.T, self.ydata1)
+        self.fit_ = np.dot(coeffs, self.inter_ref)
         pen = pg.mkPen('g', width=1.5)
         pen2 = pg.mkPen('r', width=1.5)
         pen3 = pg.mkPen('y', width=1.5)
@@ -310,7 +310,7 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.spectrum_view.setLabel('left', 'Intensity', 'A.U.')
         self.spectrum_view.plot(self.xdata1, self.ydata1, pen=pen, name="Data", clear=True)
         self.spectrum_view.plot(self.xdata1, self.fit_, name="Fit", pen=pen2)
-        for n, (coff, ref, plt_clr) in enumerate(zip(coeffs,inter_ref, self.plt_colors)):
+        for n, (coff, ref, plt_clr) in enumerate(zip(coeffs,self.inter_ref, self.plt_colors)):
             self.spectrum_view.plot(self.xdata1, np.dot(coff,ref), name=f'ref{n+1}', pen=plt_clr)
 
         self.le_r_sq.setText(str(np.around(r / self.ydata1.sum(), 4)))
@@ -322,7 +322,7 @@ class XANESViewer(QtWidgets.QMainWindow):
     def save_chem_map(self):
         file_name = QFileDialog().getSaveFileName(self, "save image", '', 'image data (*tiff)')
         try:
-            tf.imsave(str(file_name[0]) + '.tiff', np.float32(self.decon_ims), imagej=True)
+            tf.imsave(str(file_name[0]) + '.tiff', np.float32(self.decon_ims.transpose(0,2,1)), imagej=True)
         except:
             logger.error('No file to save')
             pass
@@ -382,14 +382,24 @@ class ScatterPlot(QtWidgets.QMainWindow):
 
 class RefChooser(QtWidgets.QMainWindow):
 
-    def __init__(self, *args):
+    def __init__(self, col_num = 5):
         super(RefChooser, self).__init__()
         uic.loadUi('RefChooser.ui', self)
+        self.col_num = col_num
 
-        for i in range(len(args)):
-            self.rb_i = QtWidgets.QRadioButton(self)
+        for i in range(self.col_num):
+            self.radioButton_i = QtWidgets.QRadioButton(self.centralwidget)
+            self.radioButton_i.setObjectName(f"radioButton_{i}")
+            self.radioButton_i.setText(f"reference_{i+1}")
+            self.gridLayout.addWidget(self.radioButton_i, i, 0, 1, 1)
 
-        print('opened')
+            self.radioButton_i.toggled.connect(self.print_something)
+
+    def print_something(self):
+        print('clicked..')
+
+
+
 
 
 

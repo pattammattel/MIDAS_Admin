@@ -421,8 +421,22 @@ def xanes_fitting(im_stack, e_list, refs, method='NNLS'):
 
     return map
 
+def create_df_from_nor(athenafile = 'fe_refs.nor'):
 
-# TODO make xanes plots interactive
+    """create pandas dataframe from athena nor file, first column
+    is energy and headers are sample names"""
+
+    refs = np.loadtxt(athenafile)
+    n_refs = refs.shape[-1]
+
+    df = pd.read_table(athenafile, delim_whitespace=True, skiprows=13,
+                       header=None, usecols=np.arange(0,n_refs))
+    df2 = pd.read_table(athenafile, delim_whitespace=True, skiprows=12,
+                        usecols=np.arange(0,n_refs+1))
+    new_col = df2.columns.drop('#')
+    df.columns = new_col
+    return df
+
 
 
 def align_iter(image_array, ref_stack, reference='previous', num_ter=1):

@@ -388,12 +388,12 @@ class RefChooser(QtWidgets.QMainWindow):
         self.col_num = col_num
 
         for i in range(self.col_num):
-            self.radioButton_i = QtWidgets.QRadioButton(self.centralwidget)
-            self.radioButton_i.setObjectName(f"radioButton_{i}")
-            self.radioButton_i.setText(f"reference_{i+1}")
-            self.gridLayout.addWidget(self.radioButton_i, i, 0, 1, 1)
+            self.checkBox_i = QtWidgets.QCheckBox(self.centralwidget)
+            self.checkBox_i.setObjectName(f"radioButton_{i}")
+            self.checkBox_i.setText(f"reference_{i+1}")
+            self.gridLayout.addWidget(self.checkBox_i, i, 0, 1, 1)
 
-            self.radioButton_i.toggled.connect(self.print_something)
+            self.checkBox_i.toggled.connect(self.print_something)
 
     def print_something(self):
         print('clicked..')

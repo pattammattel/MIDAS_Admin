@@ -739,7 +739,7 @@ color: rgb(255, 0, 127);
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>-55</y>
+             <y>0</y>
              <width>285</width>
              <height>413</height>
             </rect>
@@ -1485,7 +1485,14 @@ color: rgb(255, 0, 127);
     <addaction name="actionSave_as"/>
     <addaction name="actionExit"/>
    </widget>
+   <widget class="QMenu" name="menuMask">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionOpen_Mask_Gen"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuMask"/>
    <addaction name="menuManual"/>
   </widget>
   <widget class="QStatusBar" name="statusbar_main"/>
@@ -1574,6 +1581,11 @@ color: rgb(255, 0, 127);
   <action name="actionOpen_Multiple_Files">
    <property name="text">
     <string>Open Multiple Files</string>
+   </property>
+  </action>
+  <action name="actionOpen_Mask_Gen">
+   <property name="text">
+    <string>Open Mask Generator</string>
    </property>
   </action>
  </widget>

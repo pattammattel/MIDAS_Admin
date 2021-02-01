@@ -1,5 +1,6 @@
 from StackCalcs import *
-
+from RefChooser import *
 dff,col_name = create_df_from_nor(athenafile='marked2.nor')
 
-print(col_name)
+w = RefChooser(col_name)
+w.show()

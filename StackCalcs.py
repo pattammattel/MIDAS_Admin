@@ -434,10 +434,11 @@ def create_df_from_nor(athenafile='fe_refs.nor'):
 
     refs = np.loadtxt(athenafile)
     n_refs = refs.shape[-1]
+    skip_raw_n = n_refs+6
 
-    df = pd.read_table(athenafile, delim_whitespace=True, skiprows=13,
+    df = pd.read_table(athenafile, delim_whitespace=True, skiprows=skip_raw_n,
                        header=None, usecols=np.arange(0, n_refs))
-    df2 = pd.read_table(athenafile, delim_whitespace=True, skiprows=12,
+    df2 = pd.read_table(athenafile, delim_whitespace=True, skiprows=skip_raw_n-1,
                         usecols=np.arange(0, n_refs + 1))
     new_col = df2.columns.drop('#')
     df.columns = new_col

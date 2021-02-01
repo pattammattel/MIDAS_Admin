@@ -286,8 +286,12 @@ class XANESViewer(QtWidgets.QMainWindow):
 
     def choose_refs(self):
         'Interactively exclude some standards from the reference file'
-        self.edit_window = RefChooser()
-        self.edit_window.show()
+        self.ref_edit_window = RefChooser()
+        self.ref_edit_window.show()
+        self.ref_edit_window.signal.connect(self.update_refs)
+
+    def update_refs(self,list_):
+        print(list_)
 
     def update_spectrum(self):
 

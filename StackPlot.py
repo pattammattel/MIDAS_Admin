@@ -12,7 +12,7 @@ from pyqtgraph.Qt import QtCore, QtGui
 from pyqtgraph import ImageView, PlotWidget
 
 from StackCalcs import *
-
+from RefChooser import *
 logger = logging.getLogger()
 
 
@@ -383,24 +383,6 @@ class ScatterPlot(QtWidgets.QMainWindow):
         self.image_view2.ui.roiBtn.hide()
         self.image_view2.setPredefinedGradient('thermal')
 
-
-class RefChooser(QtWidgets.QMainWindow):
-
-    def __init__(self, col_num = 5):
-        super(RefChooser, self).__init__()
-        uic.loadUi('RefChooser.ui', self)
-        self.col_num = col_num
-
-        for i in range(self.col_num):
-            self.checkBox_i = QtWidgets.QCheckBox(self.centralwidget)
-            self.checkBox_i.setObjectName(f"radioButton_{i}")
-            self.checkBox_i.setText(f"reference_{i+1}")
-            self.gridLayout.addWidget(self.checkBox_i, i, 0, 1, 1)
-
-            self.checkBox_i.toggled.connect(self.print_something)
-
-    def print_something(self):
-        print('clicked..')
 
 
 

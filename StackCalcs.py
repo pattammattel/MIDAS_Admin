@@ -402,6 +402,7 @@ def interploate_E(refs, e):
 
 
 def xanes_fitting(im_stack, e_list, refs, method='NNLS'):
+    """Linear combination fit of image data with reference standards"""
     new_image = im_stack.transpose(2, 1, 0)
     x, y, z = np.shape(new_image)
 

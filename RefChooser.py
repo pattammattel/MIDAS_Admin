@@ -14,7 +14,6 @@ from StackCalcs import *
 dff,col_name = create_df_from_nor(athenafile='marked2.nor')
 
 
-
 class RefChooser(QtWidgets.QMainWindow):
     
     signal: pyqtSignal = QtCore.pyqtSignal(list)
@@ -55,7 +54,6 @@ class RefChooser(QtWidgets.QMainWindow):
         for names in self.all_boxes:
             if names.isChecked():
                 self.onlyCheckedBoxes.append(names.objectName())
-        print(self.onlyCheckedBoxes)
         self.signal.emit(self.onlyCheckedBoxes)
 
 

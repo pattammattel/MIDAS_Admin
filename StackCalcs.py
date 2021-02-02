@@ -377,18 +377,6 @@ def denoise_with_decomposition(img_stack, method_='PCA', n_components=4):
     # plt.show()
     return remove_nan_inf(filtered)
 
-
-def plot_xanes_refs(ref):
-    plt.figure()
-    e = ref[:, 0]
-    for i in range(min(ref.shape)):
-        if i > 0:
-            plt.plot(e, ref[:, i])
-    plt.title("Reference Standards")
-    plt.xlabel("Energy")
-    plt.show()
-
-
 def interploate_E(refs, e):
     n = np.shape(refs)[1]
     refs = np.array(refs)

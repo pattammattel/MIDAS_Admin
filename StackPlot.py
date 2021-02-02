@@ -120,7 +120,6 @@ class StackSpecViewer(QtWidgets.QMainWindow):
         self.update_spectrum()
         self.update_image_roi()
 
-
 class ComponentViewer(QtWidgets.QMainWindow):
 
     def __init__(self,  comp_stack, energy, comp_spectra, decon_spectra, decomp_map):
@@ -184,7 +183,6 @@ class ComponentViewer(QtWidgets.QMainWindow):
 
     # add energy column
 
-
 class ClusterViewer(QtWidgets.QMainWindow):
 
     def __init__(self, decon_images, energy, X_cluster, decon_spectra):
@@ -231,17 +229,19 @@ class ClusterViewer(QtWidgets.QMainWindow):
         tf.imsave(str(file_name[0]) + '_cluster_map.tiff', np.float32(self.X_cluster.T),imagej=True)
         np.savetxt(str(file_name[0]) + '_deconv_spec.txt', self.decon_spectra)
 
-
 class XANESViewer(QtWidgets.QMainWindow):
 
-    def __init__(self, decon_ims, im_stack, e_list, refs):
+    def __init__(self, im_stack, e_list, refs, ref_names):
         super(XANESViewer, self).__init__()
 
         uic.loadUi('XANESViewer.ui', self)
-        self.decon_ims = decon_ims
+
         self.im_stack = im_stack
         self.e_list = e_list
         self.refs = refs
+        self.ref_names = ref_names
+
+        self.decon_ims = xanes_fitting(self.im_stack, self.e_list, self.refs.values, method='NNLS').T
 
         (self.dim1, self.dim3, self.dim2) = self.im_stack.shape
         self.cn = int(self.dim2 // 2)

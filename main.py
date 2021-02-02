@@ -557,7 +557,7 @@ class midasWindow(QtWidgets.QMainWindow):
                 self.change_color_on_load(self.pb_ref_xanes)
 
             elif file_name[0].endswith('.txt'):
-                self.refs = np.loadtxt(str(file_name[0]))
+                self.refs = pd.read_csv(str(file_name[0]), header = None, delim_whitespace=True)
                 self.change_color_on_load(self.pb_ref_xanes)
 
             self.plt_xanes_refs()
@@ -572,12 +572,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def plt_xanes_refs(self):
         plt.figure()
-        if len(self.ref_names) != 0:
-            plt.plot(self.refs.values[:, 0], self.refs.values[:, 1:])
-
-        else:
-            plt.plot(self.refs[:,0],self.refs[:,1:])
-
+        plt.plot(self.refs.values[:, 0], self.refs.values[:, 1:])
         plt.title("Reference Standards")
         plt.xlabel("Energy")
         plt.show()
@@ -587,21 +582,13 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def fast_xanes_fitting(self):
 
-        logger.info('Process started..')
-
         if self.cb_kev_flag.isChecked():
             e_list1 = self.energy * 1000
 
         else:
             e_list1 = self.energy
-        ref1 = self.refs
-        self.update_stack()
 
-        xanes_maps = xanes_fitting(self.updated_stack, e_list1, ref1,
-                                   method=self.cb_xanes_fitting_method.currentText())
-        logger.info('Process complete')
-
-        self._new_window5 = XANESViewer(xanes_maps.T, self.updated_stack, e_list1, ref1)
+        self._new_window5 = XANESViewer(self.updated_stack, e_list1, self.refs, self.ref_names)
         self._new_window5.show()
 
 

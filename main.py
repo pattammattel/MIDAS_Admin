@@ -562,6 +562,8 @@ class midasWindow(QtWidgets.QMainWindow):
 
             self.plt_xanes_refs()
 
+            print(self.ref_names)
+
         except OSError:
             logger.error('No file selected')
             pass

@@ -10,115 +10,11 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QFileDialog
 from pyqtgraph.Qt import QtCore, QtGui
 from pyqtgraph import ImageView, PlotWidget
+from PyQt5.QtCore import pyqtSignal
 
 from StackCalcs import *
-from RefChooser import *
 logger = logging.getLogger()
 
-
-class StackSpecViewer(QtWidgets.QMainWindow):
-
-    def __init__(self, im_stack):
-        super(StackSpecViewer, self).__init__()
-
-        uic.loadUi('StackViewer.ui', self)
-        self.im_stack = im_stack
-        (self.dim1, self.dim3, self.dim2) = self.im_stack.shape
-        self.x_energy = np.arange(0,self.dim1)
-        self.image_view.setImage(self.im_stack)
-        self.image_view.ui.menuBtn.hide()
-        self.image_view.ui.roiBtn.hide()
-        self.image_view.setPredefinedGradient('viridis')
-        self.stack_center = int(self.dim1 // 2)
-        self.stack_width = int(self.dim1 * 0.05)
-        self.image_view.setCurrentIndex(self.stack_center)
-
-        '''
-        self.image_roi = pg.ROI(
-            pos=(int(self.dim2 // 2), int(self.dim3 // 2)),
-            size=(int(self.dim2 * 0.1), int(self.dim3 * 0.1)),
-            scaleSnap=True, translateSnap=True, rotateSnap=True
-        )
-        
-        '''
-        self.cn = int(self.dim2 // 2)
-        self.sz = np.max([int(self.dim2 * 0.15),int(self.dim3 * 0.15)])
-        self.image_roi = pg.PolyLineROI([[0,0], [0,self.sz], [self.sz,self.sz], [self.sz,0]],
-                                        pos =(int(self.dim2 // 2), int(self.dim3 // 2)), closed=True)
-
-        self.image_view.addItem(self.image_roi)
-        self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
-                                                    self.stack_center + self.stack_width))
-        self.spec_roi.setBounds([0, self.dim1])
-        self.sb_roi_spec_s.setValue(self.stack_center - self.stack_width)
-        self.sb_roi_spec_e.setValue(self.stack_center + self.stack_width)
-        self.reset_image()
-        self.update_spectrum()
-        self.update_image_roi()
-
-        # connections
-        self.spec_roi.sigRegionChanged.connect(self.update_image_roi)
-        self.image_roi.sigRegionChanged.connect(self.update_spectrum)
-        self.pb_log_view.clicked.connect(self.update_image)
-        self.pb_reset.clicked.connect(self.reset_image)
-        self.sb_roi_spec_s.valueChanged.connect(self.set_spec_roi)
-        self.sb_roi_spec_e.valueChanged.connect(self.set_spec_roi)
-        # self.pb_play_stack.clicked.connect(self.play_stack)
-
-    def update_spectrum(self):
-        # Obtaining coordinates of ROI graphic in the image plot
-        self.image_coord_handles = self.image_roi.getState()
-        self.posimage = self.image_coord_handles['pos']
-        self.sizeimage = self.image_coord_handles['size']
-
-        posx = int(self.posimage[0])
-        sizex = int(self.sizeimage[0])
-        posy = int(self.posimage[1])
-        sizey = int(self.sizeimage[1])
-        xmin = posx
-        xmax = posx + sizex
-        ymin = posy
-        ymax = posy + sizey
-
-        self.le_roi_xs.setText(str(xmin))
-        self.le_roi_xe.setText(str(xmax))
-        self.le_roi_ys.setText(str(ymin))
-        self.le_roi_ye.setText(str(ymax))
-        self.le_roi_size.setText(str(self.sizeimage))
-
-        # print(self.updated_im_stack[:, xmax, ymax])
-        self.xdata = np.arange(0, self.dim1, 1)
-
-        ydata = remove_nan_inf(get_sum_spectra(self.updated_im_stack[:, xmin:xmax, ymin:ymax]))
-        self.spectrum_view.plot(self.x_energy, ydata, clear=True)
-        self.spectrum_view.addItem(self.spec_roi)
-
-    def update_image_roi(self):
-        self.spec_lo, self.spec_hi = self.spec_roi.getRegion()
-        self.sb_roi_spec_s.setValue(int(self.spec_lo))
-        self.sb_roi_spec_e.setValue(int(self.spec_hi))
-        self.le_roi_spec_size.setText(str(int(self.spec_hi - self.spec_lo)))
-        self.image_view.setImage(self.updated_im_stack[int(self.spec_lo):int(self.spec_hi), :, :].mean(0))
-
-    def set_spec_roi(self):
-        if self.sync_spec_roi.isChecked():
-            self.spec_lo_, self.spec_hi_ = int(self.sb_roi_spec_s.value()), int(self.sb_roi_spec_e.value())
-            self.spec_roi.setRegion((self.spec_lo_, self.spec_hi_))
-        else:
-            pass
-
-    def play_stack(self):
-        self.image_view.play(rate=5)
-
-    def update_image(self):
-        self.updated_im_stack = remove_nan_inf(np.log(self.im_stack))
-        self.update_spectrum()
-        self.update_image_roi()
-
-    def reset_image(self):
-        self.updated_im_stack = remove_nan_inf(self.im_stack)
-        self.update_spectrum()
-        self.update_image_roi()
 
 class ComponentViewer(QtWidgets.QMainWindow):
 
@@ -240,12 +136,13 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.e_list = e_list
         self.refs = refs
         self.ref_names = ref_names
+        self.selected = self.ref_names
 
-        self.decon_ims = xanes_fitting(self.im_stack, self.e_list, self.refs.values, method='NNLS').T
+        self.decon_ims = xanes_fitting(self.im_stack, self.e_list, self.refs, method='NNLS').T
 
         (self.dim1, self.dim3, self.dim2) = self.im_stack.shape
         self.cn = int(self.dim2 // 2)
-        self.sz = np.max([int(self.dim2 * 0.25),int(self.dim3 * 0.25)])
+        self.sz = np.max([int(self.dim2 * 0.15),int(self.dim3 * 0.15)])
         self.image_roi = pg.PolyLineROI([[0,0], [0,self.sz], [self.sz,self.sz], [self.sz,0]],
                                         pos =(int(self.dim2 // 2), int(self.dim3 // 2)), closed=True)
         self.image_roi.addTranslateHandle([self.sz//2, self.sz//2], [2, 2])
@@ -282,16 +179,23 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.plt_colors = ['c', 'm', 'y', 'w', 'k']*2
         self.spectrum_view_refs.addLegend()
         for ii in range(self.inter_ref.shape[0]):
-            self.spectrum_view_refs.plot(self.xdata, self.inter_ref[ii], pen=self.plt_colors[ii], name="ref" + str(ii + 1))
+            if len(self.selected) != 0:
+                self.spectrum_view_refs.plot(self.xdata, self.inter_ref[ii], pen=self.plt_colors[ii],
+                                             name=self.selected[1:][ii])
+            else:
+                self.spectrum_view_refs.plot(self.xdata, self.inter_ref[ii], pen=self.plt_colors[ii],
+                                             name="ref" + str(ii + 1))
 
     def choose_refs(self):
         'Interactively exclude some standards from the reference file'
-        self.ref_edit_window = RefChooser()
+        self.ref_edit_window = RefChooser(self.ref_names)
         self.ref_edit_window.show()
         self.ref_edit_window.signal.connect(self.update_refs)
 
     def update_refs(self,list_):
-        print(list_)
+        self.selected = list_
+        self.update_spectrum()
+        self.re_fit_xanes()
 
     def update_spectrum(self):
 
@@ -303,7 +207,12 @@ class XANESViewer(QtWidgets.QMainWindow):
 
         self.xdata1 = self.e_list + self.sb_e_shift.value()
         self.ydata1 = get_sum_spectra(self.roi_img)
-        self.inter_ref = interploate_E(self.refs, self.xdata1)
+        if len(self.selected) != 0:
+
+            self.inter_ref = interploate_E(self.refs[self.selected], self.xdata1)
+
+        else:
+            self.inter_ref = interploate_E(self.refs, self.xdata1)
         coeffs, r = opt.nnls(self.inter_ref.T, self.ydata1)
         self.fit_ = np.dot(coeffs, self.inter_ref)
         pen = pg.mkPen('g', width=1.5)
@@ -315,12 +224,22 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.spectrum_view.plot(self.xdata1, self.ydata1, pen=pen, name="Data", clear=True)
         self.spectrum_view.plot(self.xdata1, self.fit_, name="Fit", pen=pen2)
         for n, (coff, ref, plt_clr) in enumerate(zip(coeffs,self.inter_ref, self.plt_colors)):
-            self.spectrum_view.plot(self.xdata1, np.dot(coff,ref), name=f'ref{n+1}', pen=plt_clr)
+            if len(self.selected) != 0:
+
+                self.spectrum_view.plot(self.xdata1, np.dot(coff,ref), name=self.selected[1:][n],pen=plt_clr)
+            else:
+                self.spectrum_view.plot(self.xdata1, np.dot(coff, ref), name="ref" + str(n + 1), pen=plt_clr)
 
         self.le_r_sq.setText(str(np.around(r / self.ydata1.sum(), 4)))
 
     def re_fit_xanes(self):
-        self.decon_ims = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(), self.refs, method='NNLS')
+        if len(self.selected) != 0:
+            self.decon_ims = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
+                                       self.refs[self.selected], method='NNLS')
+        else:
+            self.decon_ims = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
+                                       self.refs, method='NNLS')
+
         self.image_view_maps.setImage(self.decon_ims.T)
 
     def save_chem_map(self):
@@ -358,6 +277,48 @@ class XANESViewer(QtWidgets.QMainWindow):
 
     '''
 
+class RefChooser(QtWidgets.QMainWindow):
+    signal: pyqtSignal = QtCore.pyqtSignal(list)
+
+    def __init__(self, ref_names=[]):
+        super(RefChooser, self).__init__()
+        uic.loadUi('RefChooser.ui', self)
+        self.ref_names = ref_names
+        print(self.ref_names)
+        self.all_boxes = []
+
+        for n, i in enumerate(self.ref_names):
+            self.cb_i = QtWidgets.QCheckBox(self.centralwidget)
+            if n == 0:
+                self.cb_i.setChecked(True)
+                self.cb_i.setEnabled(False)
+            self.cb_i.setObjectName(i)
+            self.cb_i.setText(i)
+            self.gridLayout.addWidget(self.cb_i, n, 0, 1, 1)
+            # self.cb_i.toggled.connect(self.clickedWhich)
+            self.all_boxes.append(self.cb_i)
+
+        self.pb_apply = QtWidgets.QPushButton(self.centralwidget)
+        self.pb_apply.setText("Apply")
+        self.gridLayout.addWidget(self.pb_apply, len(self.ref_names) + 1, 0, 1, 1)
+
+        self.pb_apply.clicked.connect(self.clickedWhichAre)
+
+    def clickedWhich(self):
+        button_name = self.sender()
+        print(button_name.objectName())
+
+    QtCore.pyqtSlot()
+
+    def clickedWhichAre(self):
+
+        self.onlyCheckedBoxes = []
+
+        for names in self.all_boxes:
+            if names.isChecked():
+                self.onlyCheckedBoxes.append(names.objectName())
+        self.signal.emit(self.onlyCheckedBoxes)
+
 class ScatterPlot(QtWidgets.QMainWindow):
 
     def __init__(self, img1, img2):
@@ -382,6 +343,7 @@ class ScatterPlot(QtWidgets.QMainWindow):
         self.image_view2.ui.menuBtn.hide()
         self.image_view2.ui.roiBtn.hide()
         self.image_view2.setPredefinedGradient('thermal')
+
 
 
 

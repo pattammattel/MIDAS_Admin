@@ -308,15 +308,15 @@ class RefChooser(QtWidgets.QMainWindow):
         print(button_name.objectName())
 
     def populateChecked(self):
+        self.onlyCheckedBoxes = []
         for names in self.all_boxes:
             if names.isChecked():
                 self.onlyCheckedBoxes.append(names.objectName())
-        self.signal.emit(self.onlyCheckedBoxes)
 
     QtCore.pyqtSlot()
     def clickedWhichAre(self):
-        self.onlyCheckedBoxes = []
         self.populateChecked()
+        self.signal.emit(self.onlyCheckedBoxes)
 
     def enableApply(self):
         self.populateChecked()

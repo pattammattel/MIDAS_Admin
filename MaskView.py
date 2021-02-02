@@ -20,7 +20,7 @@ class MaskSpecViewer(QtWidgets.QMainWindow):
 
     def __init__(self, xanes_stack=None, xrf_map=None, energy=[]):
         super(MaskSpecViewer, self).__init__()
-        uic.loadUi('MaskedView.ui', self)
+        uic.loadUi('uis/MaskedView.ui', self)
 
         self.xanes_stack = xanes_stack
         self.xrf_map = xrf_map

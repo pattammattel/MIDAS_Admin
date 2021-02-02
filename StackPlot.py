@@ -22,7 +22,7 @@ class ComponentViewer(QtWidgets.QMainWindow):
         super(ComponentViewer, self).__init__()
 
         # Load the UI Page
-        uic.loadUi('ComponentView.ui', self)
+        uic.loadUi('uis/ComponentView.ui', self)
 
         self.comp_stack = comp_stack
         self.energy = energy
@@ -85,7 +85,7 @@ class ClusterViewer(QtWidgets.QMainWindow):
         super(ClusterViewer, self).__init__()
 
         # Load the UI Page
-        uic.loadUi('ClusterView.ui', self)
+        uic.loadUi('uis/ClusterView.ui', self)
 
         self.decon_images = decon_images
         self.energy = energy
@@ -130,7 +130,7 @@ class XANESViewer(QtWidgets.QMainWindow):
     def __init__(self, im_stack, e_list, refs, ref_names):
         super(XANESViewer, self).__init__()
 
-        uic.loadUi('XANESViewer.ui', self)
+        uic.loadUi('uis/XANESViewer.ui', self)
 
         self.im_stack = im_stack
         self.e_list = e_list
@@ -282,7 +282,7 @@ class RefChooser(QtWidgets.QMainWindow):
 
     def __init__(self, ref_names=[]):
         super(RefChooser, self).__init__()
-        uic.loadUi('RefChooser.ui', self)
+        uic.loadUi('uis/RefChooser.ui', self)
         self.ref_names = ref_names
         self.all_boxes = []
 
@@ -331,7 +331,7 @@ class ScatterPlot(QtWidgets.QMainWindow):
     def __init__(self, img1, img2):
         super(ScatterPlot, self).__init__()
 
-        uic.loadUi('ScatterView.ui', self)
+        uic.loadUi('uis/ScatterView.ui', self)
         w1 = self.scatterViewer.addPlot()
         self.img1 = img1
         self.img2 = img2

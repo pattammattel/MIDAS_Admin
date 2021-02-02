@@ -17,7 +17,7 @@ logger = logging.getLogger()
 class midasWindow(QtWidgets.QMainWindow):
     def __init__(self, im_stack=None, energy=[], refs=[]):
         super(midasWindow, self).__init__()
-        uic.loadUi('mainwindow_admin.ui', self)
+        uic.loadUi('uis/mainwindow_admin.ui', self)
         self.im_stack = im_stack
         self.updated_stack = self.im_stack
         self.energy = energy

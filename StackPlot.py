@@ -284,7 +284,6 @@ class RefChooser(QtWidgets.QMainWindow):
         super(RefChooser, self).__init__()
         uic.loadUi('RefChooser.ui', self)
         self.ref_names = ref_names
-        print(self.ref_names)
         self.all_boxes = []
 
         for n, i in enumerate(self.ref_names):
@@ -295,29 +294,37 @@ class RefChooser(QtWidgets.QMainWindow):
             self.cb_i.setObjectName(i)
             self.cb_i.setText(i)
             self.gridLayout.addWidget(self.cb_i, n, 0, 1, 1)
-            # self.cb_i.toggled.connect(self.clickedWhich)
+            self.cb_i.toggled.connect(self.enableApply)
             self.all_boxes.append(self.cb_i)
 
         self.pb_apply = QtWidgets.QPushButton(self.centralwidget)
         self.pb_apply.setText("Apply")
         self.gridLayout.addWidget(self.pb_apply, len(self.ref_names) + 1, 0, 1, 1)
-
+        self.pb_apply.setEnabled(False)
         self.pb_apply.clicked.connect(self.clickedWhichAre)
 
     def clickedWhich(self):
         button_name = self.sender()
         print(button_name.objectName())
 
-    QtCore.pyqtSlot()
-
-    def clickedWhichAre(self):
-
-        self.onlyCheckedBoxes = []
-
+    def populateChecked(self):
         for names in self.all_boxes:
             if names.isChecked():
                 self.onlyCheckedBoxes.append(names.objectName())
         self.signal.emit(self.onlyCheckedBoxes)
+
+    QtCore.pyqtSlot()
+    def clickedWhichAre(self):
+        self.onlyCheckedBoxes = []
+        self.populateChecked()
+
+    def enableApply(self):
+        self.populateChecked()
+        if len(self.onlyCheckedBoxes)>1:
+            self.pb_apply.setEnabled(True)
+        else:
+            self.pb_apply.setEnabled(False)
+
 
 class ScatterPlot(QtWidgets.QMainWindow):
 

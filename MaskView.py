@@ -92,6 +92,20 @@ class MaskSpecViewer(QtWidgets.QMainWindow):
             logger.error("No File selected")
             pass
 
+    def load_xrf_map(self):
+        """To xrf map for masking. If 3D mean will be taken"""
+
+        filename = QFileDialog().getOpenFileName(self, "Select image data", '', 'image file(*tiff *tif )')
+        self.file_name = (str(filename[0]))
+        self.xrf_stack = tf.imread(self.file_name)
+        if self.xrf_stack.ndim == 3:
+            self.xrf_stack = self.xrf_stack.mean(2).T
+
+        else:
+            self.xrf_stack = self.xrf_stack.T
+
+        self.view_data()
+
 
     def apply_mask_to_xanes(self):
 

@@ -77,7 +77,13 @@ class midasWindow(QtWidgets.QMainWindow):
         file_name = QFileDialog()
         file_name.setFileMode(QFileDialog.ExistingFiles)
         names = file_name.getOpenFileNames(self, "Open files", " ", filter)
-        print(names)
+
+        all_images = []
+        for im_file in names[0]:
+            img = tf.imread(im_file)
+            all_images.append(img)
+        self.stack_ = np.dstack(all_images)
+        self.set_stack_params()
 
     def load_stack(self):
         self.sb_zrange2.setMaximum(100000)
@@ -133,7 +139,13 @@ class midasWindow(QtWidgets.QMainWindow):
             pass
 
         logger.info(f'completed image shape {np.shape(self.im_stack)}')
-        self.statusbar_main.showMessage(f'Loaded: {self.file_name}')
+
+        try:
+            self.statusbar_main.showMessage(f'Loaded: {self.file_name}')
+
+        except AttributeError:
+            self.statusbar_main.showMessage('New Stack is made from selected tiffs')
+            pass
 
     def reset_and_load_stack(self):
         self.rb_math_roi_img.setChecked(False)

@@ -25,7 +25,15 @@ class MaskSpecViewer(QtWidgets.QMainWindow):
         self.xanes_stack = xanes_stack
         self.xrf_map = xrf_map
         self.energy = energy
-        self.xanes_stack = tf.imread('Site4um.tiff').transpose(0,2,1)
+        self.view_data()
+
+        #connections
+        self.sldr_xrf_low.valueChanged.connect(self.create_mask)
+        self.sldr_xrf_high.valueChanged.connect(self.create_mask)
+        self.pb_apply_mask.clicked.connect(self.apply_mask_to_xanes)
+        self.actionLoad_Energy_List.triggered.connect(self.load_energy)
+
+    def view_data(self):
 
         self.xanes_view.setImage(self.xanes_stack)
         self.xanes_view.ui.menuBtn.hide()
@@ -35,6 +43,7 @@ class MaskSpecViewer(QtWidgets.QMainWindow):
         self.xanes_view.setCurrentIndex(self.dim1//2)
 
         self.xrf_map = self.xanes_stack[-1]
+        self.statusbar.showMessage('One image from the XANES stack is used as mask')
         self.xrf_view.setImage(self.xrf_map)
         self.xrf_view.ui.menuBtn.hide()
         self.xrf_view.ui.roiBtn.hide()
@@ -43,11 +52,6 @@ class MaskSpecViewer(QtWidgets.QMainWindow):
         self.mask_view.ui.menuBtn.hide()
         self.mask_view.ui.roiBtn.hide()
 
-        #connections
-        self.sldr_xrf_low.valueChanged.connect(self.create_mask)
-        self.sldr_xrf_high.valueChanged.connect(self.create_mask)
-        self.pb_apply_mask.clicked.connect(self.apply_mask_to_xanes)
-        self.actionLoad_Energy_List.triggered.connect(self.load_energy)
 
     def create_mask(self):
         self.threshold_low = np.around(self.sldr_xrf_low.value()*0.01,3)
@@ -63,6 +67,13 @@ class MaskSpecViewer(QtWidgets.QMainWindow):
         self.xrf_mask  = np.where(self.norm_xrf_map > 0 , self.norm_xrf_map, 0)
         self.xrf_mask[self.xrf_mask>0] = 1
         self.mask_view.setImage(self.xrf_mask)
+
+    def load_xanes_stack(self):
+        """loading a new xanes stack"""
+        filename = QFileDialog().getOpenFileName(self, "Select image data", '', 'image file(*tiff *tif )')
+        self.file_name = (str(filename[0]))
+        self.xanes_stack = tf.imread(self.file_name).transpose(1, 2, 0)
+        self.view_data()
 
     def load_energy(self):
         """To load energy list that will be used for plotting the spectra.

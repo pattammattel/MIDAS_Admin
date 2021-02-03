@@ -32,6 +32,7 @@ class MaskSpecViewer(QtWidgets.QMainWindow):
         self.sldr_xrf_high.valueChanged.connect(self.create_mask)
         self.pb_apply_mask.clicked.connect(self.apply_mask_to_xanes)
         self.actionLoad_Energy_List.triggered.connect(self.load_energy)
+        self.actionLoad_XANES_Stack.triggered.connect(self.load_xanes_stack)
 
     def view_data(self):
 
@@ -72,7 +73,7 @@ class MaskSpecViewer(QtWidgets.QMainWindow):
         """loading a new xanes stack"""
         filename = QFileDialog().getOpenFileName(self, "Select image data", '', 'image file(*tiff *tif )')
         self.file_name = (str(filename[0]))
-        self.xanes_stack = tf.imread(self.file_name).transpose(1, 2, 0)
+        self.xanes_stack = tf.imread(self.file_name).transpose(0,2,1)
         self.view_data()
 
     def load_energy(self):
@@ -85,6 +86,7 @@ class MaskSpecViewer(QtWidgets.QMainWindow):
             self.energy = np.loadtxt(str(file_name[0]))
             logger.info ('Energy file loaded')
             assert len(self.energy) == self.dim1
+            self.view_data()
 
         except OSError:
             logger.error("No File selected")

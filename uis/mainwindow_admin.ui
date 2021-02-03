@@ -491,8 +491,8 @@ color: rgb(255, 0, 127);
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>307</width>
-         <height>884</height>
+         <width>321</width>
+         <height>874</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_9">
@@ -515,8 +515,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>288</width>
-             <height>300</height>
+             <width>346</width>
+             <height>160</height>
             </rect>
            </property>
            <attribute name="label">
@@ -740,8 +740,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>285</width>
-             <height>408</height>
+             <width>299</width>
+             <height>413</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1076,7 +1076,7 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>285</width>
+             <width>299</width>
              <height>189</height>
             </rect>
            </property>
@@ -1214,8 +1214,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>292</width>
-             <height>168</height>
+             <width>308</width>
+             <height>185</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1339,8 +1339,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>285</width>
-             <height>196</height>
+             <width>275</width>
+             <height>156</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1464,7 +1464,7 @@ color: rgb(255, 0, 127);
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>22</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuManual">
@@ -1580,6 +1580,9 @@ color: rgb(255, 0, 127);
   <action name="actionOpen_Multiple_Files">
    <property name="text">
     <string>Open Multiple Files</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
    </property>
   </action>
   <action name="actionOpen_Mask_Gen">

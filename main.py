@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDesktopWidget, QApplicati
 
 from StackPlot import *
 from StackCalcs import *
+from MaskView import *
 
 logger = logging.getLogger()
 
@@ -29,6 +30,8 @@ class midasWindow(QtWidgets.QMainWindow):
         self.actionExit.triggered.connect(self.close)
         self.actionOpen_in_GitHub.triggered.connect(self.open_github_link)
         self.actionLoad_Energy.triggered.connect(self.select_elist)
+
+        self.actionOpen_Mask_Gen.triggered.connect(self.openMaskMaker)
 
         self.cb_transpose.stateChanged.connect(self.transpose_stack)
         self.cb_log.stateChanged.connect(self.replot_image)
@@ -83,6 +86,7 @@ class midasWindow(QtWidgets.QMainWindow):
             img = tf.imread(im_file)
             all_images.append(img)
         self.stack_ = np.dstack(all_images)
+        self.sb_zrange2.setValue(self.stack_.shape[-1])
         self.set_stack_params()
 
     def load_stack(self):
@@ -595,13 +599,14 @@ class midasWindow(QtWidgets.QMainWindow):
     def fast_xanes_fitting(self):
 
         if self.cb_kev_flag.isChecked():
-            e_list1 = self.energy * 1000
+            self.xdata *= 1000
 
-        else:
-            e_list1 = self.energy
-
-        self._new_window5 = XANESViewer(self.updated_stack, e_list1, self.refs, self.ref_names)
+        self._new_window5 = XANESViewer(self.updated_stack, self.xdata, self.refs, self.ref_names)
         self._new_window5.show()
+
+    def openMaskMaker(self):
+        self.mask_window = MaskSpecViewer(xanes_stack=self.updated_stack, energy=self.energy)
+        self.mask_window.show()
 
 
 if __name__ == "__main__":

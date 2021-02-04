@@ -376,10 +376,17 @@ class midasWindow(QtWidgets.QMainWindow):
         file_name = QFileDialog().getOpenFileName(self, "Open energy list", '', 'text file (*.txt)')
 
         try:
-            self.energy = np.loadtxt(str(file_name[0]))
+
+            if str(file_name[0]).endswith('log_tiff.txt'):
+                self.energy = energy_from_logfile(logfile = str(file_name[0]))
+                logger.info("Log file from pyxrf processing")
+
+            else:
+                self.energy = np.loadtxt(str(file_name[0]))
+
             logger.info('Energy file loaded')
             if self.energy.any():
-                self.change_color_on_load(self.pb_elist_xanes)
+                    self.change_color_on_load(self.pb_elist_xanes)
 
             assert len(self.energy) == self.dim1
 

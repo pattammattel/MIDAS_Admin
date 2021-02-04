@@ -262,8 +262,7 @@ class midasWindow(QtWidgets.QMainWindow):
         if len(self.energy) == 0:
             self.energy = np.arange(self.z1, self.z2) * 10
             logger.info("Arbitary X-axis used in the plot for XANES")
-        self.stack_center = int(self.energy[len(self.energy) // 2])
-        self.stack_width = int((self.energy.max() - self.energy.min()) * 0.05)
+
 
         # ROI settings for image, used plyline roi with non rectangular shape
         sz = np.max([int(self.dim2 * 0.1), int(self.dim3 * 0.1)])  # size of the roi set to be 10% of the image area
@@ -282,6 +281,10 @@ class midasWindow(QtWidgets.QMainWindow):
         self.image_roi_math.addTranslateHandle([sz // 2, sz // 2], [2, 2])
         self.image_view.addItem(self.image_roi)
 
+        self.stack_center = (self.energy[len(self.energy) // 2])
+        self.stack_width = (self.energy.max() - self.energy.min()//6)
+
+        print(self.stack_center,self.stack_width)
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
                                                     self.stack_center + self.stack_width))
 
@@ -390,14 +393,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
             assert len(self.energy) == self.dim1
 
-            self.update_spectrum()
-            self.spec_roi.setRegion((self.stack_center - self.stack_width, self.stack_center + self.stack_width))
-            self.spec_roi_math.setRegion(
-                (self.stack_center - self.stack_width - 10,
-                 self.stack_center + self.stack_width - 10)
-            )
-
-            self.update_image_roi()
+            self.view_stack()
 
         except OSError:
             logger.error('No file selected')

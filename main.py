@@ -283,8 +283,6 @@ class midasWindow(QtWidgets.QMainWindow):
 
         self.stack_center = (self.energy[len(self.energy) // 2])
         self.stack_width = (self.energy.max() - self.energy.min())//6
-        print(self.stack_center - self.stack_width, self.stack_center + self.stack_width)
-
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
                                                     self.stack_center + self.stack_width))
 

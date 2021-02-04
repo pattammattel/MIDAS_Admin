@@ -30,6 +30,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.actionExit.triggered.connect(self.close)
         self.actionOpen_in_GitHub.triggered.connect(self.open_github_link)
         self.actionLoad_Energy.triggered.connect(self.select_elist)
+        self.menuFile.setToolTipsVisible(True)
 
         self.actionOpen_Mask_Gen.triggered.connect(self.openMaskMaker)
 

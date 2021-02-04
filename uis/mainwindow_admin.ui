@@ -516,7 +516,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>346</width>
-             <height>160</height>
+             <height>279</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1069,14 +1069,14 @@ color: rgb(255, 0, 127);
         <item row="3" column="0">
          <widget class="QToolBox" name="toolBox_2">
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="page_5">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>299</width>
+             <width>298</width>
              <height>189</height>
             </rect>
            </property>
@@ -1339,8 +1339,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>275</width>
-             <height>156</height>
+             <width>299</width>
+             <height>165</height>
             </rect>
            </property>
            <attribute name="label">

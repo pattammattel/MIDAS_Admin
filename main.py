@@ -263,8 +263,7 @@ class midasWindow(QtWidgets.QMainWindow):
         if len(self.energy) == 0:
             self.energy = np.arange(self.z1, self.z2) * 10
             logger.info("Arbitary X-axis used in the plot for XANES")
-        self.stack_center = int(self.energy[len(self.energy) // 2])
-        self.stack_width = int((self.energy.max() - self.energy.min()) * 0.05)
+
 
         # ROI settings for image, used plyline roi with non rectangular shape
         sz = np.max([int(self.dim2 * 0.1), int(self.dim3 * 0.1)])  # size of the roi set to be 10% of the image area
@@ -283,6 +282,8 @@ class midasWindow(QtWidgets.QMainWindow):
         self.image_roi_math.addTranslateHandle([sz // 2, sz // 2], [2, 2])
         self.image_view.addItem(self.image_roi)
 
+        self.stack_center = (self.energy[len(self.energy) // 2])
+        self.stack_width = (self.energy.max() - self.energy.min())//6
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
                                                     self.stack_center + self.stack_width))
 
@@ -377,21 +378,28 @@ class midasWindow(QtWidgets.QMainWindow):
         file_name = QFileDialog().getOpenFileName(self, "Open energy list", '', 'text file (*.txt)')
 
         try:
-            self.energy = np.loadtxt(str(file_name[0]))
+
+            if str(file_name[0]).endswith('log_tiff.txt'):
+                self.energy = energy_from_logfile(logfile = str(file_name[0]))
+                logger.info("Log file from pyxrf processing")
+
+            else:
+                self.energy = np.loadtxt(str(file_name[0]))
+
             logger.info('Energy file loaded')
             if self.energy.any():
-                self.change_color_on_load(self.pb_elist_xanes)
+                    self.change_color_on_load(self.pb_elist_xanes)
 
             assert len(self.energy) == self.dim1
 
-            self.update_spectrum()
-            self.spec_roi.setRegion((self.stack_center - self.stack_width, self.stack_center + self.stack_width))
-            self.spec_roi_math.setRegion(
-                (self.stack_center - self.stack_width - 10,
-                 self.stack_center + self.stack_width - 10)
-            )
+            if self.energy.max()<100:
+                self.cb_kev_flag.setChecked(True)
+                self.energy *= 1000
 
-            self.update_image_roi()
+            else:
+                self.cb_kev_flag.setChecked(False)
+
+            self.view_stack()
 
         except OSError:
             logger.error('No file selected')
@@ -598,9 +606,6 @@ class midasWindow(QtWidgets.QMainWindow):
         button_name.setStyleSheet("background-color : green")
 
     def fast_xanes_fitting(self):
-
-        if self.cb_kev_flag.isChecked():
-            self.xdata *= 1000
 
         self._new_window5 = XANESViewer(self.updated_stack, self.xdata, self.refs, self.ref_names)
         self._new_window5.show()

@@ -433,6 +433,10 @@ def create_df_from_nor(athenafile='fe_refs.nor'):
     df.columns = new_col
     return df, list(new_col)
 
+def energy_from_logfile(logfile = 'maps_log_tiff.txt'):
+    df = pd.read_csv(logfile, header= None, delim_whitespace=True, skiprows=9)
+    return df[9][df[7]=='energy'].values.astype(float)
+
 
 def align_iter(image_array, ref_stack, reference='previous', num_ter=1):
     pass

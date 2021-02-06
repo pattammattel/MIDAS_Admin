@@ -258,6 +258,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.image_view.setImage(self.updated_stack)
         self.image_view.ui.menuBtn.hide()
         self.image_view.ui.roiBtn.hide()
+        self.image_view.mousePressEvent = self.getPos
         self.image_view.setPredefinedGradient('viridis')
         self.image_view.setCurrentIndex(self.dim1 // 2)
         if len(self.energy) == 0:
@@ -305,6 +306,13 @@ class midasWindow(QtWidgets.QMainWindow):
         self.rb_math_roi.clicked.connect(self.update_spectrum)
         self.rb_math_roi_img.clicked.connect(self.math_img_roi_flag)
         self.image_roi_math.sigRegionChanged.connect(self.image_roi_calc)
+
+    def getPos(self, event):
+        #print(self.image_view.ui.getViewBox().mapSceneToView(event))
+        x = event.pos().x()
+        y = event.pos().y()
+        self.statusbar_main.showMessage(f'{x} and {y}')
+
 
     def replot_image(self):
         self.update_stack()

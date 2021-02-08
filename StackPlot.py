@@ -225,13 +225,20 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.spectrum_view.setLabel('left', 'Intensity', 'A.U.')
         self.spectrum_view.plot(self.xdata1, self.ydata1, pen=pen, name="Data", clear=True)
         self.spectrum_view.plot(self.xdata1, self.fit_, name="Fit", pen=pen2)
+
+        #self.indv_comp_spec = []
         for n, (coff, ref, plt_clr) in enumerate(zip(coeffs,self.inter_ref, self.plt_colors)):
             if len(self.selected) != 0:
 
-                self.spectrum_view.plot(self.xdata1, np.dot(coff,ref), name=self.selected[1:][n],pen=plt_clr)
-            else:
-                self.spectrum_view.plot(self.xdata1, np.dot(coff, ref), name="ref" + str(n + 1), pen=plt_clr)
+                self.fit_comp_spec_n = np.dot(coff,ref)
 
+                self.spectrum_view.plot(self.xdata1, self.fit_comp_spec_n, name=self.selected[1:][n],pen=plt_clr)
+            else:
+                self.spectrum_view.plot(self.xdata1, self.fit_comp_spec_n, name="ref" + str(n + 1), pen=plt_clr)
+
+
+        self.indv_comp_spec = np.column_stack([self.fit_comp_spec_n for n in range(self.inter_ref.shape[0])])
+        print(self.indv_comp_spec.shape)
         self.le_r_sq.setText(str(np.around(r / self.ydata1.sum(), 4)))
 
     def re_fit_xanes(self):
@@ -254,7 +261,7 @@ class XANESViewer(QtWidgets.QMainWindow):
 
     def save_spec_fit(self):
         try:
-            to_save = np.column_stack((self.xdata1, self.ydata1, self.fit_))
+            to_save = np.column_stack([self.xdata1, self.ydata1, self.fit_,self.indv_comp_spec])
             file_name = QFileDialog().getSaveFileName(self, "save spectrum", '', 'spectrum and fit (*txt)')
             np.savetxt(str(file_name[0]) + '.txt', to_save)
         except:

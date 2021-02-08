@@ -49,7 +49,6 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_crop.clicked.connect(self.view_stack)
         self.pb_ref_xanes.clicked.connect(self.select_ref_file)
         self.pb_elist_xanes.clicked.connect(self.select_elist)
-        self.pb_set_spec_roi.clicked.connect(self.set_spec_roi)
 
         # save_options
         self.pb_save_disp_img.clicked.connect(self.save_disp_img)
@@ -63,7 +62,6 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_xanes_fit.clicked.connect(self.fast_xanes_fitting)
         self.pb_plot_refs.clicked.connect(self.plt_xanes_refs)
         self.show()
-
 
     def browse_file(self):
         filename = QFileDialog().getOpenFileName(self, "Select image data", '', 'image file(*.hdf *.h5 *tiff *tif )')
@@ -130,6 +128,12 @@ class midasWindow(QtWidgets.QMainWindow):
             logger.error('No file selected')
             pass
 
+        self.energy = []
+        self.view_stack()
+        logger.info("Stack displayed correctly")
+        self.update_stack_info()
+
+        '''
         try:
             self.energy = []
             self.view_stack()
@@ -140,7 +144,7 @@ class midasWindow(QtWidgets.QMainWindow):
             logger.error("Trouble with stack display")
             self.statusbar_main.showMessage("Error: Trouble with stack display")
             pass
-
+        '''
         logger.info(f'completed image shape {np.shape(self.im_stack)}')
 
         try:
@@ -294,25 +298,31 @@ class midasWindow(QtWidgets.QMainWindow):
         self.update_image_roi()
 
         # connections
-        self.image_view.mousePressEvent = self.getPos
+        self.image_view.mousePressEvent = self.getPointSpectrum
         self.spec_roi.sigRegionChanged.connect(self.update_image_roi)
         self.image_roi.sigRegionChanged.connect(self.update_spectrum)
-        self.sb_roi_spec_s.valueChanged.connect(self.set_spec_roi)
-        self.sb_roi_spec_e.valueChanged.connect(self.set_spec_roi)
         self.spec_roi_math.sigRegionChangeFinished.connect(self.spec_roi_calc)
         self.rb_math_roi.clicked.connect(self.update_spectrum)
         self.rb_math_roi_img.clicked.connect(self.math_img_roi_flag)
         self.image_roi_math.sigRegionChanged.connect(self.image_roi_calc)
 
-    def getPos(self, event):
-        x = self.image_view.view.mapSceneToView(event.pos()).x()
+    def getPointSpectrum(self, event):
+
+        self.xpixel = self.image_view.view.mapSceneToView(event.pos()).x()
         zlim, xlim, ylim = self.updated_stack.shape
-        if x > xlim:
-            x = xlim
-        y = self.image_view.view.mapSceneToView(event.pos()).y()
-        if y > ylim:
-            y = ylim
-        self.statusbar_main.showMessage(f'{x} and {y}')
+
+        if self.xpixel > xlim:
+            self.xpixel = xlim
+
+        self.ypixel  = self.image_view.view.mapSceneToView(event.pos()).y()
+        if self.ypixel > ylim:
+            self.ypixel = ylim
+
+
+        self.mean_spectra = self.updated_stack[:,int(self.xpixel),int(self.ypixel)]
+        self.spectrum_view.plot(self.xdata, self.mean_spectra, clear=True)
+
+        self.statusbar_main.showMessage(f'{int(self.xpixel)} and {int(self.ypixel)}')
 
     def replot_image(self):
         self.update_stack()
@@ -324,8 +334,6 @@ class midasWindow(QtWidgets.QMainWindow):
         self.stack_width = int((self.energy.max() - self.energy.min()) * 0.05)
         self.spec_roi.setBounds([self.xdata[0], self.xdata[-1]])  # if want to set bounds for the spec roi
         self.spec_roi_math.setBounds([self.xdata[0], self.xdata[-1]])
-        self.sb_roi_spec_s.setValue(self.stack_center - self.stack_width)
-        self.sb_roi_spec_e.setValue(self.stack_center + self.stack_width)
 
     def update_spectrum(self):
 
@@ -341,11 +349,13 @@ class midasWindow(QtWidgets.QMainWindow):
         self.le_roi.setText(str(int(posx)) + ':' + str(int(posy)))
         self.le_roi_size.setText(str(sizex) + ',' + str(sizey))
 
+        self.mean_spectra = get_mean_spectra(self.roi_img_stk)
+        self.curr_spec = np.column_stack([self.xdata,self.mean_spectra])
 
         try:
-            self.spectrum_view.plot(self.xdata, get_mean_spectra(self.roi_img_stk), clear=True)
+            self.spectrum_view.plot(self.xdata, self.mean_spectra , clear=True)
         except:
-            self.spectrum_view.plot(get_mean_spectra(self.roi_img_stk), clear=True)
+            self.spectrum_view.plot(self.mean_spectra, clear=True)
 
         if self.energy[-1] > 1000:
             self.e_unit = 'eV'
@@ -560,7 +570,6 @@ class midasWindow(QtWidgets.QMainWindow):
 
         try:
             file_name = QFileDialog().getSaveFileName(self, "Save Spectrum Data", '', 'txt file(*txt)')
-            self.curr_spec = np.column_stack((self.xdata, get_mean_spectra(self.roi_img_stk)))
             np.savetxt(str(file_name[0]) + '.txt', self.curr_spec)
             logger.info(f'Spectrum Saved: {str(file_name[0])}')
 

@@ -265,7 +265,6 @@ class midasWindow(QtWidgets.QMainWindow):
             self.energy = np.arange(self.z1, self.z2) * 10
             logger.info("Arbitary X-axis used in the plot for XANES")
 
-
         # ROI settings for image, used plyline roi with non rectangular shape
         sz = np.max([int(self.dim2 * 0.1), int(self.dim3 * 0.1)])  # size of the roi set to be 10% of the image area
         self.image_roi = pg.PolyLineROI([[0, 0], [0, sz], [sz, sz], [sz, 0]],
@@ -284,7 +283,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.image_view.addItem(self.image_roi)
 
         self.stack_center = (self.energy[len(self.energy) // 2])
-        self.stack_width = (self.energy.max() - self.energy.min())//6
+        self.stack_width = (self.energy.max() - self.energy.min()) // 6
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
                                                     self.stack_center + self.stack_width))
 
@@ -308,11 +307,14 @@ class midasWindow(QtWidgets.QMainWindow):
         self.image_roi_math.sigRegionChanged.connect(self.image_roi_calc)
 
     def getPos(self, event):
-        #print(self.image_view.ui.getViewBox().mapSceneToView(event))
-        x = event.pos().x()
-        y = event.pos().y()
+        x = self.image_view.view.mapSceneToView(event.pos()).x()
+        zlim, xlim, ylim = self.updated_stack.shape
+        if x > xlim:
+            x = xlim
+        y = self.image_view.view.mapSceneToView(event.pos()).y()
+        if y > ylim:
+            y = ylim
         self.statusbar_main.showMessage(f'{x} and {y}')
-
 
     def replot_image(self):
         self.update_stack()
@@ -328,16 +330,25 @@ class midasWindow(QtWidgets.QMainWindow):
         self.sb_roi_spec_e.setValue(self.stack_center + self.stack_width)
 
     def update_spectrum(self):
+
+        # set x-axis values; array taken from energy values, if clipped z box values will update the array
         self.xdata = self.energy[self.sb_zrange1.value():self.sb_zrange2.value()]
+
+        # get the cropped stack from ROI region; pyqtgraph function is used
         self.roi_img_stk = self.image_roi.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
+
+        # display the ROI features in the line edit boxes
         sizex, sizey = self.roi_img_stk.shape[1], self.roi_img_stk.shape[2]
         posx, posy = self.image_roi.pos()
         self.le_roi.setText(str(int(posx)) + ':' + str(int(posy)))
         self.le_roi_size.setText(str(sizex) + ',' + str(sizey))
+
+
         try:
             self.spectrum_view.plot(self.xdata, get_mean_spectra(self.roi_img_stk), clear=True)
         except:
             self.spectrum_view.plot(get_mean_spectra(self.roi_img_stk), clear=True)
+
         if self.energy[-1] > 1000:
             self.e_unit = 'eV'
         else:
@@ -349,6 +360,7 @@ class midasWindow(QtWidgets.QMainWindow):
             self.curr_spec = np.column_stack((self.xdata, get_mean_spectra(self.roi_img_stk)))
         except:
             self.curr_spec = np.array(get_mean_spectra(self.roi_img_stk))
+
         self.spectrum_view.addItem(self.spec_roi)
         self.update_spec_roi_values()
         self.math_roi_flag()
@@ -388,7 +400,7 @@ class midasWindow(QtWidgets.QMainWindow):
         try:
 
             if str(file_name[0]).endswith('log_tiff.txt'):
-                self.energy = energy_from_logfile(logfile = str(file_name[0]))
+                self.energy = energy_from_logfile(logfile=str(file_name[0]))
                 logger.info("Log file from pyxrf processing")
 
             else:
@@ -396,11 +408,11 @@ class midasWindow(QtWidgets.QMainWindow):
 
             logger.info('Energy file loaded')
             if self.energy.any():
-                    self.change_color_on_load(self.pb_elist_xanes)
+                self.change_color_on_load(self.pb_elist_xanes)
 
             assert len(self.energy) == self.dim1
 
-            if self.energy.max()<100:
+            if self.energy.max() < 100:
                 self.cb_kev_flag.setChecked(True)
                 self.energy *= 1000
 
@@ -422,7 +434,7 @@ class midasWindow(QtWidgets.QMainWindow):
                 self.change_color_on_load(self.pb_ref_xanes)
 
             elif file_name[0].endswith('.txt'):
-                self.refs = pd.read_csv(str(file_name[0]), header = None, delim_whitespace=True)
+                self.refs = pd.read_csv(str(file_name[0]), header=None, delim_whitespace=True)
                 self.change_color_on_load(self.pb_ref_xanes)
 
             self.plt_xanes_refs()

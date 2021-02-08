@@ -284,7 +284,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.image_view.addItem(self.image_roi)
 
         self.stack_center = (self.energy[len(self.energy) // 2])
-        self.stack_width = (self.energy.max() - self.energy.min()) // 6
+        self.stack_width = (self.energy.max() - self.energy.min()) // 10
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
                                                     self.stack_center + self.stack_width))
 

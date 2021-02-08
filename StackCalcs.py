@@ -13,7 +13,7 @@ logger = logging.getLogger()
 
 
 def get_xrf_data(h='h5file'):
-    global norm_xrf_stack, beamline
+
     f = h5py.File(h, 'r')
 
     if list(f.keys())[0] == 'xrfmap':

@@ -267,20 +267,20 @@ class midasWindow(QtWidgets.QMainWindow):
             logger.info("Arbitary X-axis used in the plot for XANES")
 
         # ROI settings for image, used plyline roi with non rectangular shape
-        sz = np.max([int(self.dim2 * 0.1), int(self.dim3 * 0.1)])  # size of the roi set to be 10% of the image area
-        self.image_roi = pg.PolyLineROI([[0, 0], [0, sz], [sz, sz], [sz, 0]],
+        self.sz = np.max([int(self.dim2 * 0.1), int(self.dim3 * 0.1)])  # size of the roi set to be 10% of the image area
+        self.image_roi = pg.PolyLineROI([[0, 0], [0, self.sz], [self.sz, self.sz], [self.sz, 0]],
                                         pos=(int(self.dim3 // 2), int(self.dim2 // 2)),
                                         maxBounds=QtCore.QRect(0, 0, self.dim3, self.dim2),
-                                        closed=True)
+                                        closed=True,removable = True)
         logger.info("Image ROI Added")
 
         # a second optional ROI for calculations follow
-        self.image_roi_math = pg.PolyLineROI([[0, 0], [0, sz], [sz, sz], [sz, 0]],
+        self.image_roi_math = pg.PolyLineROI([[0, 0], [0, self.sz], [self.sz, self.sz], [self.sz, 0]],
                                              pos=(int(self.dim3 // 3), int(self.dim2 // 3)),
-                                             pen='r', closed=True)
+                                             pen='r', closed=True,removable = True)
 
-        self.image_roi.addTranslateHandle([sz // 2, sz // 2], [2, 2])
-        self.image_roi_math.addTranslateHandle([sz // 2, sz // 2], [2, 2])
+        self.image_roi.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
+        self.image_roi_math.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
         self.image_view.addItem(self.image_roi)
 
         self.stack_center = (self.energy[len(self.energy) // 2])
@@ -308,23 +308,25 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def getPointSpectrum(self, event):
 
-        self.xpixel = int(self.image_view.view.mapSceneToView(event.pos()).x())-1
-        zlim, xlim, ylim = self.updated_stack.shape
+        if event.button() == QtCore.Qt.LeftButton:
+            self.xpixel = int(self.image_view.view.mapSceneToView(event.pos()).x())-1
+            zlim, xlim, ylim = self.updated_stack.shape
 
-        if self.xpixel > xlim:
-            self.xpixel = xlim
+            if self.xpixel > xlim:
+                self.xpixel = xlim
 
-        self.ypixel  = int(self.image_view.view.mapSceneToView(event.pos()).y())-1
-        if self.ypixel > ylim:
-            self.ypixel = ylim
+            self.ypixel  = int(self.image_view.view.mapSceneToView(event.pos()).y())-1
+            if self.ypixel > ylim:
+                self.ypixel = ylim
 
-        self.spectrum_view.addLegend()
-        self.mean_spectra = self.updated_stack[:,self.xpixel,self.ypixel]
-        self.spectrum_view.plot(self.xdata, self.mean_spectra, clear=True,
-                                name = f'x= {self.xpixel}, y= {self.ypixel}')
+            self.spectrum_view.addLegend()
+            self.mean_spectra = self.updated_stack[:,self.xpixel,self.ypixel]
+            self.spectrum_view.plot(self.xdata, self.mean_spectra, clear=True,
+                                    name = f'x= {self.xpixel}, y= {self.ypixel}')
 
 
-        self.statusbar_main.showMessage(f'{self.xpixel} and {self.ypixel}')
+            self.statusbar_main.showMessage(f'{self.xpixel} and {self.ypixel}')
+
 
     def replot_image(self):
         self.update_stack()

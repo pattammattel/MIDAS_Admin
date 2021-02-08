@@ -23,6 +23,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.updated_stack = self.im_stack
         self.energy = energy
         self.refs = refs
+        self.log_warning=0
 
         self.actionOpen_Image_Data.triggered.connect(self.browse_file)
         self.actionOpen_Multiple_Files.triggered.connect(self.load_mutliple_file)
@@ -224,6 +225,10 @@ class midasWindow(QtWidgets.QMainWindow):
         if self.cb_log.isChecked():
 
             if self.avgIo !=1:
+
+                self.updated_stack = remove_nan_inf(np.log10(self.updated_stack * self.avgIo))
+
+                '''
                 self.logMsgBox = QMessageBox()
                 self.logMsgBox.setIcon(QMessageBox.Warning)
                 self.logMsgBox.setText(f'Data is multiplied with average I0 value: {self.avgIo} '
@@ -233,6 +238,16 @@ class midasWindow(QtWidgets.QMainWindow):
 
                 if self.logMsgBox.exec() == QMessageBox.Ok:
                     self.updated_stack = remove_nan_inf(np.log10(self.updated_stack * self.avgIo))
+
+
+                elif self.logMsgBox.exec() == QtGui.QMessageBox.YesRole:
+                    self.log_warning = 1
+                    self.updated_stack = remove_nan_inf(np.log10(self.updated_stack * self.avgIo))
+                '''
+
+
+
+
 
             logger.info('Log Stack is in use')
 

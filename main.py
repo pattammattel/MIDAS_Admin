@@ -93,13 +93,14 @@ class midasWindow(QtWidgets.QMainWindow):
         self.statusbar_main.showMessage('Loading.. please wait...')
 
         if self.file_name.endswith('.h5'):
-            self.stack_, mono_e, bl_name = get_xrf_data(self.file_name)
+            self.stack_, mono_e, bl_name, self.avgIo = get_xrf_data(self.file_name)
             self.statusbar_main.showMessage(f'Data from {bl_name}')
             self.sb_zrange2.setValue(mono_e / 10)
 
         elif self.file_name.endswith('.tiff') or self.file_name.endswith('.tif'):
             self.stack_ = tf.imread(self.file_name).transpose(1, 2, 0)
             self.sb_zrange2.setValue(self.stack_.shape[-1])
+            self.avgIo = 1
 
         else:
             logger.error('Unknown data format')
@@ -221,7 +222,19 @@ class midasWindow(QtWidgets.QMainWindow):
             self.hs_bg_threshold.setEnabled(False)
 
         if self.cb_log.isChecked():
-            self.updated_stack = remove_nan_inf(np.log(self.updated_stack))
+
+            if self.avgIo !=1:
+                self.logMsgBox = QMessageBox()
+                self.logMsgBox.setIcon(QMessageBox.Warning)
+                self.logMsgBox.setText(f'Data is multiplied with average I0 value: {self.avgIo} '
+                                       f'before taking log to avoid negative peaks')
+                self.logMsgBox.setWindowTitle("Log data Warning")
+                self.logMsgBox.setStandardButtons(QMessageBox.Ok)
+
+                if self.logMsgBox.exec() == QMessageBox.Ok:
+                    print('OK clicked')
+                    self.updated_stack = remove_nan_inf(np.log10(self.updated_stack * self.avgIo))
+
             logger.info('Log Stack is in use')
 
         if self.cb_smooth.isChecked():

@@ -64,8 +64,6 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_plot_refs.clicked.connect(self.plt_xanes_refs)
         self.show()
 
-    def open_github_link(self):
-        webbrowser.open('https://github.com/pattammattel/NSLS-II-MIDAS')
 
     def browse_file(self):
         filename = QFileDialog().getOpenFileName(self, "Select image data", '', 'image file(*.hdf *.h5 *tiff *tif )')
@@ -258,7 +256,6 @@ class midasWindow(QtWidgets.QMainWindow):
         self.image_view.setImage(self.updated_stack)
         self.image_view.ui.menuBtn.hide()
         self.image_view.ui.roiBtn.hide()
-        self.image_view.mousePressEvent = self.getPos
         self.image_view.setPredefinedGradient('viridis')
         self.image_view.setCurrentIndex(self.dim1 // 2)
         if len(self.energy) == 0:
@@ -297,6 +294,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.update_image_roi()
 
         # connections
+        self.image_view.mousePressEvent = self.getPos
         self.spec_roi.sigRegionChanged.connect(self.update_image_roi)
         self.image_roi.sigRegionChanged.connect(self.update_spectrum)
         self.sb_roi_spec_s.valueChanged.connect(self.set_spec_roi)
@@ -356,11 +354,6 @@ class midasWindow(QtWidgets.QMainWindow):
 
         self.spectrum_view.setLabel('bottom', 'Energy', self.e_unit)
         self.spectrum_view.setLabel('left', 'Intensity', 'A.U.')
-        try:
-            self.curr_spec = np.column_stack((self.xdata, get_mean_spectra(self.roi_img_stk)))
-        except:
-            self.curr_spec = np.array(get_mean_spectra(self.roi_img_stk))
-
         self.spectrum_view.addItem(self.spec_roi)
         self.update_spec_roi_values()
         self.math_roi_flag()
@@ -564,8 +557,10 @@ class midasWindow(QtWidgets.QMainWindow):
             pass
 
     def save_disp_spec(self):
+
         try:
             file_name = QFileDialog().getSaveFileName(self, "Save Spectrum Data", '', 'txt file(*txt)')
+            self.curr_spec = np.column_stack((self.xdata, get_mean_spectra(self.roi_img_stk)))
             np.savetxt(str(file_name[0]) + '.txt', self.curr_spec)
             logger.info(f'Spectrum Saved: {str(file_name[0])}')
 
@@ -633,6 +628,9 @@ class midasWindow(QtWidgets.QMainWindow):
     def openMaskMaker(self):
         self.mask_window = MaskSpecViewer(xanes_stack=self.updated_stack, energy=self.energy)
         self.mask_window.show()
+
+    def open_github_link(self):
+        webbrowser.open('https://github.com/pattammattel/NSLS-II-MIDAS')
 
 
 if __name__ == "__main__":

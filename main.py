@@ -227,12 +227,11 @@ class midasWindow(QtWidgets.QMainWindow):
                 self.logMsgBox = QMessageBox()
                 self.logMsgBox.setIcon(QMessageBox.Warning)
                 self.logMsgBox.setText(f'Data is multiplied with average I0 value: {self.avgIo} '
-                                       f'before taking log to avoid negative peaks')
+                                       f'\n before taking log to avoid negative peaks')
                 self.logMsgBox.setWindowTitle("Log data Warning")
                 self.logMsgBox.setStandardButtons(QMessageBox.Ok)
 
                 if self.logMsgBox.exec() == QMessageBox.Ok:
-                    print('OK clicked')
                     self.updated_stack = remove_nan_inf(np.log10(self.updated_stack * self.avgIo))
 
             logger.info('Log Stack is in use')

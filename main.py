@@ -308,21 +308,23 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def getPointSpectrum(self, event):
 
-        self.xpixel = self.image_view.view.mapSceneToView(event.pos()).x()
+        self.xpixel = int(self.image_view.view.mapSceneToView(event.pos()).x())-1
         zlim, xlim, ylim = self.updated_stack.shape
 
         if self.xpixel > xlim:
             self.xpixel = xlim
 
-        self.ypixel  = self.image_view.view.mapSceneToView(event.pos()).y()
+        self.ypixel  = int(self.image_view.view.mapSceneToView(event.pos()).y())-1
         if self.ypixel > ylim:
             self.ypixel = ylim
 
+        self.spectrum_view.addLegend()
+        self.mean_spectra = self.updated_stack[:,self.xpixel,self.ypixel]
+        self.spectrum_view.plot(self.xdata, self.mean_spectra, clear=True,
+                                name = f'x= {self.xpixel}, y= {self.ypixel}')
 
-        self.mean_spectra = self.updated_stack[:,int(self.xpixel),int(self.ypixel)]
-        self.spectrum_view.plot(self.xdata, self.mean_spectra, clear=True)
 
-        self.statusbar_main.showMessage(f'{int(self.xpixel)} and {int(self.ypixel)}')
+        self.statusbar_main.showMessage(f'{self.xpixel} and {self.ypixel}')
 
     def replot_image(self):
         self.update_stack()

@@ -74,7 +74,7 @@
            <string notr="true">font: 10pt &quot;Segoe UI&quot;;</string>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="page">
            <property name="geometry">
@@ -657,8 +657,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>346</width>
-             <height>237</height>
+             <width>325</width>
+             <height>189</height>
             </rect>
            </property>
            <attribute name="label">
@@ -795,8 +795,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>346</width>
-             <height>237</height>
+             <width>325</width>
+             <height>185</height>
             </rect>
            </property>
            <attribute name="label">
@@ -921,7 +921,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>346</width>
-             <height>237</height>
+             <height>156</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1052,17 +1052,7 @@ color: rgb(255, 0, 127);
        <string/>
       </property>
       <layout class="QGridLayout" name="gridLayout_29">
-       <item row="0" column="0">
-        <widget class="ImageView" name="image_view">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1" rowspan="2">
+       <item row="0" column="2" rowspan="2">
         <widget class="QFrame" name="frame_5">
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
@@ -1443,7 +1433,17 @@ color: rgb(255, 0, 127);</string>
          </layout>
         </widget>
        </item>
-       <item row="1" column="0">
+       <item row="0" column="1">
+        <widget class="ImageView" name="image_view">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
         <widget class="PlotWidget" name="spectrum_view"/>
        </item>
       </layout>

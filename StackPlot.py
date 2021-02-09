@@ -167,8 +167,8 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.pb_edit_refs.clicked.connect(self.choose_refs)
         self.image_roi.sigRegionChanged.connect(self.update_spectrum)
         self.pb_save_chem_map.clicked.connect(self.save_chem_map)
-        #self.pb_save_spe_fit.clicked.connect(self.reset_roi)
-        self.pb_save_spe_fit.clicked.connect(self.save_spec_fit)
+        self.pb_save_spe_fit.clicked.connect(self.pg_export_spec_fit)
+        #self.pb_save_spe_fit.clicked.connect(self.save_spec_fit)
         # self.pb_play_stack.clicked.connect(self.play_stack)
 
     def display_all_data(self):
@@ -230,15 +230,12 @@ class XANESViewer(QtWidgets.QMainWindow):
         for n, (coff, ref, plt_clr) in enumerate(zip(coeffs,self.inter_ref, self.plt_colors)):
             if len(self.selected) != 0:
 
-                self.fit_comp_spec_n = np.dot(coff,ref)
+                self.fit_comp_spec = np.dot(coff,ref)
 
-                self.spectrum_view.plot(self.xdata1, self.fit_comp_spec_n, name=self.selected[1:][n],pen=plt_clr)
+                self.spectrum_view.plot(self.xdata1, self.fit_comp_spec, name=self.selected[1:][n],pen=plt_clr)
             else:
-                self.spectrum_view.plot(self.xdata1, self.fit_comp_spec_n, name="ref" + str(n + 1), pen=plt_clr)
+                self.spectrum_view.plot(self.xdata1, self.fit_comp_spec, name="ref" + str(n + 1), pen=plt_clr)
 
-
-        self.indv_comp_spec = np.column_stack([self.fit_comp_spec_n for n in range(self.inter_ref.shape[0])])
-        print(self.indv_comp_spec.shape)
         self.le_r_sq.setText(str(np.around(r / self.ydata1.sum(), 4)))
 
     def re_fit_xanes(self):
@@ -261,12 +258,20 @@ class XANESViewer(QtWidgets.QMainWindow):
 
     def save_spec_fit(self):
         try:
-            to_save = np.column_stack([self.xdata1, self.ydata1, self.fit_,self.indv_comp_spec])
+            to_save = np.column_stack([self.xdata1, self.ydata1, self.fit_])
             file_name = QFileDialog().getSaveFileName(self, "save spectrum", '', 'spectrum and fit (*txt)')
             np.savetxt(str(file_name[0]) + '.txt', to_save)
         except:
             logger.error('No file to save')
             pass
+
+    def pg_export_spec_fit(self):
+        import pyqtgraph.exporters
+        exporter = pg.exporters.CSVExporter(self.spectrum_view.plotItem)
+        exporter.parameters()['columnMode'] = '(x,y,y,y) for all plots'
+        file_name = QFileDialog().getSaveFileName(self, "save spectrum", '', 'spectrum and fit (*csv)')
+        exporter.export(str(file_name[0])+'.csv')
+
 
 
     '''

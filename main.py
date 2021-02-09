@@ -330,34 +330,44 @@ class midasWindow(QtWidgets.QMainWindow):
             zlim, xlim, ylim = self.updated_stack.shape
 
             if self.xpixel > xlim:
-                self.xpixel = xlim
+                self.xpixel = xlim-1
 
             self.ypixel  = int(self.image_view.view.mapSceneToView(event.pos()).y())-1
             if self.ypixel > ylim:
-                self.ypixel = ylim
+                self.ypixel = ylim-1
 
             self.spectrum_view.addLegend()
             self.mean_spectra = self.updated_stack[:,self.xpixel,self.ypixel]
             self.spectrum_view.plot(self.xdata, self.mean_spectra, clear=True,
-                                    name = f'x= {self.xpixel}, y= {self.ypixel}')
+                                    name = f'Point Spectrum; x= {self.xpixel}, y= {self.ypixel}')
 
 
             self.statusbar_main.showMessage(f'{self.xpixel} and {self.ypixel}')
 
+    def defineROIs(self):
+
+        self.rectROI = pg.RectROI([20, 20], [20, 20], pen=(0, 9))
+        self.ellipseROI = pg.EllipseROI([60, 10], [30, 20], pen=(3,9))
+        self.circleROI = pg.CircleROI([80, 50], [20, 20], pen=(4,9))
+        self.lineROI = pg.LineSegmentROI([[110, 50], [20, 20]], pen=(5,9))
+        self.polyLineROI = pg.PolyLineROI([[0, 0], [0, self.sz], [self.sz, self.sz], [self.sz, 0]],
+                       pos=(int(self.dim3 // 2), int(self.dim2 // 2)),
+                       maxBounds=QtCore.QRect(0, 0, self.dim3, self.dim2),
+                       closed=True, removable=True)
+
     def setImageROI(self):
+
+        self.defineROIs()
         try:
             self.image_view.removeItem(self.image_roi)
         except:
             pass
 
-        # ROI settings for image, used plyline roi with non rectangular shape
+        # ROI settings for image, used polyline roi with non rectangular shape
 
-        self.image_roi = pg.PolyLineROI([[0, 0], [0, self.sz], [self.sz, self.sz], [self.sz, 0]],
-                                        pos=(int(self.dim3 // 2), int(self.dim2 // 2)),
-                                        maxBounds=QtCore.QRect(0, 0, self.dim3, self.dim2),
-                                        closed=True,removable = True)
-        self.image_roi.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
-        self.image_roi_math.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
+        self.image_roi = self.circleROI
+        #self.image_roi.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
+        #self.image_roi_math.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
         self.image_view.addItem(self.image_roi)
         self.image_roi.sigRegionChanged.connect(self.update_spectrum)
 
@@ -390,11 +400,12 @@ class midasWindow(QtWidgets.QMainWindow):
 
         self.mean_spectra = get_mean_spectra(self.roi_img_stk)
         self.curr_spec = np.column_stack([self.xdata,self.mean_spectra])
+        self.spectrum_view.addLegend()
 
         try:
-            self.spectrum_view.plot(self.xdata, self.mean_spectra , clear=True)
+            self.spectrum_view.plot(self.xdata, self.mean_spectra , clear=True, name = 'ROI Spectrum')
         except:
-            self.spectrum_view.plot(self.mean_spectra, clear=True)
+            self.spectrum_view.plot(self.mean_spectra, clear=True, name = 'ROI Spectrum')
 
         if self.energy[-1] > 1000:
             self.e_unit = 'eV'

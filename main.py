@@ -278,7 +278,6 @@ class midasWindow(QtWidgets.QMainWindow):
             self.update_stack()
 
         try:
-            self.image_view.removeItem(self.image_roi)
             self.image_view.removeItem(self.image_roi_math)
         except:
             pass
@@ -292,23 +291,13 @@ class midasWindow(QtWidgets.QMainWindow):
         if len(self.energy) == 0:
             self.energy = np.arange(self.z1, self.z2) * 10
             logger.info("Arbitary X-axis used in the plot for XANES")
-
-        # ROI settings for image, used plyline roi with non rectangular shape
         self.sz = np.max([int(self.dim2 * 0.1), int(self.dim3 * 0.1)])  # size of the roi set to be 10% of the image area
-        self.image_roi = pg.PolyLineROI([[0, 0], [0, self.sz], [self.sz, self.sz], [self.sz, 0]],
-                                        pos=(int(self.dim3 // 2), int(self.dim2 // 2)),
-                                        maxBounds=QtCore.QRect(0, 0, self.dim3, self.dim2),
-                                        closed=True,removable = True)
-        logger.info("Image ROI Added")
 
         # a second optional ROI for calculations follow
         self.image_roi_math = pg.PolyLineROI([[0, 0], [0, self.sz], [self.sz, self.sz], [self.sz, 0]],
                                              pos=(int(self.dim3 // 3), int(self.dim2 // 3)),
                                              pen='r', closed=True,removable = True)
 
-        self.image_roi.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
-        self.image_roi_math.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
-        self.image_view.addItem(self.image_roi)
 
         self.stack_center = (self.energy[len(self.energy) // 2])
         self.stack_width = (self.energy.max() - self.energy.min()) // 10
@@ -321,17 +310,18 @@ class midasWindow(QtWidgets.QMainWindow):
                                                          self.stack_center + self.stack_width - 10), pen='r',
                                                  brush=QtGui.QColor(0, 255, 200, 50)
                                                  )
+        self.setImageROI()
         self.update_spectrum()
         self.update_image_roi()
 
         # connections
         self.image_view.mousePressEvent = self.getPointSpectrum
         self.spec_roi.sigRegionChanged.connect(self.update_image_roi)
-        self.image_roi.sigRegionChanged.connect(self.update_spectrum)
         self.spec_roi_math.sigRegionChangeFinished.connect(self.spec_roi_calc)
         self.rb_math_roi.clicked.connect(self.update_spectrum)
         self.rb_math_roi_img.clicked.connect(self.math_img_roi_flag)
         self.image_roi_math.sigRegionChanged.connect(self.image_roi_calc)
+        self.pb_reset_roi.clicked.connect(self.setImageROI)
 
     def getPointSpectrum(self, event):
 
@@ -353,6 +343,24 @@ class midasWindow(QtWidgets.QMainWindow):
 
 
             self.statusbar_main.showMessage(f'{self.xpixel} and {self.ypixel}')
+
+    def setImageROI(self):
+        try:
+            self.image_view.removeItem(self.image_roi)
+        except:
+            pass
+
+        # ROI settings for image, used plyline roi with non rectangular shape
+
+        self.image_roi = pg.PolyLineROI([[0, 0], [0, self.sz], [self.sz, self.sz], [self.sz, 0]],
+                                        pos=(int(self.dim3 // 2), int(self.dim2 // 2)),
+                                        maxBounds=QtCore.QRect(0, 0, self.dim3, self.dim2),
+                                        closed=True,removable = True)
+        self.image_roi.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
+        self.image_roi_math.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
+        self.image_view.addItem(self.image_roi)
+        self.image_roi.sigRegionChanged.connect(self.update_spectrum)
+
 
 
     def replot_image(self):

@@ -1196,6 +1196,58 @@ color: rgb(255, 0, 127);</string>
              <string>ROI Details</string>
             </property>
             <layout class="QGridLayout" name="gridLayout_19">
+             <item row="0" column="1">
+              <widget class="QGroupBox" name="groupBox_5">
+               <property name="title">
+                <string>Spectrum ROI</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_11">
+                <item row="1" column="1">
+                 <widget class="QLabel" name="le_spec_roi_size">
+                  <property name="styleSheet">
+                   <string notr="true">color: rgb(255, 0,0);</string>
+                  </property>
+                  <property name="text">
+                   <string>roi_size</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_8">
+                  <property name="text">
+                   <string>Range (eV):</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_29">
+                  <property name="styleSheet">
+                   <string notr="true"/>
+                  </property>
+                  <property name="text">
+                   <string>Size (eV):</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLabel" name="le_spec_roi">
+                  <property name="styleSheet">
+                   <string notr="true">color: rgb(255, 0,0);</string>
+                  </property>
+                  <property name="text">
+                   <string>roix, roiy</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
              <item row="0" column="0">
               <widget class="QGroupBox" name="groupBox_4">
                <property name="title">
@@ -1248,56 +1300,11 @@ color: rgb(255, 0, 127);</string>
                </layout>
               </widget>
              </item>
-             <item row="0" column="1">
-              <widget class="QGroupBox" name="groupBox_5">
-               <property name="title">
-                <string>Spectrum ROI</string>
+             <item row="1" column="0">
+              <widget class="QPushButton" name="pb_reset_roi">
+               <property name="text">
+                <string>Reset ROI</string>
                </property>
-               <layout class="QGridLayout" name="gridLayout_11">
-                <item row="1" column="1">
-                 <widget class="QLabel" name="le_spec_roi_size">
-                  <property name="styleSheet">
-                   <string notr="true">color: rgb(255, 0,0);</string>
-                  </property>
-                  <property name="text">
-                   <string>roi_size</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_8">
-                  <property name="text">
-                   <string>Range (eV):</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_29">
-                  <property name="styleSheet">
-                   <string notr="true"/>
-                  </property>
-                  <property name="text">
-                   <string>Size (eV):</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QLabel" name="le_spec_roi">
-                  <property name="styleSheet">
-                   <string notr="true">color: rgb(255, 0,0);</string>
-                  </property>
-                  <property name="text">
-                   <string>roix, roiy</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
               </widget>
              </item>
             </layout>

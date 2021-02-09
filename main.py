@@ -34,7 +34,6 @@ class midasWindow(QtWidgets.QMainWindow):
         self.menuFile.setToolTipsVisible(True)
 
         self.actionOpen_Mask_Gen.triggered.connect(self.openMaskMaker)
-
         self.cb_transpose.stateChanged.connect(self.transpose_stack)
         self.cb_log.stateChanged.connect(self.replot_image)
         self.cb_remove_edges.stateChanged.connect(self.view_stack)
@@ -62,6 +61,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_calc_cluster.clicked.connect(self.clustering_)
         self.pb_xanes_fit.clicked.connect(self.fast_xanes_fitting)
         self.pb_plot_refs.clicked.connect(self.plt_xanes_refs)
+
         self.show()
 
     def browse_file(self):
@@ -297,6 +297,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.image_roi_math = pg.PolyLineROI([[0, 0], [0, self.sz], [self.sz, self.sz], [self.sz, 0]],
                                              pos=(int(self.dim3 // 3), int(self.dim2 // 3)),
                                              pen='r', closed=True,removable = True)
+        self.image_roi_math.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
 
 
         self.stack_center = (self.energy[len(self.energy) // 2])
@@ -321,7 +322,11 @@ class midasWindow(QtWidgets.QMainWindow):
         self.rb_math_roi.clicked.connect(self.update_spectrum)
         self.rb_math_roi_img.clicked.connect(self.math_img_roi_flag)
         self.image_roi_math.sigRegionChanged.connect(self.image_roi_calc)
-        self.pb_reset_roi.clicked.connect(self.setImageROI)
+        self.rb_poly_roi.clicked.connect(self.setImageROI)
+        self.rb_elli_roi.clicked.connect(self.setImageROI)
+        self.rb_rect_roi.clicked.connect(self.setImageROI)
+        self.rb_line_roi.clicked.connect(self.setImageROI)
+        self.rb_circle_roi.clicked.connect(self.setImageROI)
 
     def getPointSpectrum(self, event):
 
@@ -344,20 +349,40 @@ class midasWindow(QtWidgets.QMainWindow):
 
             self.statusbar_main.showMessage(f'{self.xpixel} and {self.ypixel}')
 
-    def defineROIs(self):
-
-        self.rectROI = pg.RectROI([20, 20], [20, 20], pen=(0, 9))
-        self.ellipseROI = pg.EllipseROI([60, 10], [30, 20], pen=(3,9))
-        self.circleROI = pg.CircleROI([80, 50], [20, 20], pen=(4,9))
-        self.lineROI = pg.LineSegmentROI([[110, 50], [20, 20]], pen=(5,9))
-        self.polyLineROI = pg.PolyLineROI([[0, 0], [0, self.sz], [self.sz, self.sz], [self.sz, 0]],
-                       pos=(int(self.dim3 // 2), int(self.dim2 // 2)),
-                       maxBounds=QtCore.QRect(0, 0, self.dim3, self.dim2),
-                       closed=True, removable=True)
-
     def setImageROI(self):
 
-        self.defineROIs()
+        self.lineROI = pg.LineSegmentROI([[int(self.dim3 // 2), int(self.dim2 // 2)],
+                                          [self.sz, self.sz]], pen='r')
+
+        self.rectROI = pg.RectROI([int(self.dim3 // 2), int(self.dim2 // 2)],
+                                  [self.sz, self.sz], pen='w')
+
+        self.ellipseROI = pg.EllipseROI([int(self.dim3 // 2), int(self.dim2 // 2)],
+                                        [self.sz, self.sz], pen='w')
+
+        self.circleROI = pg.CircleROI([int(self.dim3 // 2), int(self.dim2 // 2)],
+                                      [self.sz, self.sz], pen='w')  # pos and size
+
+        self.polyLineROI = pg.PolyLineROI([[0, 0], [0, self.sz], [self.sz, self.sz], [self.sz, 0]],
+                                          pos=(int(self.dim3 // 2), int(self.dim2 // 2)),
+                                          maxBounds=QtCore.QRect(0, 0, self.dim3, self.dim2),
+                                          closed=True, removable=True)
+        self.polyLineROI.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
+
+
+        self.rois = {'rb_line_roi':self.lineROI,'rb_rect_roi':self.rectROI,'rb_circle_roi':self.circleROI,
+                    'rb_elli_roi':self.ellipseROI,'rb_poly_roi':self.polyLineROI}
+
+        button_name = self.sender()
+
+        if button_name.objectName() in self.rois.keys():
+            self.roi_preference = button_name.objectName()
+
+        else:
+            self.roi_preference = 'rb_poly_roi'  # default
+
+        print(self.roi_preference)
+
         try:
             self.image_view.removeItem(self.image_roi)
         except:
@@ -365,9 +390,9 @@ class midasWindow(QtWidgets.QMainWindow):
 
         # ROI settings for image, used polyline roi with non rectangular shape
 
-        self.image_roi = self.circleROI
+        self.image_roi = self.rois[self.roi_preference]
         #self.image_roi.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
-        #self.image_roi_math.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
+
         self.image_view.addItem(self.image_roi)
         self.image_roi.sigRegionChanged.connect(self.update_spectrum)
 
@@ -392,14 +417,24 @@ class midasWindow(QtWidgets.QMainWindow):
         # get the cropped stack from ROI region; pyqtgraph function is used
         self.roi_img_stk = self.image_roi.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
 
-        # display the ROI features in the line edit boxes
-        sizex, sizey = self.roi_img_stk.shape[1], self.roi_img_stk.shape[2]
         posx, posy = self.image_roi.pos()
         self.le_roi.setText(str(int(posx)) + ':' + str(int(posy)))
-        self.le_roi_size.setText(str(sizex) + ',' + str(sizey))
 
-        self.mean_spectra = get_mean_spectra(self.roi_img_stk)
-        self.curr_spec = np.column_stack([self.xdata,self.mean_spectra])
+        # display the ROI features in the line edit boxes
+        if self.roi_img_stk.ndim == 3:
+            sizex, sizey = self.roi_img_stk.shape[1], self.roi_img_stk.shape[2]
+            self.le_roi_size.setText(str(sizex) + ',' + str(sizey))
+
+            self.mean_spectra = get_mean_spectra(self.roi_img_stk)
+            self.curr_spec = np.column_stack([self.xdata,self.mean_spectra])
+
+        elif self.roi_img_stk.ndim == 2:
+            sizex, sizey = self.roi_img_stk.shape[0], self.roi_img_stk.shape[1]
+            self.le_roi_size.setText(str(sizex) + ',' + str(sizey))
+            self.mean_spectra = self.roi_img_stk.mean(-1)
+            self.curr_spec = np.column_stack([self.xdata,self.mean_spectra])
+
+
         self.spectrum_view.addLegend()
 
         try:

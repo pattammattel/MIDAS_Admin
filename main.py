@@ -316,12 +316,12 @@ class midasWindow(QtWidgets.QMainWindow):
         self.update_image_roi()
 
         # connections
-        self.image_view.mousePressEvent = self.getPointSpectrum
+        self.image_view.MouseClickEvent = self.getPointSpectrum
         self.spec_roi.sigRegionChanged.connect(self.update_image_roi)
         self.spec_roi_math.sigRegionChangeFinished.connect(self.spec_roi_calc)
         self.rb_math_roi.clicked.connect(self.update_spectrum)
         self.rb_math_roi_img.clicked.connect(self.math_img_roi_flag)
-        self.image_roi_math.sigRegionChanged.connect(self.image_roi_calc)
+        self.image_roi_math.sigRegionChangeFinished.connect(self.image_roi_calc)
         self.rb_poly_roi.clicked.connect(self.setImageROI)
         self.rb_elli_roi.clicked.connect(self.setImageROI)
         self.rb_rect_roi.clicked.connect(self.setImageROI)
@@ -342,8 +342,8 @@ class midasWindow(QtWidgets.QMainWindow):
                 self.ypixel = ylim-1
 
             self.spectrum_view.addLegend()
-            self.mean_spectra = self.updated_stack[:,self.xpixel,self.ypixel]
-            self.spectrum_view.plot(self.xdata, self.mean_spectra, clear=True,
+            self.point_spectrum = self.updated_stack[:,self.xpixel,self.ypixel]
+            self.spectrum_view.plot(self.xdata, self.point_spectrum, clear=True,
                                     name = f'Point Spectrum; x= {self.xpixel}, y= {self.ypixel}')
 
 
@@ -381,8 +381,6 @@ class midasWindow(QtWidgets.QMainWindow):
         else:
             self.roi_preference = 'rb_poly_roi'  # default
 
-        print(self.roi_preference)
-
         try:
             self.image_view.removeItem(self.image_roi)
         except:
@@ -395,8 +393,6 @@ class midasWindow(QtWidgets.QMainWindow):
 
         self.image_view.addItem(self.image_roi)
         self.image_roi.sigRegionChanged.connect(self.update_spectrum)
-
-
 
     def replot_image(self):
         self.update_stack()
@@ -482,66 +478,6 @@ class midasWindow(QtWidgets.QMainWindow):
         self.spec_roi.setRegion((self.xdata[self.spec_lo_idx_], self.xdata[self.spec_hi_idx_]))
         self.update_image_roi()
 
-    def select_elist(self):
-        file_name = QFileDialog().getOpenFileName(self, "Open energy list", '', 'text file (*.txt)')
-
-        try:
-
-            if str(file_name[0]).endswith('log_tiff.txt'):
-                self.energy = energy_from_logfile(logfile=str(file_name[0]))
-                logger.info("Log file from pyxrf processing")
-
-            else:
-                self.energy = np.loadtxt(str(file_name[0]))
-
-            logger.info('Energy file loaded')
-            if self.energy.any():
-                self.change_color_on_load(self.pb_elist_xanes)
-
-            assert len(self.energy) == self.dim1
-
-            if self.energy.max() < 100:
-                self.cb_kev_flag.setChecked(True)
-                self.energy *= 1000
-
-            else:
-                self.cb_kev_flag.setChecked(False)
-
-            self.view_stack()
-
-        except OSError:
-            logger.error('No file selected')
-            pass
-
-    def select_ref_file(self):
-        self.ref_names = []
-        file_name = QFileDialog().getOpenFileName(self, "Open reference file", '', 'text file (*.txt *.nor)')
-        try:
-            if file_name[0].endswith('.nor'):
-                self.refs, self.ref_names = create_df_from_nor_try2(athenafile=str(file_name[0]))
-                self.change_color_on_load(self.pb_ref_xanes)
-
-            elif file_name[0].endswith('.txt'):
-                self.refs = pd.read_csv(str(file_name[0]), header=None, delim_whitespace=True)
-                self.change_color_on_load(self.pb_ref_xanes)
-
-            self.plt_xanes_refs()
-
-        except OSError:
-            logger.error('No file selected')
-            pass
-
-        except:
-            logger.error('Unsupported file format')
-            pass
-
-    def plt_xanes_refs(self):
-        plt.figure()
-        plt.plot(self.refs.values[:, 0], self.refs.values[:, 1:])
-        plt.title("Reference Standards")
-        plt.xlabel("Energy")
-        plt.show()
-
     def math_roi_flag(self):
         if self.rb_math_roi.isChecked():
             self.rb_math_roi.setStyleSheet("color : green")
@@ -576,22 +512,6 @@ class midasWindow(QtWidgets.QMainWindow):
             self.disp_img = remove_nan_inf(calc[self.cb_roi_operation.currentText()](self.img1, self.img2))
             self.image_view.setImage(self.disp_img)
 
-    def correlation_plot(self):
-
-        self.statusbar_main.showMessage(f'Correlation stack {int(self.spec_lo_idx)}:{int(self.spec_hi_idx)} with '
-                                        f'{int(self.spec_lo_m_idx)}:{int(self.spec_hi_m_idx)}')
-
-        self.scatter_window = ScatterPlot(self.img1, self.img2)
-
-        ph = self.geometry().height()
-        pw = self.geometry().width()
-        px = self.geometry().x()
-        py = self.geometry().y()
-        dw = self.scatter_window.width()
-        dh = self.scatter_window.height()
-        # self.scatter_window.setGeometry(px+0.65*pw, py + ph - 2*dh-5, dw, dh)
-        self.scatter_window.show()
-
     def math_img_roi_flag(self):
         if self.rb_math_roi_img.isChecked():
             self.rb_math_roi_img.setStyleSheet("color : green")
@@ -618,18 +538,43 @@ class midasWindow(QtWidgets.QMainWindow):
             pass
 
     def update_spec_image_roi(self):
-        main_roi_reg = self.image_roi.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
-        math_roi_reg = self.image_roi_math.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
-        calc_spec = self.calc[self.cb_img_roi_action.currentText()](get_mean_spectra(main_roi_reg),
-                                                                    get_mean_spectra(math_roi_reg))
+
+        self.math_roi_reg = self.image_roi_math.getArrayRegion(self.updated_stack,
+                                                               self.image_view.imageItem, axes=(1, 2))
+        if self.math_roi_reg.ndim == 3:
+
+            self.math_roi_spectra = get_mean_spectra(self.roi_img_stk)
+
+        elif self.roi_img_stk.ndim == 2:
+            self.math_roi_spectra = self.math_roi_reg.mean(-1)
+
+        calc_spec = self.calc[self.cb_img_roi_action.currentText()](self.mean_spectra,
+                                                                    self.math_roi_spectra)
         self.spectrum_view.addLegend()
         self.spectrum_view.plot(self.xdata, calc_spec, clear=True, pen='m',
                                 name=self.cb_img_roi_action.currentText() + "ed")
-        self.spectrum_view.plot(self.xdata, get_mean_spectra(main_roi_reg), pen='g',
+        self.spectrum_view.plot(self.xdata, self.math_roi_spectra, pen='y',
+                                name="math_region")
+        self.spectrum_view.plot(self.xdata, self.mean_spectra, pen='g',
                                 name="raw")
-        self.curr_spec = np.column_stack((self.xdata, calc_spec, get_mean_spectra(main_roi_reg)))
 
         self.spectrum_view.addItem(self.spec_roi)
+
+    def correlation_plot(self):
+
+        self.statusbar_main.showMessage(f'Correlation stack {int(self.spec_lo_idx)}:{int(self.spec_hi_idx)} with '
+                                        f'{int(self.spec_lo_m_idx)}:{int(self.spec_hi_m_idx)}')
+
+        self.scatter_window = ScatterPlot(self.img1, self.img2)
+
+        ph = self.geometry().height()
+        pw = self.geometry().width()
+        px = self.geometry().x()
+        py = self.geometry().y()
+        dw = self.scatter_window.width()
+        dh = self.scatter_window.height()
+        # self.scatter_window.setGeometry(px+0.65*pw, py + ph - 2*dh-5, dw, dh)
+        self.scatter_window.show()
 
     def save_stack(self):
         try:
@@ -713,6 +658,66 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def change_color_on_load(self, button_name):
         button_name.setStyleSheet("background-color : green")
+
+    def select_elist(self):
+        file_name = QFileDialog().getOpenFileName(self, "Open energy list", '', 'text file (*.txt)')
+
+        try:
+
+            if str(file_name[0]).endswith('log_tiff.txt'):
+                self.energy = energy_from_logfile(logfile=str(file_name[0]))
+                logger.info("Log file from pyxrf processing")
+
+            else:
+                self.energy = np.loadtxt(str(file_name[0]))
+
+            logger.info('Energy file loaded')
+            if self.energy.any():
+                self.change_color_on_load(self.pb_elist_xanes)
+
+            assert len(self.energy) == self.dim1
+
+            if self.energy.max() < 100:
+                self.cb_kev_flag.setChecked(True)
+                self.energy *= 1000
+
+            else:
+                self.cb_kev_flag.setChecked(False)
+
+            self.view_stack()
+
+        except OSError:
+            logger.error('No file selected')
+            pass
+
+    def select_ref_file(self):
+        self.ref_names = []
+        file_name = QFileDialog().getOpenFileName(self, "Open reference file", '', 'text file (*.txt *.nor)')
+        try:
+            if file_name[0].endswith('.nor'):
+                self.refs, self.ref_names = create_df_from_nor_try2(athenafile=str(file_name[0]))
+                self.change_color_on_load(self.pb_ref_xanes)
+
+            elif file_name[0].endswith('.txt'):
+                self.refs = pd.read_csv(str(file_name[0]), header=None, delim_whitespace=True)
+                self.change_color_on_load(self.pb_ref_xanes)
+
+            self.plt_xanes_refs()
+
+        except OSError:
+            logger.error('No file selected')
+            pass
+
+        except:
+            logger.error('Unsupported file format')
+            pass
+
+    def plt_xanes_refs(self):
+        plt.figure()
+        plt.plot(self.refs.values[:, 0], self.refs.values[:, 1:])
+        plt.title("Reference Standards")
+        plt.xlabel("Energy")
+        plt.show()
 
     def fast_xanes_fitting(self):
 

@@ -23,7 +23,6 @@ class midasWindow(QtWidgets.QMainWindow):
         self.updated_stack = self.im_stack
         self.energy = energy
         self.refs = refs
-        self.log_warning=0
 
         self.actionOpen_Image_Data.triggered.connect(self.browse_file)
         self.actionOpen_Multiple_Files.triggered.connect(self.load_mutliple_file)
@@ -38,6 +37,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.cb_log.stateChanged.connect(self.replot_image)
         self.cb_rebin.stateChanged.connect(self.view_stack)
         self.cb_upscale.stateChanged.connect(self.view_stack)
+        self.sb_scaling_factor.valueChanged.connect(self.view_stack)
         self.cb_remove_edges.stateChanged.connect(self.view_stack)
         self.cb_norm.stateChanged.connect(self.replot_image)
         self.cb_smooth.stateChanged.connect(self.replot_image)
@@ -169,6 +169,7 @@ class midasWindow(QtWidgets.QMainWindow):
             pass
 
     def reset_and_load_stack(self):
+        self.log_warning = False
         self.rb_math_roi_img.setChecked(False)
         self.cb_log.setChecked(False)
         self.cb_remove_edges.setChecked(False)
@@ -211,6 +212,7 @@ class midasWindow(QtWidgets.QMainWindow):
         if self.cb_rebin.isChecked():
             self.cb_upscale.setChecked(False)
             self.sb_scaling_factor.setEnabled(True)
+            self.reset_and_load_stack()
             self.updated_stack = resize_stack(self.updated_stack,
                                               scaling_factor=self.sb_scaling_factor.value())
             self.update_stack_info()
@@ -258,22 +260,25 @@ class midasWindow(QtWidgets.QMainWindow):
 
                 self.updated_stack = remove_nan_inf(np.log10(self.updated_stack * self.avgIo))
 
-                '''
-                self.logMsgBox = QMessageBox()
-                self.logMsgBox.setIcon(QMessageBox.Warning)
-                self.logMsgBox.setText(f'Data is multiplied with average I0 value: {self.avgIo} '
-                                       f'\n before taking log to avoid negative peaks')
-                self.logMsgBox.setWindowTitle("Log data Warning")
-                self.logMsgBox.setStandardButtons(QMessageBox.Ok)
+                if not self.log_warning:
+                    self.logMsgBox = QMessageBox()
+                    self.logMsgBox.setIcon(QMessageBox.Warning)
+                    self.logMsgBox.setText(f'Data will be multiplied with the average I0 value: {self.avgIo} '
+                                           f'\n before log to avoid negative peaks')
 
-                if self.logMsgBox.exec() == QMessageBox.Ok:
+                    self.logMsgBox.setWindowTitle("Log data Warning")
+                    self.logMsgBox.setStandardButtons(QMessageBox.Ok|QMessageBox.YesToAll)
+                    user_in = self.logMsgBox.exec_()
+
+                    if user_in == QMessageBox.Ok:
+                        self.updated_stack = remove_nan_inf(np.log10(self.updated_stack * self.avgIo))
+
+
+                    elif user_in == QMessageBox.YesToAll:
+                        self.log_warning = True
+                        self.updated_stack = remove_nan_inf(np.log10(self.updated_stack * self.avgIo))
+                else:
                     self.updated_stack = remove_nan_inf(np.log10(self.updated_stack * self.avgIo))
-
-
-                elif self.logMsgBox.exec() == QtGui.QMessageBox.YesRole:
-                    self.log_warning = 1
-                    self.updated_stack = remove_nan_inf(np.log10(self.updated_stack * self.avgIo))
-                '''
 
             logger.info('Log Stack is in use')
 

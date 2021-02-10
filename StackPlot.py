@@ -229,13 +229,12 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.spectrum_view.plot(self.xdata1, self.fit_, name="Fit", pen=pen2)
 
         for n, (coff, ref, plt_clr) in enumerate(zip(coeffs,self.inter_ref, self.plt_colors)):
+
             if len(self.selected) != 0:
 
-                self.fit_comp_spec = np.dot(coff,ref)
-
-                self.spectrum_view.plot(self.xdata1, self.fit_comp_spec, name=self.selected[1:][n],pen=plt_clr)
+                self.spectrum_view.plot(self.xdata1, np.dot(coff, ref), name=self.selected[1:][n],pen=plt_clr)
             else:
-                self.spectrum_view.plot(self.xdata1, self.fit_comp_spec, name="ref" + str(n + 1), pen=plt_clr)
+                self.spectrum_view.plot(self.xdata1, np.dot(coff, ref), name="ref" + str(n + 1), pen=plt_clr)
 
         self.le_r_sq.setText(str(np.around(r / self.ydata1.sum(), 4)))
 

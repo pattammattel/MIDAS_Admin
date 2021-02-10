@@ -57,8 +57,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>368</width>
-         <height>855</height>
+         <width>321</width>
+         <height>867</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_9">
@@ -81,8 +81,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>346</width>
-             <height>291</height>
+             <width>299</width>
+             <height>312</height>
             </rect>
            </property>
            <attribute name="label">
@@ -311,9 +311,9 @@ color: rgb(255, 0, 127);
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>0</y>
-             <width>325</width>
-             <height>413</height>
+             <y>-31</y>
+             <width>280</width>
+             <height>456</height>
             </rect>
            </property>
            <attribute name="label">
@@ -325,70 +325,139 @@ color: rgb(255, 0, 127);
               <property name="title">
                <string/>
               </property>
-              <layout class="QGridLayout" name="gridLayout_24">
-               <item row="3" column="0">
-                <widget class="QFrame" name="frame_2">
+              <layout class="QGridLayout" name="gridLayout_28">
+               <item row="0" column="0">
+                <widget class="QFrame" name="frame">
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
                   <enum>QFrame::Raised</enum>
                  </property>
-                 <layout class="QGridLayout" name="gridLayout_3">
+                 <layout class="QGridLayout" name="gridLayout_27">
                   <item row="0" column="0">
-                   <widget class="QCheckBox" name="cb_smooth">
-                    <property name="toolTip">
-                     <string>uses savgol_filter to smooth data</string>
+                   <widget class="QGroupBox" name="groupBox_9">
+                    <property name="title">
+                     <string>Transform</string>
                     </property>
-                    <property name="text">
-                     <string>Smoothen</string>
-                    </property>
+                    <layout class="QGridLayout" name="gridLayout_24">
+                     <item row="0" column="0">
+                      <layout class="QVBoxLayout" name="verticalLayout_3">
+                       <item>
+                        <layout class="QHBoxLayout" name="horizontalLayout_7">
+                         <item>
+                          <widget class="QCheckBox" name="cb_log">
+                           <property name="toolTip">
+                            <string>Covert image dat to log values.</string>
+                           </property>
+                           <property name="styleSheet">
+                            <string notr="true"/>
+                           </property>
+                           <property name="text">
+                            <string>Log </string>
+                           </property>
+                           <property name="checked">
+                            <bool>false</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QCheckBox" name="cb_norm">
+                           <property name="toolTip">
+                            <string>Intensity Normalization with the last Frame.</string>
+                           </property>
+                           <property name="text">
+                            <string>Normalize</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                       <item>
+                        <widget class="QCheckBox" name="cb_transpose">
+                         <property name="toolTip">
+                          <string>Reverse the arrays. 012 will be 210</string>
+                         </property>
+                         <property name="layoutDirection">
+                          <enum>Qt::LeftToRight</enum>
+                         </property>
+                         <property name="text">
+                          <string>Transpose</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item row="1" column="0">
+                      <layout class="QHBoxLayout" name="horizontalLayout_9">
+                       <item>
+                        <widget class="QCheckBox" name="cb_rebin">
+                         <property name="enabled">
+                          <bool>true</bool>
+                         </property>
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="text">
+                          <string>rebin</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <layout class="QHBoxLayout" name="horizontalLayout_10">
+                         <item>
+                          <widget class="QCheckBox" name="cb_upscale">
+                           <property name="enabled">
+                            <bool>true</bool>
+                           </property>
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>Upscale</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                       <item>
+                        <widget class="QSpinBox" name="sb_scaling_factor">
+                         <property name="enabled">
+                          <bool>false</bool>
+                         </property>
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
+                         </property>
+                         <property name="minimum">
+                          <number>2</number>
+                         </property>
+                         <property name="maximum">
+                          <number>16</number>
+                         </property>
+                         <property name="singleStep">
+                          <number>2</number>
+                         </property>
+                         <property name="value">
+                          <number>2</number>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                    </layout>
                    </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <layout class="QHBoxLayout" name="horizontalLayout_4">
-                    <item>
-                     <widget class="QSlider" name="hs_smooth_size">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="minimum">
-                       <number>3</number>
-                      </property>
-                      <property name="maximum">
-                       <number>12</number>
-                      </property>
-                      <property name="singleStep">
-                       <number>2</number>
-                      </property>
-                      <property name="pageStep">
-                       <number>2</number>
-                      </property>
-                      <property name="value">
-                       <number>3</number>
-                      </property>
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="tickPosition">
-                       <enum>QSlider::TicksBelow</enum>
-                      </property>
-                      <property name="tickInterval">
-                       <number>2</number>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QLabel" name="smooth_winow_size">
-                      <property name="text">
-                       <string>Window size</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
                   </item>
                  </layout>
                 </widget>
@@ -509,101 +578,69 @@ color: rgb(255, 0, 127);
                  </layout>
                 </widget>
                </item>
-               <item row="0" column="0">
-                <widget class="QFrame" name="frame">
+               <item row="3" column="0">
+                <widget class="QFrame" name="frame_2">
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
                   <enum>QFrame::Raised</enum>
                  </property>
-                 <layout class="QGridLayout" name="gridLayout_28">
+                 <layout class="QGridLayout" name="gridLayout_3">
                   <item row="0" column="0">
-                   <widget class="QCheckBox" name="cb_log">
+                   <widget class="QCheckBox" name="cb_smooth">
                     <property name="toolTip">
-                     <string>Covert image dat to log values.</string>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true"/>
+                     <string>uses savgol_filter to smooth data</string>
                     </property>
                     <property name="text">
-                     <string>Log </string>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QCheckBox" name="cb_transpose">
-                    <property name="toolTip">
-                     <string>Reverse the arrays. 012 will be 210</string>
-                    </property>
-                    <property name="layoutDirection">
-                     <enum>Qt::LeftToRight</enum>
-                    </property>
-                    <property name="text">
-                     <string>Transpose</string>
+                     <string>Smoothen</string>
                     </property>
                    </widget>
                   </item>
                   <item row="1" column="0">
-                   <layout class="QHBoxLayout" name="horizontalLayout_9">
+                   <layout class="QHBoxLayout" name="horizontalLayout_4">
                     <item>
-                     <widget class="QCheckBox" name="sb_bin">
+                     <widget class="QSlider" name="hs_smooth_size">
                       <property name="enabled">
                        <bool>false</bool>
-                      </property>
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="text">
-                       <string>Bin</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QSpinBox" name="sb_bin_val">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="styleSheet">
-                       <string notr="true">font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
                       </property>
                       <property name="minimum">
-                       <number>2</number>
+                       <number>3</number>
                       </property>
                       <property name="maximum">
-                       <number>16</number>
+                       <number>12</number>
                       </property>
                       <property name="singleStep">
                        <number>2</number>
                       </property>
+                      <property name="pageStep">
+                       <number>2</number>
+                      </property>
                       <property name="value">
+                       <number>3</number>
+                      </property>
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="tickPosition">
+                       <enum>QSlider::TicksBelow</enum>
+                      </property>
+                      <property name="tickInterval">
                        <number>2</number>
                       </property>
                      </widget>
                     </item>
+                    <item>
+                     <widget class="QLabel" name="smooth_winow_size">
+                      <property name="text">
+                       <string>Window size</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
                    </layout>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QCheckBox" name="cb_norm">
-                    <property name="toolTip">
-                     <string>Intensity Normalization with the last Frame.</string>
-                    </property>
-                    <property name="text">
-                     <string>Normalize</string>
-                    </property>
-                   </widget>
                   </item>
                  </layout>
                 </widget>
@@ -657,8 +694,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>325</width>
-             <height>189</height>
+             <width>299</width>
+             <height>172</height>
             </rect>
            </property>
            <attribute name="label">
@@ -795,8 +832,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>325</width>
-             <height>185</height>
+             <width>299</width>
+             <height>172</height>
             </rect>
            </property>
            <attribute name="label">
@@ -920,8 +957,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>346</width>
-             <height>156</height>
+             <width>299</width>
+             <height>184</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1457,7 +1494,7 @@ color: rgb(255, 0, 127);</string>
      <x>0</x>
      <y>0</y>
      <width>1246</width>
-     <height>29</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuManual">

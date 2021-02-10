@@ -202,7 +202,6 @@ def neg_log(image_array):
 
 
 def clean_stack(img_stack, auto_bg=False, bg_percentage=5):
-    img_stack = remove_hot_pixels(img_stack)
     a, b, c = np.shape(img_stack)
 
     if auto_bg == True:

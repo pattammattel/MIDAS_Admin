@@ -140,26 +140,27 @@ class midasWindow(QtWidgets.QMainWindow):
             else:
                 logger.error('Unknown data format')
 
-        self.set_stack_params()
+        self.setStackParamsNDisplay()
 
-    def set_stack_params(self):
+    def setStackParamsNDisplay(self):
 
-        self.sb_zrange2.setMaximum(100000)
-        self.sb_zrange1.setValue(0)
-        self.sb_zrange2.setValue(self.stack_.shape[-1])
+        """ Fill the stack dimensions to the GUI and set the image dimensions as max values.
+         This prevent user from choosing higher image dimensions during a resizing event"""
+
+        logger.info(f' loaded stack with {np.shape(self.stack_)} from the file')
 
         try:
-
-            logger.info(f' loaded stack with {np.shape(self.stack_)} from the file')
             self.im_stack = self.stack_.T
-            self.init_dimZ = self.im_stack.shape[0]
-            self.init_dimX = self.im_stack.shape[1]
-            self.init_dimY = self.im_stack.shape[2]
-            self.sb_xrange2.setMaximum(5000)
-            self.sb_yrange2.setMaximum(5000)
+            logger.info(f' Transposed to shape: {np.shape(self.im_stack)}')
+            self.init_dimZ, self.init_dimX, self.init_dimY = self.im_stack.shape
+            # Remove any previously set max value during a reload
+            self.sb_zrange2.setMaximum(99999)
+            self.sb_xrange2.setMaximum(99999)
+            self.sb_yrange2.setMaximum(99999)
+
+            self.sb_zrange2.setValue(self.init_dimZ)
             self.sb_xrange2.setValue(self.init_dimX)
             self.sb_yrange2.setValue(self.init_dimY)
-            logger.info(f' Transposed to shape: {np.shape(self.im_stack)}')
 
         except UnboundLocalError:
             logger.error('No file selected')

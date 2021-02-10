@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import h5py
 import logging
 from scipy.signal import savgol_filter
+from skimage.transform import resize
 
 logger = logging.getLogger()
 
@@ -102,19 +103,24 @@ def smoothen(image_array, w_size=5):
     norm_stack = np.reshape(smooth_stack, (a, b, c))
     return remove_nan_inf(norm_stack)
 
+def resize_stack(image_array, upscaling = False, scaling_factor = 2):
+    en, im1, im2 = np.shape(image_array)
+
+    if upscaling:
+        im1_ = im1 * scaling_factor
+        im2_ = im2 * scaling_factor
+        img_stack_resized = resize(image_array, (57, im1_, im2_))
+
+    else:
+        im1_ = int(im1/scaling_factor)
+        im2_ = int(im2/scaling_factor)
+        img_stack_resized = resize(image_array, (57, im1_, im2_))
+
+    return img_stack_resized
+
 
 def normalize(image_array, norm_point=-1):
-    a, b, c = np.shape(image_array)
-    image_array = remove_nan_inf(image_array)
-    spec2D_Matrix = np.reshape(image_array, (a, (b * c)))
-    norm_stack = np.zeros(np.shape(spec2D_Matrix))
-    tot_spec = np.shape(spec2D_Matrix)[1]
-
-    for i in range(tot_spec):
-        norm_spec = spec2D_Matrix[:, i] / (spec2D_Matrix[:, i][norm_point])
-        norm_stack[:, i] = norm_spec
-
-    norm_stack = np.reshape(norm_stack, (a, b, c))
+    norm_stack = image_array/image_array[norm_point]
     return remove_nan_inf(norm_stack)
 
 

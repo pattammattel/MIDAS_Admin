@@ -67,32 +67,49 @@ class midasWindow(QtWidgets.QMainWindow):
         self.show()
 
     def browse_file(self):
+        """ To open a file widow and choose the data file.
+        The filename will be used to load data using 'rest and load stack' function """
+
         filename = QFileDialog().getOpenFileName(self, "Select image data", '', 'image file(*.hdf *.h5 *tiff *tif )')
         self.file_name = (str(filename[0]))
 
+        # if user decides to cancel the file window gui returns to original state
         if not len(filename[0]) == 0:
             self.reset_and_load_stack()
         else:
             self.statusbar_main.showMessage("No file has selected")
             pass
 
-        '''
-        try:
-            self.reset_and_load_stack()
-        except:
-            self.statusbar_main.showMessage("Error: Unable to Load Data")
-            
-        '''
-
     def load_mutliple_file(self):
+        """ User can load multiple/series of tiff images with same shape.
+        The 'self.reset_and_load_stack()' recognizes 'self.filename as list and create the stack.
+        """
+
         filter = "TIFF (*.tiff);;TIF (*.tif)"
         file_name = QFileDialog()
         file_name.setFileMode(QFileDialog.ExistingFiles)
         names = file_name.getOpenFileNames(self, "Open files", " ", filter)
-        self.file_name = names[0]
-        self.load_stack()
+        if len(names) !=0:
+
+            self.file_name = names[0]
+            self.reset_and_load_stack()
+
+        else:
+            self.statusbar_main.showMessage("No file has selected")
+            pass
 
     def load_stack(self):
+
+        """ load the image data from the selected file.
+        If the the choice is for multiple files stack will be created in a loop.
+        If single h5 file is selected the unpacking will be done with 'get_xrf_data' function in StackCalcs.
+        From the h5 the program can recognize the beamline. The exported stack will be normalized to I0.
+
+        If the single tiff file is choosen tf.imread() is used.
+
+        The output 'self.stack_' is the unmodified data file
+        """
+
         self.sb_zrange2.setMaximum(100000)
         self.sb_zrange1.setValue(0)
 
@@ -106,8 +123,7 @@ class midasWindow(QtWidgets.QMainWindow):
                 img = tf.imread(im_file)
                 all_images.append(img)
             self.stack_ = np.dstack(all_images)
-            self.sb_zrange2.setValue(self.stack_.shape[-1])
-            self.avgIo = 1
+            self.avgIo = 1 # I0 is only applicable to XRF h5 files
             print(self.stack_.shape)
 
         else:
@@ -119,7 +135,6 @@ class midasWindow(QtWidgets.QMainWindow):
 
             elif self.file_name.endswith('.tiff') or self.file_name.endswith('.tif'):
                 self.stack_ = tf.imread(self.file_name).transpose(1, 2, 0)
-                self.sb_zrange2.setValue(self.stack_.shape[-1])
                 self.avgIo = 1
 
             else:
@@ -131,6 +146,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
         self.sb_zrange2.setMaximum(100000)
         self.sb_zrange1.setValue(0)
+        self.sb_zrange2.setValue(self.stack_.shape[-1])
 
         try:
 

@@ -394,30 +394,25 @@ def interploate_E(refs, e):
 
 def xanes_fitting(im_stack, e_list, refs, method='NNLS'):
     """Linear combination fit of image data with reference standards"""
-    new_image = im_stack.transpose(2, 1, 0)
-    x, y, z = np.shape(new_image)
+    en, im1, im2 = np.shape(im_stack)
 
-    refs = (interploate_E(refs, e_list)).T
-
-    if refs.ndim == 1:
-        refs = refs.reshape(refs.shape[0], 1)
-    M = np.reshape(new_image, (x * y, z))
+    int_refs = (interploate_E(refs, e_list))
+    im_array = im_stack.reshape(en, im1 * im2)
 
     if method == 'NNLS':
-        N, p1 = M.shape
-        q, p2 = refs.T.shape
 
-        map = np.zeros((N, q), dtype=np.float32)
-        MtM = np.dot(refs.T, refs)
-        for n1 in range(N):
-            map[n1] = opt.nnls(MtM, np.dot(refs.T, M[n1]))[0]
-        map = map.reshape(new_image.shape[:-1] + (refs.shape[-1],))
+        coeffs_arr = []
+        r_factor_arr = []
 
-    if method == 'UCLS':  # refer to hypers
-        x_inverse = np.linalg.pinv(refs)
-        map = np.dot(x_inverse, M.T).T.reshape(new_image.shape[:-1] + (refs.shape[-1],))
+        for i in range(im1 * im2):
+            coeffs, r = opt.nnls(int_refs.T, im_array[:, i])
+            coeffs_arr.append(coeffs)
+            r_factor_arr.append(r)
 
-    return map
+        abundance_map = np.reshape(coeffs_arr, (im1, im2, -1))
+        r_factor = np.reshape(r_factor_arr, (im1, im2))
+
+    return abundance_map, r_factor
 
 
 def create_df_from_nor(athenafile='fe_refs.nor'):

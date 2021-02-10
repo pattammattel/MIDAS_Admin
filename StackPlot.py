@@ -142,7 +142,7 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.ref_names = ref_names
         self.selected = self.ref_names
 
-        self.decon_ims = xanes_fitting(self.im_stack, self.e_list, self.refs, method='NNLS').T
+        self.decon_ims, self.rfactor = xanes_fitting(self.im_stack, self.e_list, self.refs, method='NNLS')
 
         (self.dim1, self.dim3, self.dim2) = self.im_stack.shape
         self.cn = int(self.dim2 // 2)
@@ -174,7 +174,7 @@ class XANESViewer(QtWidgets.QMainWindow):
         # self.pb_play_stack.clicked.connect(self.play_stack)
 
     def display_all_data(self):
-        self.image_view_maps.setImage(self.decon_ims)
+        self.image_view_maps.setImage(self.decon_ims.transpose(2,0,1))
         self.image_view_maps.setPredefinedGradient('bipolar')
         self.image_view_maps.ui.menuBtn.hide()
         self.image_view_maps.ui.roiBtn.hide()
@@ -228,7 +228,6 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.spectrum_view.plot(self.xdata1, self.ydata1, pen=pen, name="Data", clear=True)
         self.spectrum_view.plot(self.xdata1, self.fit_, name="Fit", pen=pen2)
 
-        #self.indv_comp_spec = []
         for n, (coff, ref, plt_clr) in enumerate(zip(coeffs,self.inter_ref, self.plt_colors)):
             if len(self.selected) != 0:
 
@@ -242,18 +241,19 @@ class XANESViewer(QtWidgets.QMainWindow):
 
     def re_fit_xanes(self):
         if len(self.selected) != 0:
-            self.decon_ims = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
+            self.decon_ims, self.rfactor = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
                                        self.refs[self.selected], method='NNLS')
         else:
-            self.decon_ims = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
+            self.decon_ims,self.rfactor  = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
                                        self.refs, method='NNLS')
 
-        self.image_view_maps.setImage(self.decon_ims.T)
+        self.image_view_maps.setImage(self.decon_ims.transpose(2,0,1))
 
     def save_chem_map(self):
         file_name = QFileDialog().getSaveFileName(self, "save image", '', 'image data (*tiff)')
         try:
-            tf.imsave(str(file_name[0]) + '.tiff', np.float32(self.decon_ims.transpose(0,2,1)), imagej=True)
+            tf.imsave(str(file_name[0]) + '_xanes_map.tiff', np.float32(self.decon_ims.T), imagej=True)
+            tf.imsave(str(file_name[0]) + '_rfactor.tiff', np.float32(self.rfactor.T), imagej=True)
         except:
             logger.error('No file to save')
             pass

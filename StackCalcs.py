@@ -109,12 +109,12 @@ def resize_stack(image_array, upscaling = False, scaling_factor = 2):
     if upscaling:
         im1_ = im1 * scaling_factor
         im2_ = im2 * scaling_factor
-        img_stack_resized = resize(image_array, (57, im1_, im2_))
+        img_stack_resized = resize(image_array, (en, im1_, im2_))
 
     else:
         im1_ = int(im1/scaling_factor)
         im2_ = int(im2/scaling_factor)
-        img_stack_resized = resize(image_array, (57, im1_, im2_))
+        img_stack_resized = resize(image_array, (en, im1_, im2_))
 
     return img_stack_resized
 

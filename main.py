@@ -70,24 +70,27 @@ class midasWindow(QtWidgets.QMainWindow):
         filename = QFileDialog().getOpenFileName(self, "Select image data", '', 'image file(*.hdf *.h5 *tiff *tif )')
         self.file_name = (str(filename[0]))
 
+        if not len(filename[0]) == 0:
+            self.reset_and_load_stack()
+        else:
+            self.statusbar_main.showMessage("No file has selected")
+            pass
+
+        '''
         try:
             self.reset_and_load_stack()
         except:
             self.statusbar_main.showMessage("Error: Unable to Load Data")
+            
+        '''
 
     def load_mutliple_file(self):
         filter = "TIFF (*.tiff);;TIF (*.tif)"
         file_name = QFileDialog()
         file_name.setFileMode(QFileDialog.ExistingFiles)
         names = file_name.getOpenFileNames(self, "Open files", " ", filter)
-
-        all_images = []
-        for im_file in names[0]:
-            img = tf.imread(im_file)
-            all_images.append(img)
-        self.stack_ = np.dstack(all_images)
-        self.sb_zrange2.setValue(self.stack_.shape[-1])
-        self.set_stack_params()
+        self.file_name = names[0]
+        self.load_stack()
 
     def load_stack(self):
         self.sb_zrange2.setMaximum(100000)
@@ -95,18 +98,32 @@ class midasWindow(QtWidgets.QMainWindow):
 
         self.statusbar_main.showMessage('Loading.. please wait...')
 
-        if self.file_name.endswith('.h5'):
-            self.stack_, mono_e, bl_name, self.avgIo = get_xrf_data(self.file_name)
-            self.statusbar_main.showMessage(f'Data from {bl_name}')
-            self.sb_zrange2.setValue(mono_e / 10)
+        if isinstance(self.file_name, list):
 
-        elif self.file_name.endswith('.tiff') or self.file_name.endswith('.tif'):
-            self.stack_ = tf.imread(self.file_name).transpose(1, 2, 0)
+            all_images = []
+
+            for im_file in self.file_name:
+                img = tf.imread(im_file)
+                all_images.append(img)
+            self.stack_ = np.dstack(all_images)
             self.sb_zrange2.setValue(self.stack_.shape[-1])
             self.avgIo = 1
+            print(self.stack_.shape)
 
         else:
-            logger.error('Unknown data format')
+
+            if self.file_name.endswith('.h5'):
+                self.stack_, mono_e, bl_name, self.avgIo = get_xrf_data(self.file_name)
+                self.statusbar_main.showMessage(f'Data from {bl_name}')
+                self.sb_zrange2.setValue(mono_e / 10)
+
+            elif self.file_name.endswith('.tiff') or self.file_name.endswith('.tif'):
+                self.stack_ = tf.imread(self.file_name).transpose(1, 2, 0)
+                self.sb_zrange2.setValue(self.stack_.shape[-1])
+                self.avgIo = 1
+
+            else:
+                logger.error('Unknown data format')
 
         self.set_stack_params()
 
@@ -257,10 +274,6 @@ class midasWindow(QtWidgets.QMainWindow):
                     self.log_warning = 1
                     self.updated_stack = remove_nan_inf(np.log10(self.updated_stack * self.avgIo))
                 '''
-
-
-
-
 
             logger.info('Log Stack is in use')
 
@@ -434,15 +447,12 @@ class midasWindow(QtWidgets.QMainWindow):
         if self.roi_img_stk.ndim == 3:
             sizex, sizey = self.roi_img_stk.shape[1], self.roi_img_stk.shape[2]
             self.le_roi_size.setText(str(sizex) + ',' + str(sizey))
-
             self.mean_spectra = get_mean_spectra(self.roi_img_stk)
-            self.curr_spec = np.column_stack([self.xdata,self.mean_spectra])
 
         elif self.roi_img_stk.ndim == 2:
             sizex, sizey = self.roi_img_stk.shape[0], self.roi_img_stk.shape[1]
             self.le_roi_size.setText(str(sizex) + ',' + str(sizey))
             self.mean_spectra = self.roi_img_stk.mean(-1)
-            self.curr_spec = np.column_stack([self.xdata,self.mean_spectra])
 
 
         self.spectrum_view.addLegend()

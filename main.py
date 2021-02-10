@@ -316,7 +316,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.update_image_roi()
 
         # connections
-        self.image_view.MouseClickEvent = self.getPointSpectrum
+        self.image_view.mousePressEvent = self.getPointSpectrum
         self.spec_roi.sigRegionChanged.connect(self.update_image_roi)
         self.spec_roi_math.sigRegionChangeFinished.connect(self.spec_roi_calc)
         self.rb_math_roi.clicked.connect(self.update_spectrum)
@@ -346,6 +346,7 @@ class midasWindow(QtWidgets.QMainWindow):
             self.spectrum_view.plot(self.xdata, self.point_spectrum, clear=True,
                                     name = f'Point Spectrum; x= {self.xpixel}, y= {self.ypixel}')
 
+            self.spectrum_view.addItem(self.spec_roi)
 
             self.statusbar_main.showMessage(f'{self.xpixel} and {self.ypixel}')
 
@@ -543,7 +544,7 @@ class midasWindow(QtWidgets.QMainWindow):
                                                                self.image_view.imageItem, axes=(1, 2))
         if self.math_roi_reg.ndim == 3:
 
-            self.math_roi_spectra = get_mean_spectra(self.roi_img_stk)
+            self.math_roi_spectra = get_mean_spectra(self.math_roi_reg)
 
         elif self.roi_img_stk.ndim == 2:
             self.math_roi_spectra = self.math_roi_reg.mean(-1)
@@ -598,14 +599,10 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def save_disp_spec(self):
 
-        try:
-            file_name = QFileDialog().getSaveFileName(self, "Save Spectrum Data", '', 'txt file(*txt)')
-            np.savetxt(str(file_name[0]) + '.txt', self.curr_spec)
-            logger.info(f'Spectrum Saved: {str(file_name[0])}')
-
-        except:
-            logger.error('No file to save')
-            pass
+        exporter = pg.exporters.CSVExporter(self.spectrum_view.plotItem)
+        exporter.parameters()['columnMode'] = '(x,y,y,y) for all plots'
+        file_name = QFileDialog().getSaveFileName(self, "save spectrum", '', 'spectra (*csv)')
+        exporter.export(str(file_name[0])+'.csv')
 
     def pca_scree_(self):
         logger.info('Process started..')

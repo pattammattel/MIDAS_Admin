@@ -36,8 +36,8 @@ class midasWindow(QtWidgets.QMainWindow):
         self.actionOpen_Mask_Gen.triggered.connect(self.openMaskMaker)
         self.cb_transpose.stateChanged.connect(self.transpose_stack)
         self.cb_log.stateChanged.connect(self.replot_image)
-        self.cb_rebin.stateChanged.connect(self.replot_image)
-        self.cb_upscale.stateChanged.connect(self.replot_image)
+        self.cb_rebin.stateChanged.connect(self.view_stack)
+        self.cb_upscale.stateChanged.connect(self.view_stack)
         self.cb_remove_edges.stateChanged.connect(self.view_stack)
         self.cb_norm.stateChanged.connect(self.replot_image)
         self.cb_smooth.stateChanged.connect(self.replot_image)
@@ -74,7 +74,6 @@ class midasWindow(QtWidgets.QMainWindow):
             self.reset_and_load_stack()
         except:
             self.statusbar_main.showMessage("Error: Unable to Load Data")
-
 
     def load_mutliple_file(self):
         filter = "TIFF (*.tiff);;TIF (*.tif)"
@@ -133,12 +132,6 @@ class midasWindow(QtWidgets.QMainWindow):
             logger.error('No file selected')
             pass
 
-        self.energy = []
-        self.view_stack()
-        logger.info("Stack displayed correctly")
-        self.update_stack_info()
-
-        '''
         try:
             self.energy = []
             self.view_stack()
@@ -148,8 +141,7 @@ class midasWindow(QtWidgets.QMainWindow):
         except:
             logger.error("Trouble with stack display")
             self.statusbar_main.showMessage("Error: Trouble with stack display")
-            pass
-        '''
+
         logger.info(f'completed image shape {np.shape(self.im_stack)}')
 
         try:
@@ -204,11 +196,13 @@ class midasWindow(QtWidgets.QMainWindow):
             self.sb_scaling_factor.setEnabled(True)
             self.updated_stack = resize_stack(self.updated_stack,
                                               scaling_factor=self.sb_scaling_factor.value())
+            self.update_stack_info()
         elif self.cb_upscale.isChecked():
             self.cb_rebin.setChecked(False)
             self.sb_scaling_factor.setEnabled(True)
             self.updated_stack = resize_stack(self.updated_stack, upscaling = True,
                                               scaling_factor=self.sb_scaling_factor.value())
+            self.update_stack_info()
         else:
             self.sb_scaling_factor.setEnabled(False)
 

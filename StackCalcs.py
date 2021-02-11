@@ -103,6 +103,7 @@ def smoothen(image_array, w_size=5):
     norm_stack = np.reshape(smooth_stack, (a, b, c))
     return remove_nan_inf(norm_stack)
 
+
 def resize_stack(image_array, upscaling = False, scaling_factor = 2):
     en, im1, im2 = np.shape(image_array)
 

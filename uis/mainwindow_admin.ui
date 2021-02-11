@@ -3,6 +3,9 @@
  <author>Ajith</author>
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -82,6 +85,9 @@ border-radius: 4px;
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="sizePolicy">
     <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
      <horstretch>0</horstretch>
@@ -172,8 +178,8 @@ border-radius: 4px;
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>390</width>
-         <height>867</height>
+         <width>321</width>
+         <height>855</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_9">
@@ -213,7 +219,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>368</width>
-             <height>372</height>
+             <height>331</height>
             </rect>
            </property>
            <attribute name="label">
@@ -442,7 +448,7 @@ color: rgb(255, 0, 127);
                  <item>
                   <widget class="QCheckBox" name="cb_rebin">
                    <property name="enabled">
-                    <bool>true</bool>
+                    <bool>false</bool>
                    </property>
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -460,7 +466,7 @@ color: rgb(255, 0, 127);
                    <item>
                     <widget class="QCheckBox" name="cb_upscale">
                      <property name="enabled">
-                      <bool>true</bool>
+                      <bool>false</bool>
                      </property>
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -478,7 +484,7 @@ color: rgb(255, 0, 127);
                  <item>
                   <widget class="QSpinBox" name="sb_scaling_factor">
                    <property name="enabled">
-                    <bool>true</bool>
+                    <bool>false</bool>
                    </property>
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -557,8 +563,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>347</width>
-             <height>424</height>
+             <width>299</width>
+             <height>462</height>
             </rect>
            </property>
            <attribute name="label">
@@ -855,8 +861,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>368</width>
-             <height>181</height>
+             <width>298</width>
+             <height>189</height>
             </rect>
            </property>
            <attribute name="label">
@@ -993,8 +999,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>368</width>
-             <height>179</height>
+             <width>308</width>
+             <height>185</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1118,8 +1124,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>368</width>
-             <height>184</height>
+             <width>299</width>
+             <height>156</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1194,7 +1200,7 @@ color: rgb(255, 0, 127);</string>
               <item row="2" column="1" colspan="2">
                <widget class="QPushButton" name="pb_xanes_fit">
                 <property name="enabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -1655,7 +1661,7 @@ color: rgb(255, 0, 127);</string>
      <x>0</x>
      <y>0</y>
      <width>1246</width>
-     <height>23</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuManual">
@@ -1677,6 +1683,9 @@ color: rgb(255, 0, 127);</string>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuMask">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="title">
      <string>Tools</string>
     </property>
@@ -1699,6 +1708,9 @@ color: rgb(255, 0, 127);</string>
    </property>
   </action>
   <action name="actionOpen_Image_Data">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Open Image Data</string>
    </property>
@@ -1723,6 +1735,9 @@ color: rgb(255, 0, 127);</string>
    </property>
   </action>
   <action name="actionSave_as">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Export Tiff Stack</string>
    </property>
@@ -1769,6 +1784,9 @@ color: rgb(255, 0, 127);</string>
    </property>
   </action>
   <action name="actionLoad_Energy">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Load Energy</string>
    </property>
@@ -1804,6 +1822,9 @@ color: rgb(255, 0, 127);</string>
    </property>
   </action>
   <action name="actionSave_Energy_List">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Save Energy List</string>
    </property>

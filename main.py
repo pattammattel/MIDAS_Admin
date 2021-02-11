@@ -76,6 +76,12 @@ class midasWindow(QtWidgets.QMainWindow):
 
         # if user decides to cancel the file window gui returns to original state
         if not len(filename[0]) == 0:
+            self.centralwidget.setEnabled(True)
+            self.menuMask.setEnabled(True)
+            self.actionLoad_Energy.setEnabled(True)
+            self.actionSave_Energy_List.setEnabled(True)
+            self.actionSave_as.setEnabled(True)
+
             self.load_stack()
         else:
             self.statusbar_main.showMessage("No file has selected")
@@ -292,6 +298,10 @@ class midasWindow(QtWidgets.QMainWindow):
                         self.updated_stack = remove_nan_inf(np.log10(self.updated_stack * self.avgIo))
                 else:
                     self.updated_stack = remove_nan_inf(np.log10(self.updated_stack * self.avgIo))
+
+            else:
+                self.updated_stack = remove_nan_inf(np.log10(self.updated_stack))
+
 
             logger.info('Log Stack is in use')
 

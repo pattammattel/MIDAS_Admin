@@ -25,7 +25,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.refs = refs
 
         self.actionOpen_Image_Data.triggered.connect(self.browse_file)
-        self.actionOpen_Multiple_Files.triggered.connect(self.load_mutliple_file)
+        self.actionOpen_Multiple_Files.triggered.connect(self.load_mutliple_files)
         self.actionSave_as.triggered.connect(self.save_stack)
         self.actionExit.triggered.connect(self.close)
         self.actionOpen_in_GitHub.triggered.connect(self.open_github_link)
@@ -80,7 +80,7 @@ class midasWindow(QtWidgets.QMainWindow):
             self.statusbar_main.showMessage("No file has selected")
             pass
 
-    def load_mutliple_file(self):
+    def load_mutliple_files(self):
         """ User can load multiple/series of tiff images with same shape.
         The 'self.reset_and_load_stack()' recognizes 'self.filename as list and create the stack.
         """
@@ -135,8 +135,8 @@ class midasWindow(QtWidgets.QMainWindow):
                 self.sb_zrange2.setValue(mono_e / 10)
 
             elif self.file_name.endswith('.tiff') or self.file_name.endswith('.tif'):
-                self.stack_ = tf.imread(self.file_name).transpose(1, 2, 0)
-                self.sb_zrange2.setValue(self.stack_.shape[-1])
+                self.im_stack = tf.imread(self.file_name).transpose(0, 2, 1)
+                self.sb_zrange2.setValue(self.im_stack.shape[0])
                 self.avgIo = 1
 
             else:
@@ -149,10 +149,10 @@ class midasWindow(QtWidgets.QMainWindow):
         """ Fill the stack dimensions to the GUI and set the image dimensions as max values.
          This prevent user from choosing higher image dimensions during a resizing event"""
 
-        logger.info(f' loaded stack with {np.shape(self.stack_)} from the file')
+        logger.info(f' loaded stack with {np.shape(self.im_stack)} from the file')
 
         try:
-            self.im_stack = self.stack_.T
+            #self.im_stack = self.stack_.T # transposing for pyqtgraph
             logger.info(f' Transposed to shape: {np.shape(self.im_stack)}')
             self.init_dimZ, self.init_dimX, self.init_dimY = self.im_stack.shape
             # Remove any previously set max value during a reload
@@ -712,18 +712,24 @@ class midasWindow(QtWidgets.QMainWindow):
 
         try:
 
-            if str(file_name[0]).endswith('log_tiff.txt'):
-                self.energy = energy_from_logfile(logfile=str(file_name[0]))
-                logger.info("Log file from pyxrf processing")
+            if file_name[0]:
+
+                if str(file_name[0]).endswith('log_tiff.txt'):
+                    self.energy = energy_from_logfile(logfile=str(file_name[0]))
+                    logger.info("Log file from pyxrf processing")
+
+                else:
+                    self.energy = np.loadtxt(str(file_name[0]))
 
             else:
-                self.energy = np.loadtxt(str(file_name[0]))
+                self.statusbar_main.showMessage("No Energy List Selected")
 
             logger.info('Energy file loaded')
+
             if self.energy.any():
                 self.change_color_on_load(self.pb_elist_xanes)
 
-            assert len(self.energy) == self.dim1
+            assert len(self.energy) == self.dim1, "Number of Energy Points is not equal to stack length"
 
             if self.energy.max() < 100:
                 self.cb_kev_flag.setChecked(True)
@@ -734,8 +740,8 @@ class midasWindow(QtWidgets.QMainWindow):
 
             self.view_stack()
 
-        except OSError:
-            logger.error('No file selected')
+        except:
+            logger.error('Unknown Data Format')
             pass
 
     def select_ref_file(self):

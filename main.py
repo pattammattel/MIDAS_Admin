@@ -182,7 +182,7 @@ class midasWindow(QtWidgets.QMainWindow):
             pass
 
     def reset_and_load_stack(self):
-        self.log_warning = False
+        self.log_warning = False #for the Qmessage box in cb_log
         self.rb_math_roi_img.setChecked(False)
         self.cb_log.setChecked(False)
         self.cb_remove_edges.setChecked(False)

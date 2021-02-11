@@ -76,12 +76,6 @@ class midasWindow(QtWidgets.QMainWindow):
 
         # if user decides to cancel the file window gui returns to original state
         if not len(filename[0]) == 0:
-            self.centralwidget.setEnabled(True)
-            self.menuMask.setEnabled(True)
-            self.actionLoad_Energy.setEnabled(True)
-            self.actionSave_Energy_List.setEnabled(True)
-            self.actionSave_as.setEnabled(True)
-
             self.load_stack()
         else:
             self.statusbar_main.showMessage("No file has selected")
@@ -99,7 +93,7 @@ class midasWindow(QtWidgets.QMainWindow):
         if len(names) !=0:
 
             self.file_name = names[0]
-            self.reset_and_load_stack()
+            self.load_stack()
 
         else:
             self.statusbar_main.showMessage("No file has selected")
@@ -116,6 +110,12 @@ class midasWindow(QtWidgets.QMainWindow):
 
         The output 'self.im_stack' is the unmodified data file
         """
+
+        self.centralwidget.setEnabled(True)
+        self.menuMask.setEnabled(True)
+        self.actionLoad_Energy.setEnabled(True)
+        self.actionSave_Energy_List.setEnabled(True)
+        self.actionSave_as.setEnabled(True)
 
         self.statusbar_main.showMessage('Loading.. please wait...')
 

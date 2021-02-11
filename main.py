@@ -163,7 +163,7 @@ class midasWindow(QtWidgets.QMainWindow):
             pass
 
         try:
-            self.energy = []
+
             self.view_stack()
             logger.info("Stack displayed correctly")
             self.update_stack_info()

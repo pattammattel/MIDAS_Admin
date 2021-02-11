@@ -124,6 +124,7 @@ class midasWindow(QtWidgets.QMainWindow):
                 all_images.append(img)
             self.stack_ = np.dstack(all_images)
             self.avgIo = 1 # I0 is only applicable to XRF h5 files
+            self.sb_zrange2.setValue(self.stack_.shape[-1])
             print(self.stack_.shape)
 
         else:
@@ -135,6 +136,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
             elif self.file_name.endswith('.tiff') or self.file_name.endswith('.tif'):
                 self.stack_ = tf.imread(self.file_name).transpose(1, 2, 0)
+                self.sb_zrange2.setValue(self.stack_.shape[-1])
                 self.avgIo = 1
 
             else:
@@ -158,7 +160,6 @@ class midasWindow(QtWidgets.QMainWindow):
             self.sb_xrange2.setMaximum(99999)
             self.sb_yrange2.setMaximum(99999)
 
-            self.sb_zrange2.setValue(self.init_dimZ)
             self.sb_xrange2.setValue(self.init_dimX)
             self.sb_yrange2.setValue(self.init_dimY)
 
@@ -623,23 +624,28 @@ class midasWindow(QtWidgets.QMainWindow):
         self.scatter_window.show()
 
     def save_stack(self):
-        try:
-            self.update_stack()
-            file_name = QFileDialog().getSaveFileName(self, "Save image data", '', 'image file(*tiff *tif )')
+
+        self.update_stack()
+        file_name = QFileDialog().getSaveFileName(self, "Save image data", '', 'image file(*tiff *tif )')
+        if file_name[0]:
             tf.imsave(str(file_name[0]), self.updated_stack.transpose(0, 2, 1))
             logger.info(f'Updated Image Saved: {str(file_name[0])}')
-        except:
-            logger.error('No file to save')
+            self.statusbar_main.showMessage(f'Updated Image Saved: {str(file_name[0])}')
+        else:
+            self.statusbar_main.showMessage('Saving cancelled')
             pass
 
+
     def save_disp_img(self):
-        try:
-            file_name = QFileDialog().getSaveFileName(self, "Save image data", '', 'image file(*tiff *tif )')
+        file_name = QFileDialog().getSaveFileName(self, "Save image data", '', 'image file(*tiff *tif )')
+        if file_name[0]:
             tf.imsave(str(file_name[0]) + '.tiff', self.disp_img.T)
+            self.statusbar_main.showMessage(f'Image Saved to {str(file_name[0])}')
             logger.info(f'Updated Image Saved: {str(file_name[0])}')
 
-        except:
+        else:
             logger.error('No file to save')
+            self.statusbar_main.showMessage('Saving cancelled')
             pass
 
     def save_disp_spec(self):

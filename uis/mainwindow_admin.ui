@@ -25,68 +25,11 @@
   </property>
   <property name="styleSheet">
    <string notr="true">font: 10pt &quot;Segoe UI&quot;;
-
-
-QSlider::groove:horizontal {
-border: 1px solid #bbb;
-background: white;
-height: 10px;
-border-radius: 4px;
-}
-
-QSlider::sub-page:horizontal {
-background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,
-    stop: 0 #66e, stop: 1 #bbf);
-background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
-    stop: 0 #bbf, stop: 1 #55f);
-border: 1px solid #777;
-height: 10px;
-border-radius: 4px;
-}
-
-QSlider::add-page:horizontal {
-background: #fff;
-border: 1px solid #777;
-height: 10px;
-border-radius: 4px;
-}
-
-QSlider::handle:horizontal {
-background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-    stop:0 #eee, stop:1 #ccc);
-border: 1px solid #777;
-width: 13px;
-margin-top: -2px;
-margin-bottom: -2px;
-border-radius: 4px;
-}
-
-QSlider::handle:horizontal:hover {
-background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-    stop:0 #fff, stop:1 #ddd);
-border: 1px solid #444;
-border-radius: 4px;
-}
-
-QSlider::sub-page:horizontal:disabled {
-background: #bbb;
-border-color: #999;
-}
-
-QSlider::add-page:horizontal:disabled {
-background: #eee;
-border-color: #999;
-}
-
-QSlider::handle:horizontal:disabled {
-background: #eee;
-border: 1px solid #aaa;
-border-radius: 4px;
-}</string>
+</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="sizePolicy">
     <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
@@ -179,7 +122,7 @@ border-radius: 4px;
          <x>0</x>
          <y>0</y>
          <width>321</width>
-         <height>855</height>
+         <height>867</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_9">
@@ -218,8 +161,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>368</width>
-             <height>331</height>
+             <width>310</width>
+             <height>351</height>
             </rect>
            </property>
            <attribute name="label">
@@ -448,7 +391,7 @@ color: rgb(255, 0, 127);
                  <item>
                   <widget class="QCheckBox" name="cb_rebin">
                    <property name="enabled">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -466,7 +409,7 @@ color: rgb(255, 0, 127);
                    <item>
                     <widget class="QCheckBox" name="cb_upscale">
                      <property name="enabled">
-                      <bool>false</bool>
+                      <bool>true</bool>
                      </property>
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -484,7 +427,7 @@ color: rgb(255, 0, 127);
                  <item>
                   <widget class="QSpinBox" name="sb_scaling_factor">
                    <property name="enabled">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -563,8 +506,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>299</width>
-             <height>462</height>
+             <width>278</width>
+             <height>424</height>
             </rect>
            </property>
            <attribute name="label">
@@ -853,6 +796,9 @@ color: rgb(255, 0, 127);
         </item>
         <item row="3" column="0">
          <widget class="QToolBox" name="toolBox_2">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="currentIndex">
            <number>2</number>
           </property>
@@ -861,8 +807,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>298</width>
-             <height>189</height>
+             <width>299</width>
+             <height>181</height>
             </rect>
            </property>
            <attribute name="label">
@@ -999,8 +945,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>308</width>
-             <height>185</height>
+             <width>299</width>
+             <height>179</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1125,7 +1071,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>299</width>
-             <height>156</height>
+             <height>184</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1200,7 +1146,7 @@ color: rgb(255, 0, 127);</string>
               <item row="2" column="1" colspan="2">
                <widget class="QPushButton" name="pb_xanes_fit">
                 <property name="enabled">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -1661,7 +1607,7 @@ color: rgb(255, 0, 127);</string>
      <x>0</x>
      <y>0</y>
      <width>1246</width>
-     <height>29</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuManual">

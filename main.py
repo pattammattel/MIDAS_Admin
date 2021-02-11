@@ -749,6 +749,7 @@ class midasWindow(QtWidgets.QMainWindow):
             pass
 
     def select_ref_file(self):
+        self.pb_xanes_fit.setEnabled(True)
         self.ref_names = []
         file_name = QFileDialog().getOpenFileName(self, "Open reference file", '', 'text file (*.txt *.nor)')
         try:

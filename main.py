@@ -19,6 +19,7 @@ class midasWindow(QtWidgets.QMainWindow):
     def __init__(self, im_stack=None, energy=[], refs=[]):
         super(midasWindow, self).__init__()
         uic.loadUi('uis/mainwindow_admin.ui', self)
+
         self.im_stack = im_stack
         self.updated_stack = self.im_stack
         self.energy = energy

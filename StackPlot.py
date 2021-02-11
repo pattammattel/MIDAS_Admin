@@ -110,11 +110,11 @@ class ClusterViewer(QtWidgets.QMainWindow):
         self.cluster_view.ui.roiBtn.hide()
 
         # connection
-        self.update()
-        self.hsb_cluster_number.valueChanged.connect(self.update)
+        self.update_display()
+        self.hsb_cluster_number.valueChanged.connect(self.update_display)
         self.actionSave.triggered.connect(self.save_clust_data)
 
-    def update(self):
+    def update_display(self):
         im_index = self.hsb_cluster_number.value()
         self.component_view.setLabel('bottom','Energy')
         self.component_view.setLabel('left', 'Intensity', 'A.U.')
@@ -124,9 +124,16 @@ class ClusterViewer(QtWidgets.QMainWindow):
 
     def save_clust_data(self):
         file_name = QFileDialog().getSaveFileName(self, "", '', 'data(*tiff *tif *txt *png )')
-        tf.imsave(str(file_name[0]) + '_cluster.tiff', np.float32(self.decon_images.transpose(0, 2, 1)), imagej=True)
-        tf.imsave(str(file_name[0]) + '_cluster_map.tiff', np.float32(self.X_cluster.T),imagej=True)
-        np.savetxt(str(file_name[0]) + '_deconv_spec.txt', self.decon_spectra)
+        if file_name[0]:
+
+            tf.imsave(str(file_name[0]) + '_cluster.tiff', np.float32(self.decon_images.transpose(0, 2, 1)), imagej=True)
+            tf.imsave(str(file_name[0]) + '_cluster_map.tiff', np.float32(self.X_cluster.T),imagej=True)
+            np.savetxt(str(file_name[0]) + '_deconv_spec.txt', self.decon_spectra)
+
+        else:
+            logger.error("Saving Cancelled")
+            self.statusbar.showMessage("Saving Cancelled")
+            pass
 
 
 class XANESViewer(QtWidgets.QMainWindow):
@@ -135,6 +142,16 @@ class XANESViewer(QtWidgets.QMainWindow):
         super(XANESViewer, self).__init__()
 
         uic.loadUi('uis/XANESViewer.ui', self)
+
+        self.setStyleSheet("""
+            QScrollBar:horizontal {
+                border: rgb(85, 17, 25);
+                background: rgb(85, 170, 255);
+                height: 26px;
+                margin: 0px 26px 0 26px;
+            }
+            """)
+
 
         self.im_stack = im_stack
         self.e_list = e_list
@@ -150,18 +167,21 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.image_roi = pg.PolyLineROI([[0,0], [0,self.sz], [self.sz,self.sz], [self.sz,0]],
                                         pos =(int(self.dim2 // 2), int(self.dim3 // 2)), closed=True)
         self.image_roi.addTranslateHandle([self.sz//2, self.sz//2], [2, 2])
-        self.image_view.setImage(self.im_stack)
-        self.image_view.ui.menuBtn.hide()
-        self.image_view.ui.roiBtn.hide()
-        self.image_view.setPredefinedGradient('viridis')
+
         self.stack_center = int(self.dim1 // 2)
         self.stack_width = int(self.dim1 * 0.05)
-        self.image_view.setCurrentIndex(self.stack_center)
+        #self.image_view.setCurrentIndex(self.stack_center)
+        self.hsb_xanes_stk.setValue(self.stack_center)
+        self.hsb_xanes_stk.setMaximum(self.dim1 - 1)
+
+        self.hsb_chem_map.setValue(0)
+        self.hsb_chem_map.setMaximum(self.decon_ims.shape[-1]-1)
+
+
         self.image_view.addItem(self.image_roi)
         self.xdata = self.e_list + self.sb_e_shift.value()
 
         self.display_all_data()
-
         self.update_spectrum()
         # connections
         self.sb_e_shift.valueChanged.connect(self.update_spectrum)
@@ -170,11 +190,19 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.image_roi.sigRegionChanged.connect(self.update_spectrum)
         self.pb_save_chem_map.clicked.connect(self.save_chem_map)
         self.pb_save_spe_fit.clicked.connect(self.pg_export_spec_fit)
+        self.hsb_xanes_stk.valueChanged.connect(self.display_all_data)
+        self.hsb_chem_map.valueChanged.connect(self.display_all_data)
         #self.pb_save_spe_fit.clicked.connect(self.save_spec_fit)
         # self.pb_play_stack.clicked.connect(self.play_stack)
 
     def display_all_data(self):
-        self.image_view_maps.setImage(self.decon_ims.transpose(2,0,1))
+
+        self.image_view.setImage(self.im_stack[self.hsb_xanes_stk.value()])
+        self.image_view.ui.menuBtn.hide()
+        self.image_view.ui.roiBtn.hide()
+        self.image_view.setPredefinedGradient('viridis')
+
+        self.image_view_maps.setImage(self.decon_ims.transpose(2,0,1)[self.hsb_chem_map.value()])
         self.image_view_maps.setPredefinedGradient('bipolar')
         self.image_view_maps.ui.menuBtn.hide()
         self.image_view_maps.ui.roiBtn.hide()

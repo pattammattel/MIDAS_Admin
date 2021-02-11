@@ -22,7 +22,64 @@
   </property>
   <property name="styleSheet">
    <string notr="true">font: 10pt &quot;Segoe UI&quot;;
-</string>
+
+
+QSlider::groove:horizontal {
+border: 1px solid #bbb;
+background: white;
+height: 10px;
+border-radius: 4px;
+}
+
+QSlider::sub-page:horizontal {
+background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,
+    stop: 0 #66e, stop: 1 #bbf);
+background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
+    stop: 0 #bbf, stop: 1 #55f);
+border: 1px solid #777;
+height: 10px;
+border-radius: 4px;
+}
+
+QSlider::add-page:horizontal {
+background: #fff;
+border: 1px solid #777;
+height: 10px;
+border-radius: 4px;
+}
+
+QSlider::handle:horizontal {
+background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+    stop:0 #eee, stop:1 #ccc);
+border: 1px solid #777;
+width: 13px;
+margin-top: -2px;
+margin-bottom: -2px;
+border-radius: 4px;
+}
+
+QSlider::handle:horizontal:hover {
+background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+    stop:0 #fff, stop:1 #ddd);
+border: 1px solid #444;
+border-radius: 4px;
+}
+
+QSlider::sub-page:horizontal:disabled {
+background: #bbb;
+border-color: #999;
+}
+
+QSlider::add-page:horizontal:disabled {
+background: #eee;
+border-color: #999;
+}
+
+QSlider::handle:horizontal:disabled {
+background: #eee;
+border: 1px solid #aaa;
+border-radius: 4px;
+}</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
@@ -30,6 +87,64 @@
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QSlider::groove:horizontal {
+border: 1px solid #bbb;
+background: white;
+height: 10px;
+border-radius: 4px;
+}
+
+QSlider::sub-page:horizontal {
+background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,
+    stop: 0 #66e, stop: 1 #bbf);
+background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
+    stop: 0 #bbf, stop: 1 #55f);
+border: 1px solid #777;
+height: 10px;
+border-radius: 4px;
+}
+
+QSlider::add-page:horizontal {
+background: #fff;
+border: 1px solid #777;
+height: 10px;
+border-radius: 4px;
+}
+
+QSlider::handle:horizontal {
+background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+    stop:0 #eee, stop:1 #ccc);
+border: 1px solid #777;
+width: 13px;
+margin-top: -2px;
+margin-bottom: -2px;
+border-radius: 4px;
+}
+
+QSlider::handle:horizontal:hover {
+background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+    stop:0 #fff, stop:1 #ddd);
+border: 1px solid #444;
+border-radius: 4px;
+}
+
+QSlider::sub-page:horizontal:disabled {
+background: #bbb;
+border-color: #999;
+}
+
+QSlider::add-page:horizontal:disabled {
+background: #eee;
+border-color: #999;
+}
+
+QSlider::handle:horizontal:disabled {
+background: #eee;
+border: 1px solid #aaa;
+border-radius: 4px;
+}</string>
    </property>
    <layout class="QGridLayout" name="gridLayout_16">
     <item row="0" column="0">
@@ -58,7 +173,7 @@
          <x>0</x>
          <y>0</y>
          <width>390</width>
-         <height>855</height>
+         <height>867</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_9">
@@ -90,7 +205,7 @@ color: rgb(255, 0, 127);
            <string notr="true">font: 10pt &quot;Segoe UI&quot;;</string>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="page">
            <property name="geometry">
@@ -98,7 +213,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>368</width>
-             <height>352</height>
+             <height>372</height>
             </rect>
            </property>
            <attribute name="label">
@@ -442,8 +557,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>299</width>
-             <height>462</height>
+             <width>347</width>
+             <height>424</height>
             </rect>
            </property>
            <attribute name="label">
@@ -740,8 +855,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>298</width>
-             <height>189</height>
+             <width>368</width>
+             <height>181</height>
             </rect>
            </property>
            <attribute name="label">
@@ -878,8 +993,8 @@ color: rgb(255, 0, 127);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>308</width>
-             <height>185</height>
+             <width>368</width>
+             <height>179</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1004,7 +1119,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>368</width>
-             <height>176</height>
+             <height>184</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1540,7 +1655,7 @@ color: rgb(255, 0, 127);</string>
      <x>0</x>
      <y>0</y>
      <width>1246</width>
-     <height>29</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuManual">

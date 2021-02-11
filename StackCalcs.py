@@ -56,7 +56,7 @@ def get_xrf_data(h='h5file'):
         mono_e = 12000
         logger.info(f'Unable to get Excitation energy from the h5 data; using default value {mono_e} KeV')
 
-    return remove_nan_inf(norm_xrf_stack), mono_e + 1000, beamline, Io_avg
+    return remove_nan_inf(norm_xrf_stack.T), mono_e + 1000, beamline, Io_avg
 
 
 def remove_nan_inf(im):

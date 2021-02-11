@@ -75,7 +75,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
         # if user decides to cancel the file window gui returns to original state
         if not len(filename[0]) == 0:
-            self.reset_and_load_stack()
+            self.load_stack()
         else:
             self.statusbar_main.showMessage("No file has selected")
             pass
@@ -107,11 +107,8 @@ class midasWindow(QtWidgets.QMainWindow):
 
         If the single tiff file is choosen tf.imread() is used.
 
-        The output 'self.stack_' is the unmodified data file
+        The output 'self.im_stack' is the unmodified data file
         """
-
-        self.sb_zrange2.setMaximum(100000)
-        self.sb_zrange1.setValue(0)
 
         self.statusbar_main.showMessage('Loading.. please wait...')
 
@@ -119,18 +116,17 @@ class midasWindow(QtWidgets.QMainWindow):
 
             all_images = []
 
-            for im_file in self.file_name:
+            for im_file in sorted(self.file_name):
                 img = tf.imread(im_file)
                 all_images.append(img)
-            self.stack_ = np.dstack(all_images)
+            self.im_stack = np.dstack(all_images).T
             self.avgIo = 1 # I0 is only applicable to XRF h5 files
-            self.sb_zrange2.setValue(self.stack_.shape[-1])
-            print(self.stack_.shape)
+            self.sb_zrange2.setValue(self.im_stack.shape[0])
 
         else:
 
             if self.file_name.endswith('.h5'):
-                self.stack_, mono_e, bl_name, self.avgIo = get_xrf_data(self.file_name)
+                self.im_stack, mono_e, bl_name, self.avgIo = get_xrf_data(self.file_name)
                 self.statusbar_main.showMessage(f'Data from {bl_name}')
                 self.sb_zrange2.setValue(mono_e / 10)
 
@@ -152,7 +148,6 @@ class midasWindow(QtWidgets.QMainWindow):
         logger.info(f' loaded stack with {np.shape(self.im_stack)} from the file')
 
         try:
-            #self.im_stack = self.stack_.T # transposing for pyqtgraph
             logger.info(f' Transposed to shape: {np.shape(self.im_stack)}')
             self.init_dimZ, self.init_dimX, self.init_dimY = self.im_stack.shape
             # Remove any previously set max value during a reload
@@ -199,7 +194,9 @@ class midasWindow(QtWidgets.QMainWindow):
         self.cb_upscale.setChecked(False)
         self.sb_xrange1.setValue(0)
         self.sb_yrange1.setValue(0)
-        self.load_stack()
+        self.sb_zrange1.setValue(0)
+        self.sb_zrange2.setValue(self.im_stack.shape[0])
+        self.setStackParamsNDisplay()
 
     def update_stack_info(self):
         z, x, y = np.shape(self.updated_stack)
@@ -230,19 +227,16 @@ class midasWindow(QtWidgets.QMainWindow):
         if self.cb_rebin.isChecked():
             self.cb_upscale.setChecked(False)
             self.sb_scaling_factor.setEnabled(True)
-            self.reset_and_load_stack()
             self.updated_stack = resize_stack(self.updated_stack,
                                               scaling_factor=self.sb_scaling_factor.value())
             self.update_stack_info()
+
         elif self.cb_upscale.isChecked():
             self.cb_rebin.setChecked(False)
             self.sb_scaling_factor.setEnabled(True)
             self.updated_stack = resize_stack(self.updated_stack, upscaling = True,
                                               scaling_factor=self.sb_scaling_factor.value())
             self.update_stack_info()
-        else:
-            self.sb_scaling_factor.setEnabled(False)
-
 
         if self.cb_remove_outliers.isChecked():
             self.hs_nsigma.setEnabled(True)
@@ -634,7 +628,6 @@ class midasWindow(QtWidgets.QMainWindow):
         else:
             self.statusbar_main.showMessage('Saving cancelled')
             pass
-
 
     def save_disp_img(self):
         file_name = QFileDialog().getSaveFileName(self, "Save image data", '', 'image file(*tiff *tif )')

@@ -420,7 +420,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
         self.polyLineROI = pg.PolyLineROI([[0, 0], [0, self.sz], [self.sz, self.sz], [self.sz, 0]],
                                           pos=(int(self.dim3 // 2), int(self.dim2 // 2)),
-                                          maxBounds=QtCore.QRect(0, 0, self.dim3, self.dim2),
+                                          maxBounds = QtCore.QRect(0, 0, self.dim3, self.dim2),
                                           closed=True, removable=True)
         self.polyLineROI.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
 

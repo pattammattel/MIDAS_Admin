@@ -221,7 +221,7 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.ref_edit_window.signal.connect(self.update_refs)
 
     def update_refs(self,list_):
-        self.selected = list_
+        self.selected = list_ # list_ is the signal from ref chooser
         self.update_spectrum()
         self.re_fit_xanes()
 
@@ -298,26 +298,6 @@ class XANESViewer(QtWidgets.QMainWindow):
         file_name = QFileDialog().getSaveFileName(self, "save spectrum", '', 'spectrum and fit (*csv)')
         exporter.export(str(file_name[0])+'.csv')
 
-
-
-    '''
-    def display_rgb(self):
-        self.image_view_maps.clear()
-        clrs = ['r','g','k']
-        for ii in range(3):
-            self.image_view_maps.addItem(self.im_stack[ii])
-            self.image_view_maps.setPredefinedGradient('thermal')
-    
-
-    def reset_roi(self):
-        self.image_view.removeItem(self.image_roi)
-        self.image_roi = pg.PolyLineROI([[0,0], [0,self.sz], [self.sz,self.sz], [self.sz,0]],
-                                        pos =(int(self.dim2 // 2), int(self.dim3 // 2)), closed=True)
-        self.image_roi.addRotateHandle([self.sz // 2, self.sz // 2], [2, 2])
-
-    '''
-
-
 class RefChooser(QtWidgets.QMainWindow):
     signal: pyqtSignal = QtCore.pyqtSignal(list)
 
@@ -343,7 +323,14 @@ class RefChooser(QtWidgets.QMainWindow):
         self.pb_apply.setText("Apply")
         self.gridLayout.addWidget(self.pb_apply, len(self.ref_names) + 1, 0, 1, 1)
         self.pb_apply.setEnabled(False)
+
+        self.pb_combo = QtWidgets.QPushButton(self.centralwidget)
+        self.pb_combo.setSizePolicy(QtWidgets.QSizePolicy.Fixed,QtWidgets.QSizePolicy.Fixed)
+        self.pb_combo.setText("Combinations")
+        self.gridLayout.addWidget(self.pb_combo, len(self.ref_names) + 2, 0, 1, 1)
+
         self.pb_apply.clicked.connect(self.clickedWhichAre)
+        self.pb_combo.clicked.connect(self.tryAllCombo)
 
     def clickedWhich(self):
         button_name = self.sender()
@@ -359,6 +346,12 @@ class RefChooser(QtWidgets.QMainWindow):
     def clickedWhichAre(self):
         self.populateChecked()
         self.signal.emit(self.onlyCheckedBoxes)
+
+    def tryAllCombo(self):
+
+        from itertools import combinations
+        self.iter_list = list(combinations(self.ref_names[1:],2))
+        print (self.iter_list)
 
     def enableApply(self):
         self.populateChecked()

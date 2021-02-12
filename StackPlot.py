@@ -370,7 +370,7 @@ class RefChooser(QtWidgets.QMainWindow):
         for n, refs in enumerate(self.iter_list):
             self.statusbar.showMessage(f"{n+1}/{len(self.iter_list)}")
             self.signal.emit(list((str(self.ref_names[0]),)+refs))
-            QtTest.QTest.qWait(2000)
+            QtTest.QTest.qWait(self.sb_time_delay*1000)
 
     def enableApply(self):
         self.populateChecked()

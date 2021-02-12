@@ -76,7 +76,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
         # if user decides to cancel the file window gui returns to original state
         if not len(filename[0]) == 0:
-            self.load_stack()
+            self.reset_and_load_stack()
         else:
             self.statusbar_main.showMessage("No file has selected")
             pass
@@ -93,7 +93,7 @@ class midasWindow(QtWidgets.QMainWindow):
         if len(names) !=0:
 
             self.file_name = names[0]
-            self.load_stack()
+            self.reset_and_load_stack()
 
         else:
             self.statusbar_main.showMessage("No file has selected")
@@ -111,11 +111,14 @@ class midasWindow(QtWidgets.QMainWindow):
         The output 'self.im_stack' is the unmodified data file
         """
 
-        self.centralwidget.setEnabled(True)
         self.menuMask.setEnabled(True)
         self.actionLoad_Energy.setEnabled(True)
         self.actionSave_Energy_List.setEnabled(True)
         self.actionSave_as.setEnabled(True)
+
+        self.sb_zrange2.setMaximum(99999)
+        self.sb_xrange2.setMaximum(99999)
+        self.sb_yrange2.setMaximum(99999)
 
         self.statusbar_main.showMessage('Loading.. please wait...')
 
@@ -159,9 +162,6 @@ class midasWindow(QtWidgets.QMainWindow):
             logger.info(f' Transposed to shape: {np.shape(self.im_stack)}')
             self.init_dimZ, self.init_dimX, self.init_dimY = self.im_stack.shape
             # Remove any previously set max value during a reload
-            self.sb_zrange2.setMaximum(99999)
-            self.sb_xrange2.setMaximum(99999)
-            self.sb_yrange2.setMaximum(99999)
 
             self.sb_xrange2.setValue(self.init_dimX)
             self.sb_yrange2.setValue(self.init_dimY)
@@ -203,8 +203,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.sb_xrange1.setValue(0)
         self.sb_yrange1.setValue(0)
         self.sb_zrange1.setValue(0)
-        self.sb_zrange2.setValue(self.im_stack.shape[0])
-        self.setStackParamsNDisplay()
+        self.load_stack()
 
     def update_stack_info(self):
         z, x, y = np.shape(self.updated_stack)

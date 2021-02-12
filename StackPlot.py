@@ -370,7 +370,7 @@ class RefChooser(QtWidgets.QMainWindow):
         for n, refs in enumerate(self.iter_list):
             self.statusbar.showMessage(f"{n+1}/{len(self.iter_list)}")
             self.signal.emit(list((str(self.ref_names[0]),)+refs))
-            QtTest.QTest.qWait(self.sb_time_delay*1000)
+            QtTest.QTest.qWait(self.sb_time_delay.value()*1000)
 
     def enableApply(self):
         self.populateChecked()
@@ -408,6 +408,8 @@ class ScatterPlot(QtWidgets.QMainWindow):
         # connections
         self.actionSave_Plot.triggered.connect(self.pg_export_correlation)
         self.actionSave_Images.triggered.connect(self.tiff_export_images)
+        self.pb_define_mask.clicked.connect(self.createMask)
+        self.pb_apply_mask.clicked.connect(self.getMaskRegion)
 
     def pg_export_correlation(self):
 
@@ -421,6 +423,28 @@ class ScatterPlot(QtWidgets.QMainWindow):
         file_name = QFileDialog().getSaveFileName(self, "save images", '', 'spectrum and fit (*tiff)')
         tf.imsave(str(file_name[0]) + '.tiff', np.dstack([self.img1,self.img2]).T)
         self.statusbar.showMessage(f"Images saved to {str(file_name[0])}")
+
+    def createMask(self):
+
+        self.size = self.img1.max()/10
+        self.pos = int(self.img1.mean())
+
+        self.scatter_mask = pg.PolyLineROI([[0, 0], [0, self.size], [self.size, self.size], [self.size, 0]],
+                                             pos=(self.pos, self.pos), pen='r', closed=True,removable = True)
+
+        self.w1.addItem(self.scatter_mask)
+
+    def resetMask(self):
+        self.w1.removeItem(self.scatter_mask)
+        self.createMask()
+
+    def getMaskRegion(self):
+        roiShape = self.scatter_mask .mapToItem(self.s1, self.scatter_mask.shape())
+        print(self.s1.points())
+
+        selected = [pt for pt in self.img1.flatten() if roiShape.contains(pt)]
+        print(selected)
+
 
 
 

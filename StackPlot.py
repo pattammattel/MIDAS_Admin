@@ -7,7 +7,7 @@ import numpy as np
 import os
 import logging
 
-from PyQt5 import QtWidgets,QtCore,QtGui, uic
+from PyQt5 import QtWidgets,QtCore,QtGui, uic, QtTest
 from PyQt5.QtWidgets import QFileDialog
 from pyqtgraph import ImageView, PlotWidget
 from PyQt5.QtCore import pyqtSignal
@@ -325,9 +325,24 @@ class RefChooser(QtWidgets.QMainWindow):
         self.pb_apply.setEnabled(False)
 
         self.pb_combo = QtWidgets.QPushButton(self.centralwidget)
-        self.pb_combo.setSizePolicy(QtWidgets.QSizePolicy.Fixed,QtWidgets.QSizePolicy.Fixed)
-        self.pb_combo.setText("Combinations")
+        self.pb_combo.setText("Try All Combinations")
+        self.pb_combo.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.gridLayout.addWidget(self.pb_combo, len(self.ref_names) + 2, 0, 1, 1)
+
+        self.lb = QtWidgets.QLabel(self.centralwidget)
+        self.lb.setText("Combo of:")
+        self.lb.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.gridLayout.addWidget(self.lb, len(self.ref_names) + 2, 1, 1, 1)
+
+        self.sb_max_combo = QtWidgets.QSpinBox(self.centralwidget)
+        self.sb_max_combo.setValue(2)
+        self.sb_max_combo.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.gridLayout.addWidget(self.sb_max_combo, len(self.ref_names) + 2, 2, 1, 1)
+
+        self.sb_time_delay = QtWidgets.QSpinBox(self.centralwidget)
+        self.sb_time_delay.setValue(2)
+        self.sb_time_delay.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.gridLayout.addWidget(self.sb_time_delay, len(self.ref_names) + 2, 4, 1, 1)
 
         self.pb_apply.clicked.connect(self.clickedWhichAre)
         self.pb_combo.clicked.connect(self.tryAllCombo)
@@ -347,11 +362,15 @@ class RefChooser(QtWidgets.QMainWindow):
         self.populateChecked()
         self.signal.emit(self.onlyCheckedBoxes)
 
+    QtCore.pyqtSlot()
     def tryAllCombo(self):
-
         from itertools import combinations
-        self.iter_list = list(combinations(self.ref_names[1:],2))
-        print (self.iter_list)
+        self.iter_list = list(combinations(self.ref_names[1:],self.sb_max_combo.value()))
+
+        for n, refs in enumerate(self.iter_list):
+            self.statusbar.showMessage(f"{n+1}/{len(self.iter_list)}")
+            self.signal.emit(list((str(self.ref_names[0]),)+refs))
+            #QtTest.QTest.qWait(2000)
 
     def enableApply(self):
         self.populateChecked()

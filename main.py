@@ -136,6 +136,7 @@ class midasWindow(QtWidgets.QMainWindow):
                 self.im_stack, mono_e, bl_name, self.avgIo = get_xrf_data(self.file_name)
                 self.statusbar_main.showMessage(f'Data from {bl_name}')
                 self.sb_zrange2.setValue(mono_e / 10)
+                self.energy = []
 
             elif self.file_name.endswith('.tiff') or self.file_name.endswith('.tif'):
                 self.im_stack = tf.imread(self.file_name).transpose(0, 2, 1)

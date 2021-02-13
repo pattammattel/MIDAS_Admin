@@ -390,6 +390,18 @@ class ScatterPlot(QtWidgets.QMainWindow):
         self.img1 = img1
         self.img2 = img2
         self.s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 0, 120))
+        '''
+        points = []
+        
+        for i in range(len(self.img1.flatten())):
+            x = self.img1.flatten()[i]
+            y = self.img2.flatten()[i]
+            points.append({'pos': (x,y), 'data': 'id', 'size': 3, 'pen': pg.mkPen(None),
+                           'brush': pg.mkBrush(255, 255, 0, 120)})
+                           
+        self.s1.addPoints(points)
+        '''
+
         self.s1.setData(self.img1.flatten(),self.img2.flatten())
         self.w1.setLabel('bottom','Image ROI')
         self.w1.setLabel('left', 'Math ROI')
@@ -439,11 +451,10 @@ class ScatterPlot(QtWidgets.QMainWindow):
         self.createMask()
 
     def getMaskRegion(self):
-        roiShape = self.scatter_mask .mapToItem(self.s1, self.scatter_mask.shape())
-        print(self.s1.points())
-
-        selected = [pt for pt in self.img1.flatten() if roiShape.contains(pt)]
+        roiShape = self.scatter_mask.mapToItem(self.w1, self.scatter_mask.shape())
+        selected = [print(pt.x()) for pt in self.s1.pos()] # if roiShape.contains(pt)]
         print(selected)
+
 
 
 

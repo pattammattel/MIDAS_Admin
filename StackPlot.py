@@ -452,7 +452,7 @@ class ScatterPlot(QtWidgets.QMainWindow):
 
     def getMaskRegion(self):
         roiShape = self.scatter_mask.mapToItem(self.w1, self.scatter_mask.shape())
-        selected = [print(pt.x()) for pt in self.s1.pos()] # if roiShape.contains(pt)]
+        selected = [print(pt) for pt in self.s1.points()] # if roiShape.contains(pt)]
         print(selected)
 
 

@@ -386,9 +386,11 @@ class ScatterPlot(QtWidgets.QMainWindow):
         super(ScatterPlot, self).__init__()
 
         uic.loadUi('uis/ScatterView.ui', self)
+        self.clearPgPlot()
         self.w1 = self.scatterViewer.addPlot()
         self.img1 = img1
         self.img2 = img2
+
         self.s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 0, 120))
         '''
         points = []
@@ -450,12 +452,33 @@ class ScatterPlot(QtWidgets.QMainWindow):
         self.w1.removeItem(self.scatter_mask)
         self.createMask()
 
-    def getMaskRegion(self):
-        roiShape = self.scatter_mask.mapToItem(self.s1, self.scatter_mask.shape())
-        selected = [print(pt) for pt in self.s1.points()] # if roiShape.contains(pt)]
-        print(selected)
+    def clearPgPlot(self):
+        try:
+            self.masked_img.close()
+        except:
+            pass
 
-        # https://stackoverflow.com/questions/57719303/how-to-map-mouse-position-on-a-scatterplot
+
+    def getMaskRegion(self):
+
+        # Ref : https://stackoverflow.com/questions/57719303/how-to-map-mouse-position-on-a-scatterplot
+
+        roiShape = self.scatter_mask.mapToItem(self.s1, self.scatter_mask.shape())
+        self._points = list()
+        for i in range(len(self.img1.flatten())):
+            self._points.append(QtCore.QPointF(self.img1.flatten()[i], self.img2.flatten()[i]))
+
+
+        selected = [roiShape.contains(pt) for pt in self._points]
+        img_selected = np.reshape(selected, (self.img1.shape))
+
+        self.clearPgPlot()
+        self.masked_img = pg.image()
+        self.masked_img.setImage(img_selected * self.img1)
+        self.masked_img.setPredefinedGradient('bipolar')
+        self.masked_img.setWindowTitle("Masked Image")
+
+
 
 
 

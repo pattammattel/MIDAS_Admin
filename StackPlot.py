@@ -451,9 +451,11 @@ class ScatterPlot(QtWidgets.QMainWindow):
         self.createMask()
 
     def getMaskRegion(self):
-        roiShape = self.scatter_mask.mapToItem(self.w1, self.scatter_mask.shape())
+        roiShape = self.scatter_mask.mapToItem(self.s1, self.scatter_mask.shape())
         selected = [print(pt) for pt in self.s1.points()] # if roiShape.contains(pt)]
         print(selected)
+
+        # https://stackoverflow.com/questions/57719303/how-to-map-mouse-position-on-a-scatterplot
 
 
 

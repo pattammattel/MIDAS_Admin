@@ -711,19 +711,28 @@ class midasWindow(QtWidgets.QMainWindow):
     def change_color_on_load(self, button_name):
         button_name.setStyleSheet("background-color : green")
 
-    def select_elist(self):
+    def energyFileChooser(self):
         file_name = QFileDialog().getOpenFileName(self, "Open energy list", '', 'text file (*.txt)')
+        self.efilePath = file_name[0]
+
+
+    def select_elist(self):
+        self.energyFileChooser()
+        self.efileLoader()
+
+
+    def efileLoader(self):
 
         try:
 
-            if file_name[0]:
+            if self.efilePath:
 
-                if str(file_name[0]).endswith('log_tiff.txt'):
-                    self.energy = energy_from_logfile(logfile=str(file_name[0]))
+                if str(self.efilePath).endswith('log_tiff.txt'):
+                    self.energy = energy_from_logfile(logfile=str(self.efilePath))
                     logger.info("Log file from pyxrf processing")
 
                 else:
-                    self.energy = np.loadtxt(str(file_name[0]))
+                    self.energy = np.loadtxt(str(self.efilePath))
 
             else:
                 self.statusbar_main.showMessage("No Energy List Selected")

@@ -138,7 +138,8 @@ class ClusterViewer(QtWidgets.QMainWindow):
 
 class XANESViewer(QtWidgets.QMainWindow):
 
-    def __init__(self, im_stack, e_list, refs, ref_names):
+
+    def __init__(self, im_stack=None, e_list = None, refs = None, ref_names = None):
         super(XANESViewer, self).__init__()
 
         uic.loadUi('uis/XANESViewer.ui', self)
@@ -218,12 +219,15 @@ class XANESViewer(QtWidgets.QMainWindow):
         'Interactively exclude some standards from the reference file'
         self.ref_edit_window = RefChooser(self.ref_names)
         self.ref_edit_window.show()
+        self.rf_list = []
+        self.rf_plot = pg.plot(title = "RFactor Tracker")
         self.ref_edit_window.signal.connect(self.update_refs)
 
     def update_refs(self,list_):
         self.selected = list_ # list_ is the signal from ref chooser
         self.update_spectrum()
         self.re_fit_xanes()
+        self.plotRFactors()
 
     def update_spectrum(self):
 
@@ -262,6 +266,7 @@ class XANESViewer(QtWidgets.QMainWindow):
 
         self.le_r_sq.setText(str(np.around(r / self.ydata1.sum(), 4)))
 
+
     def re_fit_xanes(self):
         if len(self.selected) != 0:
             self.decon_ims, self.rfactor = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
@@ -270,8 +275,15 @@ class XANESViewer(QtWidgets.QMainWindow):
             self.decon_ims,self.rfactor  = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
                                        self.refs, method='NNLS')
 
+        self.rfactor_mean = np.mean(self.rfactor)
         self.image_view_maps.setImage(self.decon_ims.transpose(2,0,1))
         self.scrollBar_setup()
+
+    def plotRFactors(self):
+
+        self.rf_list.append(self.rfactor_mean)
+        self.rf_plot.plot(self.rf_list, clear = True)
+
 
     def save_chem_map(self):
         file_name = QFileDialog().getSaveFileName(self, "save image", '', 'image data (*tiff)')
@@ -297,6 +309,7 @@ class XANESViewer(QtWidgets.QMainWindow):
         exporter.parameters()['columnMode'] = '(x,y,y,y) for all plots'
         file_name = QFileDialog().getSaveFileName(self, "save spectrum", '', 'spectrum and fit (*csv)')
         exporter.export(str(file_name[0])+'.csv')
+
 
 class RefChooser(QtWidgets.QMainWindow):
     signal: pyqtSignal = QtCore.pyqtSignal(list)
@@ -371,6 +384,7 @@ class RefChooser(QtWidgets.QMainWindow):
             self.statusbar.showMessage(f"{n+1}/{len(self.iter_list)}")
             self.signal.emit(list((str(self.ref_names[0]),)+refs))
             QtTest.QTest.qWait(self.sb_time_delay.value()*1000)
+
 
     def enableApply(self):
         self.populateChecked()

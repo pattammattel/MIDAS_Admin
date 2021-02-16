@@ -25,6 +25,14 @@ class midasWindow(QtWidgets.QMainWindow):
         self.energy = energy
         self.refs = refs
 
+        self.plt_colors = ['g', 'r', 'c', 'm', 'y', 'w','b',
+                           pg.mkPen(70, 5, 80),pg.mkPen(255, 85, 130),
+                           pg.mkPen(0, 85, 130),pg.mkPen(255, 170, 60)]
+
+        self.plt_colors = ['g', 'r', 'c', 'm', 'y', 'w','b',
+                           (70, 5, 80),(255, 85, 130),
+                           (0, 85, 130),(255, 170, 60)]
+
         self.actionOpen_Image_Data.triggered.connect(self.browse_file)
         self.actionOpen_Multiple_Files.triggered.connect(self.load_mutliple_files)
         self.actionSave_as.triggered.connect(self.save_stack)
@@ -478,11 +486,13 @@ class midasWindow(QtWidgets.QMainWindow):
         self.ref_plot = pg.plot(title = "Reference Standards")
         self.ref_plot.setLabel("bottom","Energy")
         self.ref_plot.setLabel("left","Intensity")
-        print(np.shape(self.refs))
+        self.ref_plot.addLegend()
+
         for n in range(np.shape(self.refs)[1]):
-            print(n)
+
             if not n == 0:
-                self.ref_plot.plot(self.refs.values[:, 0], self.refs.values[:, n])
+                self.ref_plot.plot(self.refs.values[:, 0], self.refs.values[:, n],
+                                   pen = pg.mkPen(self.plt_colors[n-1], width = 2),name = self.ref_names[n])
 
 
     def getPointSpectrum(self, event):
@@ -817,8 +827,6 @@ class midasWindow(QtWidgets.QMainWindow):
     def energyFileChooser(self):
         file_name = QFileDialog().getOpenFileName(self, "Open energy list", '', 'text file (*.txt)')
         self.efilePath = file_name[0]
-
-
 
     def fast_xanes_fitting(self):
 

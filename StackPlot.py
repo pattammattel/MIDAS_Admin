@@ -1,6 +1,5 @@
 import sys
 import tifffile as tf
-import matplotlib.pyplot as plt
 import pyqtgraph as pg
 import pyqtgraph.exporters
 import numpy as np
@@ -65,7 +64,7 @@ class ComponentViewer(QtWidgets.QMainWindow):
 
     def show_all_spec(self):
         self.spectrum_view.clear()
-        self.plt_colors = ['g', 'r', 'c', 'm', 'y', 'w'] * 2
+        self.plt_colors = ['g', 'b', 'r', 'c', 'm', 'y', 'w'] * 3
         offsets = np.arange(0, 2, 0.2)
         self.spectrum_view.addLegend()
         for ii in range(self.decon_spectra.shape[1]):

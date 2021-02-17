@@ -414,6 +414,7 @@ class midasWindow(QtWidgets.QMainWindow):
     def select_elist(self):
         self.energyFileChooser()
         self.efileLoader()
+        self.view_stack()
 
     def efileLoader(self):
 
@@ -445,8 +446,6 @@ class midasWindow(QtWidgets.QMainWindow):
 
             else:
                 self.cb_kev_flag.setChecked(False)
-
-            self.view_stack()
 
         except:
             logger.error('Unknown Data Format')

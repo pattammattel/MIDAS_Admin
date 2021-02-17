@@ -219,7 +219,7 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.ref_edit_window = RefChooser(self.ref_names)
         self.ref_edit_window.show()
         self.rf_list = []
-        self.rf_plot = pg.plot(title = "RFactor Tracker")
+        self.rf_plot = pg.plot(title="RFactor Tracker")
         self.ref_edit_window.signal.connect(self.update_refs)
 
     def update_refs(self,list_):
@@ -279,7 +279,6 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.scrollBar_setup()
 
     def plotRFactors(self):
-
         self.rf_list.append(self.rfactor_mean)
         self.rf_plot.plot(self.rf_list, clear = True)
 

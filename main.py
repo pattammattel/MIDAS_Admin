@@ -770,7 +770,11 @@ class midasWindow(QtWidgets.QMainWindow):
         exporter = pg.exporters.CSVExporter(self.spectrum_view.plotItem)
         exporter.parameters()['columnMode'] = '(x,y,y,y) for all plots'
         file_name = QFileDialog().getSaveFileName(self, "save spectrum", '', 'spectra (*csv)')
-        exporter.export(str(file_name[0])+'.csv')
+        if file_name[0]:
+            exporter.export(str(file_name[0])+'.csv')
+        else:
+            self.statusbar_main.showMessage('Saving cancelled')
+            pass
 
     def pca_scree_(self):
         logger.info('Process started..')

@@ -109,7 +109,6 @@ class midasWindow(QtWidgets.QMainWindow):
         else:
             self.efilePath = None
 
-
     def load_mutliple_files(self):
         """ User can load multiple/series of tiff images with same shape.
         The 'self.reset_and_load_stack()' recognizes 'self.filename as list and create the stack.
@@ -438,8 +437,9 @@ class midasWindow(QtWidgets.QMainWindow):
                 self.change_color_on_load(self.pb_elist_xanes)
 
             assert len(self.energy) == self.dim1, "Number of Energy Points is not equal to stack length"
+            print(self.energy[-1])
 
-            if self.energy.max() < 100:
+            if self.energy[-1] < 100:
                 self.cb_kev_flag.setChecked(True)
                 self.energy *= 1000
 
@@ -493,7 +493,6 @@ class midasWindow(QtWidgets.QMainWindow):
             if not n == 0:
                 self.ref_plot.plot(self.refs.values[:, 0], self.refs.values[:, n],
                                    pen = pg.mkPen(self.plt_colors[n-1], width = 2),name = self.ref_names[n])
-
 
     def getPointSpectrum(self, event):
 

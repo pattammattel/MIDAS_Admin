@@ -219,7 +219,7 @@ class midasWindow(QtWidgets.QMainWindow):
             self.statusbar_main.showMessage('New Stack is made from selected tiffs')
             pass
 
-    def reset_and_load_stack(self):
+    def resetStack(self):
         self.log_warning = False #for the Qmessage box in cb_log
         self.rb_math_roi_img.setChecked(False)
         self.cb_log.setChecked(False)
@@ -233,6 +233,10 @@ class midasWindow(QtWidgets.QMainWindow):
         self.sb_xrange1.setValue(0)
         self.sb_yrange1.setValue(0)
         self.sb_zrange1.setValue(0)
+
+    def reset_and_load_stack(self):
+
+        self.resetStack()
         self.load_stack()
 
     def update_stack_info(self):
@@ -418,7 +422,6 @@ class midasWindow(QtWidgets.QMainWindow):
         self.energyUnitCheck()
         self.view_stack()
 
-
     def efileLoader(self):
 
 
@@ -440,7 +443,6 @@ class midasWindow(QtWidgets.QMainWindow):
             self.change_color_on_load(self.pb_elist_xanes)
 
         #assert len(self.energy) == self.dim1, "Number of Energy Points is not equal to stack length"
-
 
     def energyUnitCheck(self):
 

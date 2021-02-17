@@ -64,6 +64,7 @@ class midasWindow(QtWidgets.QMainWindow):
         # save_options
         self.pb_save_disp_img.clicked.connect(self.save_disp_img)
         self.pb_save_disp_spec.clicked.connect(self.save_disp_spec)
+        self.pb_get_roi_mask.clicked.connect(self.getROIMask)
 
         # Analysis
         self.pb_pca_scree.clicked.connect(self.pca_scree_)
@@ -740,6 +741,12 @@ class midasWindow(QtWidgets.QMainWindow):
         dh = self.scatter_window.height()
         # self.scatter_window.setGeometry(px+0.65*pw, py + ph - 2*dh-5, dw, dh)
         self.scatter_window.show()
+
+    def getROIMask(self):
+        self.roi_mask = self.image_roi.getArrayRegion(self.updated_stack, self.image_view.imageItem,
+                                                      axes=(1,2))
+        pg.image(self.roi_mask)
+
 
     def save_stack(self):
 

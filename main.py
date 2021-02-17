@@ -173,6 +173,7 @@ class midasWindow(QtWidgets.QMainWindow):
                 self.im_stack = tf.imread(self.file_name).transpose(0, 2, 1)
                 self.sb_zrange2.setValue(self.im_stack.shape[0])
                 self.autoEnergyLoader()
+                self.energyUnitCheck()
                 self.avgIo = 1
 
             else:
@@ -414,13 +415,14 @@ class midasWindow(QtWidgets.QMainWindow):
     def select_elist(self):
         self.energyFileChooser()
         self.efileLoader()
+        self.energyUnitCheck()
         self.view_stack()
+
 
     def efileLoader(self):
 
-        try:
 
-            if self.efilePath:
+        if self.efilePath:
 
                 if str(self.efilePath).endswith('log_tiff.txt'):
                     self.energy = energy_from_logfile(logfile=str(self.efilePath))
@@ -429,27 +431,25 @@ class midasWindow(QtWidgets.QMainWindow):
                 else:
                     self.energy = np.loadtxt(str(self.efilePath))
 
-            else:
-                self.statusbar_main.showMessage("No Energy List Selected")
+        else:
+            self.statusbar_main.showMessage("No Energy List Selected")
 
-            logger.info('Energy file loaded')
+        logger.info('Energy file loaded')
 
-            if self.energy.any():
-                self.change_color_on_load(self.pb_elist_xanes)
+        if self.energy.any():
+            self.change_color_on_load(self.pb_elist_xanes)
 
-            assert len(self.energy) == self.dim1, "Number of Energy Points is not equal to stack length"
-            print(self.energy[-1])
+        #assert len(self.energy) == self.dim1, "Number of Energy Points is not equal to stack length"
 
-            if self.energy[-1] < 100:
-                self.cb_kev_flag.setChecked(True)
-                self.energy *= 1000
 
-            else:
-                self.cb_kev_flag.setChecked(False)
+    def energyUnitCheck(self):
 
-        except:
-            logger.error('Unknown Data Format')
-            pass
+        if self.energy[-1] < 100:
+            self.cb_kev_flag.setChecked(True)
+            self.energy *= 1000
+
+        else:
+            self.cb_kev_flag.setChecked(False)
 
     def select_ref_file(self):
         self.pb_xanes_fit.setEnabled(True)

@@ -113,7 +113,7 @@ class midasWindow(QtWidgets.QMainWindow):
         """ User can load multiple/series of tiff images with same shape.
         The 'self.reset_and_load_stack()' recognizes 'self.filename as list and create the stack.
         """
-
+        self.energy = []
         filter = "TIFF (*.tiff);;TIF (*.tif)"
         file_name = QFileDialog()
         file_name.setFileMode(QFileDialog.ExistingFiles)

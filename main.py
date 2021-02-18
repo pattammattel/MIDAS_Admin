@@ -171,9 +171,12 @@ class midasWindow(QtWidgets.QMainWindow):
                 self.energy = []
 
             elif self.file_name.endswith('.tiff') or self.file_name.endswith('.tif'):
-                assert tf.imread(self.file_name).ndim == 3, 'Only 3D image data is supported'
-                self.statusbar_main.showMessage('Error: Only 3D image data is supported')
-                self.im_stack = tf.imread(self.file_name).transpose(0, 2, 1)
+                self.im_stack_ = tf.imread(self.file_name)
+                if self.im_stack_.ndim == 2:
+                    self.im_stack = self.im_stack_.reshape(1, self.im_stack_.shape[0],self.im_stack_.shape[1])
+
+                else:
+                    self.im_stack = self.im_stack_.transpose(0, 2, 1)
                 self.sb_zrange2.setValue(self.im_stack.shape[0])
                 self.autoEnergyLoader()
                 self.energyUnitCheck()
@@ -449,7 +452,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def energyUnitCheck(self):
 
-        if self.energy[-1] < 100:
+        if np.max(self.energy) < 100:
             self.cb_kev_flag.setChecked(True)
             self.energy *= 1000
 

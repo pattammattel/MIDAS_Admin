@@ -155,7 +155,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
             all_images = []
 
-            for im_file in sorted(self.file_name):
+            for im_file in self.file_name:
                 img = tf.imread(im_file)
                 all_images.append(img)
             self.im_stack = np.dstack(all_images).T
@@ -171,6 +171,8 @@ class midasWindow(QtWidgets.QMainWindow):
                 self.energy = []
 
             elif self.file_name.endswith('.tiff') or self.file_name.endswith('.tif'):
+                assert tf.imread(self.file_name).ndim == 3, 'Only 3D image data is supported'
+                self.statusbar_main.showMessage('Error: Only 3D image data is supported')
                 self.im_stack = tf.imread(self.file_name).transpose(0, 2, 1)
                 self.sb_zrange2.setValue(self.im_stack.shape[0])
                 self.autoEnergyLoader()

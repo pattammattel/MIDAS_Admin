@@ -11,7 +11,7 @@
     <x>0</x>
     <y>0</y>
     <width>1246</width>
-    <height>936</height>
+    <height>968</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -93,6 +93,31 @@ QSlider::handle:horizontal:disabled {
 background: #eee;
 border: 1px solid #aaa;
 border-radius: 4px;
+}
+
+
+
+QPushButton {
+color: #142727;
+border: 2px solid #555;
+border-radius: 11px;
+padding: 5px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 80px;
+}
+ 
+QPushButton:hover {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
+}
+ 
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
 }</string>
    </property>
    <layout class="QGridLayout" name="gridLayout_16">
@@ -122,7 +147,7 @@ border-radius: 4px;
          <x>0</x>
          <y>0</y>
          <width>321</width>
-         <height>855</height>
+         <height>887</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_9">
@@ -142,6 +167,411 @@ color: rgb(255, 0, 127);
           </item>
          </layout>
         </item>
+        <item row="2" column="0">
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="3" column="0">
+         <widget class="QToolBox" name="toolBox_2">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="currentIndex">
+           <number>2</number>
+          </property>
+          <widget class="QWidget" name="page_5">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>299</width>
+             <height>251</height>
+            </rect>
+           </property>
+           <attribute name="label">
+            <string>Component Analysis</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_15">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout">
+              <item row="0" column="0">
+               <widget class="QPushButton" name="pb_calc_components">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(175, 236, 255);
+color: rgb(255, 0, 127);
+</string>
+                </property>
+                <property name="text">
+                 <string>Calculate Components</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QPushButton" name="pb_pca_scree">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(175, 236, 255);
+color: rgb(255, 0, 127);
+</string>
+                </property>
+                <property name="text">
+                 <string>PCA Scree Plot</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <layout class="QHBoxLayout" name="horizontalLayout_5">
+                <item>
+                 <widget class="QLabel" name="label_11">
+                  <property name="text">
+                   <string>Method</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="cb_comp_method">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>PCA</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>NMF</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>FastICA</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>IncrementalPCA</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>TruncatedSVD</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>FactorAnalysis</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>DictionaryLearning</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="3" column="0">
+               <layout class="QHBoxLayout" name="horizontalLayout_6">
+                <item>
+                 <widget class="QLabel" name="label">
+                  <property name="text">
+                   <string>Number of Components</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSpinBox" name="sb_ncomp">
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="value">
+                   <number>4</number>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="page_6">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>308</width>
+             <height>230</height>
+            </rect>
+           </property>
+           <attribute name="label">
+            <string>Cluster Analysis</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_18">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_4">
+              <item row="0" column="0" colspan="3">
+               <widget class="QPushButton" name="pb_calc_cluster">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(175, 236, 255);
+color: rgb(255, 0, 127);
+</string>
+                </property>
+                <property name="text">
+                 <string>Calculate Clusters</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" colspan="3">
+               <widget class="QPushButton" name="pb_kmeans_elbow">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(175, 236, 255);
+color: rgb(255, 0, 127);
+</string>
+                </property>
+                <property name="text">
+                 <string>KMeans Variance Plot</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>Method</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1" colspan="2">
+               <widget class="QComboBox" name="cb_clust_method">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>KMeans</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>MiniBatchKMeans</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>MeanShift</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Spectral Clustering</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Correlation-Kmeans</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Affinity Propagation</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="3" column="0" colspan="2">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>Number of Clusters</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QSpinBox" name="sb_ncluster">
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="value">
+                 <number>4</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="page_7">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>299</width>
+             <height>251</height>
+            </rect>
+           </property>
+           <attribute name="label">
+            <string>XANES Fitting</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_20">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_2">
+              <item row="0" column="2">
+               <widget class="QCheckBox" name="cb_kev_flag">
+                <property name="text">
+                 <string>keV</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" colspan="2">
+               <widget class="QPushButton" name="pb_elist_xanes">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(175, 236, 255);
+color: rgb(255, 0, 127);
+</string>
+                </property>
+                <property name="text">
+                 <string>Load Energy List</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" colspan="2">
+               <widget class="QPushButton" name="pb_ref_xanes">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(175, 236, 255);
+color: rgb(255, 0, 127);
+</string>
+                </property>
+                <property name="text">
+                 <string>Load Ref. Spec.</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QComboBox" name="cb_xanes_fitting_method">
+                <item>
+                 <property name="text">
+                  <string>NNLS</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QPushButton" name="pb_plot_refs">
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(175, 236, 255);
+color: rgb(255, 0, 127);</string>
+                </property>
+                <property name="text">
+                 <string>Plot</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1" colspan="2">
+               <widget class="QPushButton" name="pb_xanes_fit">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(175, 236, 255);
+color: rgb(255, 0, 127);
+</string>
+                </property>
+                <property name="text">
+                 <string> Fit</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
         <item row="0" column="0">
          <widget class="QToolBox" name="toolBox">
           <property name="sizePolicy">
@@ -154,7 +584,7 @@ color: rgb(255, 0, 127);
            <string notr="true">font: 10pt &quot;Segoe UI&quot;;</string>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="page">
            <property name="geometry">
@@ -162,7 +592,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>368</width>
-             <height>331</height>
+             <height>325</height>
             </rect>
            </property>
            <attribute name="label">
@@ -776,408 +1206,128 @@ color: rgb(255, 0, 127);
             </item>
            </layout>
           </widget>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="3" column="0">
-         <widget class="QToolBox" name="toolBox_2">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="currentIndex">
-           <number>2</number>
-          </property>
-          <widget class="QWidget" name="page_5">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>298</width>
-             <height>189</height>
-            </rect>
-           </property>
+          <widget class="QWidget" name="page_3">
            <attribute name="label">
-            <string>Component Analysis</string>
+            <string>Alignment</string>
            </attribute>
-           <layout class="QGridLayout" name="gridLayout_15">
+           <layout class="QGridLayout" name="gridLayout_10">
             <item row="0" column="0">
-             <layout class="QGridLayout" name="gridLayout">
-              <item row="0" column="0">
-               <widget class="QPushButton" name="pb_calc_components">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-</string>
-                </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_8">
+              <item>
+               <widget class="QLabel" name="label_3">
                 <property name="text">
-                 <string>Calculate Components</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QPushButton" name="pb_pca_scree">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-</string>
-                </property>
-                <property name="text">
-                 <string>PCA Scree Plot</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <layout class="QHBoxLayout" name="horizontalLayout_5">
-                <item>
-                 <widget class="QLabel" name="label_11">
-                  <property name="text">
-                   <string>Method</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QComboBox" name="cb_comp_method">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <item>
-                   <property name="text">
-                    <string>PCA</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>NMF</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>FastICA</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>IncrementalPCA</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>TruncatedSVD</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>FactorAnalysis</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>DictionaryLearning</string>
-                   </property>
-                  </item>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="3" column="0">
-               <layout class="QHBoxLayout" name="horizontalLayout_6">
-                <item>
-                 <widget class="QLabel" name="label">
-                  <property name="text">
-                   <string>Number of Components</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QSpinBox" name="sb_ncomp">
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="value">
-                   <number>4</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="page_6">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>308</width>
-             <height>185</height>
-            </rect>
-           </property>
-           <attribute name="label">
-            <string>Cluster Analysis</string>
-           </attribute>
-           <layout class="QGridLayout" name="gridLayout_18">
-            <item row="0" column="0">
-             <layout class="QGridLayout" name="gridLayout_4">
-              <item row="0" column="0" colspan="3">
-               <widget class="QPushButton" name="pb_calc_cluster">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-</string>
-                </property>
-                <property name="text">
-                 <string>Calculate Clusters</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0" colspan="3">
-               <widget class="QPushButton" name="pb_kmeans_elbow">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-</string>
-                </property>
-                <property name="text">
-                 <string>KMeans Variance Plot</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="label_10">
-                <property name="text">
-                 <string>Method</string>
+                 <string>Transformations:</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
-              <item row="2" column="1" colspan="2">
-               <widget class="QComboBox" name="cb_clust_method">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
+              <item>
+               <widget class="QComboBox" name="comboBox">
                 <item>
                  <property name="text">
-                  <string>KMeans</string>
+                  <string>TRANSLATION</string>
                  </property>
                 </item>
                 <item>
                  <property name="text">
-                  <string>MiniBatchKMeans</string>
+                  <string>RIGID_BODY</string>
                  </property>
                 </item>
                 <item>
                  <property name="text">
-                  <string>MeanShift</string>
+                  <string>SCALED_ROTATION</string>
                  </property>
                 </item>
                 <item>
                  <property name="text">
-                  <string>Spectral Clustering</string>
+                  <string>AFFINE</string>
                  </property>
                 </item>
                 <item>
                  <property name="text">
-                  <string>Correlation-Kmeans</string>
+                  <string>BILINEAR</string>
                  </property>
                 </item>
-                <item>
-                 <property name="text">
-                  <string>Affinity Propagation</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item row="3" column="0" colspan="2">
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>Number of Clusters</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="2">
-               <widget class="QSpinBox" name="sb_ncluster">
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-                <property name="value">
-                 <number>4</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="page_7">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>299</width>
-             <height>156</height>
-            </rect>
-           </property>
-           <attribute name="label">
-            <string>XANES Fitting</string>
-           </attribute>
-           <layout class="QGridLayout" name="gridLayout_20">
-            <item row="0" column="0">
-             <layout class="QGridLayout" name="gridLayout_2">
-              <item row="0" column="0" colspan="2">
-               <widget class="QPushButton" name="pb_elist_xanes">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-</string>
-                </property>
-                <property name="text">
-                 <string>Load Energy List</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QCheckBox" name="cb_kev_flag">
-                <property name="text">
-                 <string>keV</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0" colspan="2">
-               <widget class="QPushButton" name="pb_ref_xanes">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-</string>
-                </property>
-                <property name="text">
-                 <string>Load Ref. Spec.</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
-               <widget class="QPushButton" name="pb_plot_refs">
-                <property name="styleSheet">
-                 <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);</string>
-                </property>
-                <property name="text">
-                 <string>Plot</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QComboBox" name="cb_xanes_fitting_method">
-                <item>
-                 <property name="text">
-                  <string>NNLS</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item row="2" column="1" colspan="2">
-               <widget class="QPushButton" name="pb_xanes_fit">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-</string>
-                </property>
-                <property name="text">
-                 <string> Fit</string>
-                </property>
                </widget>
               </item>
              </layout>
             </item>
             <item row="1" column="0">
-             <spacer name="verticalSpacer">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
+             <layout class="QHBoxLayout" name="horizontalLayout_11">
+              <item>
+               <widget class="QLabel" name="label_6">
+                <property name="text">
+                 <string>Reference: </string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="comboBox_2">
+                <item>
+                 <property name="text">
+                  <string>Previous</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Mean</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>First</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="0">
+             <widget class="QPushButton" name="pushButton">
+              <property name="text">
+               <string>Load Transformation</string>
               </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QPushButton" name="pushButton_2">
+              <property name="text">
+               <string>Align</string>
               </property>
-             </spacer>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_13">
+              <item>
+               <widget class="QCheckBox" name="checkBox">
+                <property name="text">
+                 <string>Save Transformation</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_12">
+                <item>
+                 <widget class="QLabel" name="label_7">
+                  <property name="text">
+                   <string>Name</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="lineEdit"/>
+                </item>
+               </layout>
+              </item>
+             </layout>
             </item>
            </layout>
           </widget>

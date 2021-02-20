@@ -7,6 +7,9 @@ import sklearn.cluster as sc
 import pyqtgraph as pg
 import h5py
 import logging
+import tifffile as tf
+
+from pystackreg import StackReg
 from PyQt5 import QtCore
 from scipy.signal import savgol_filter
 from skimage.transform import resize
@@ -457,5 +460,27 @@ def energy_from_logfile(logfile = 'maps_log_tiff.txt'):
     return df[9][df[7]=='energy'].values.astype(float)
 
 
-def align_iter(image_array, ref_stack, reference='previous', num_ter=1):
-    pass
+def align_stack(stack_img, transformation = 'TRANSLATION',
+                reference = 'previous', auto_save = True):
+
+    transformations = {
+        'TRANSLATION': StackReg.TRANSLATION,
+        'RIGID_BODY': StackReg.RIGID_BODY,
+        'SCALED_ROTATION': StackReg.SCALED_ROTATION,
+        'AFFINE': StackReg.AFFINE,
+        'BILINEAR': StackReg.BILINEAR
+    }
+
+
+    sr = StackReg(transformations[transformation])
+
+    tmats = sr.register_stack(stack_img, reference='previous')
+    out1 = sr.transform_stack(stack_img)
+    if auto_save == True:
+        tf.imsave('aligned_stack.tiff',np.float32(out1))
+        a = tmats[:,0,2]
+        b = tmats[:,1,2]
+        trans_matrix = np.column_stack([a,b])
+        np.savetxt(f'Transf_Matrix.txt',trans_matrix,fmt = '%3.5f')
+    return np.float32(out1), trans_matrix
+

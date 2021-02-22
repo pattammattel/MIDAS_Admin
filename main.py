@@ -634,7 +634,7 @@ class midasWindow(QtWidgets.QMainWindow):
                 self.statusbar_main.showMessage(f'Image Display is stack # {self.spec_hi_idx}')
 
             else:
-                self.disp_img = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0)
+                self.disp_img = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].sum(0)
                 self.statusbar_main.showMessage(f'Image display is stack # range: '
                                                 f'{self.spec_lo_idx}:{self.spec_hi_idx}')
             self.image_view.setImage(self.disp_img)

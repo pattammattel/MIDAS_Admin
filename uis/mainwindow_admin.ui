@@ -11,7 +11,7 @@
     <x>0</x>
     <y>0</y>
     <width>1246</width>
-    <height>968</height>
+    <height>971</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -76,7 +76,7 @@ QSlider::handle:horizontal:hover {
 background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
     stop:0 #fff, stop:1 #ddd);
 border: 1px solid #444;
-border-radius: 4px;
+border-radius: 2px;
 }
 
 QSlider::sub-page:horizontal:disabled {
@@ -99,12 +99,12 @@ border-radius: 4px;
 
 QPushButton {
 color: #142727;
-border: 2px solid #555;
-border-radius: 11px;
-padding: 5px;
+border: 1.5px solid #555;
+border-radius: 6px;
+padding: 2px;
 background: qradialgradient(cx: 0.3, cy: -0.4,
 fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #888);
+radius: 1.5, stop: 0 #fff, stop: 1 #888);
 min-width: 80px;
 }
  
@@ -115,7 +115,7 @@ radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
 }
  
 QPushButton:pressed {
-background: qradialgradient(cx: 0.4, cy: -0.1,
+background: qradialgradient(cx: 0.1, cy: -0.1,
 fx: 0.4, fy: -0.1,
 radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
 }</string>
@@ -147,7 +147,7 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
          <x>0</x>
          <y>0</y>
          <width>321</width>
-         <height>887</height>
+         <height>890</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_9">
@@ -197,7 +197,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>299</width>
-             <height>251</height>
+             <height>254</height>
             </rect>
            </property>
            <attribute name="label">
@@ -335,7 +335,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>308</width>
-             <height>230</height>
+             <height>233</height>
             </rect>
            </property>
            <attribute name="label">
@@ -460,7 +460,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>299</width>
-             <height>251</height>
+             <height>255</height>
             </rect>
            </property>
            <attribute name="label">
@@ -592,7 +592,7 @@ color: rgb(255, 0, 127);
              <x>0</x>
              <y>0</y>
              <width>368</width>
-             <height>325</height>
+             <height>328</height>
             </rect>
            </property>
            <attribute name="label">

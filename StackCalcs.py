@@ -460,8 +460,8 @@ def energy_from_logfile(logfile = 'maps_log_tiff.txt'):
     return df[9][df[7]=='energy'].values.astype(float)
 
 
-def align_stack(stack_img, transformation = 'TRANSLATION',
-                reference = 'previous', auto_save = True):
+def align_stack(stack_img, ref_image_exist = True, ref_stack = None, transformation = 'TRANSLATION',
+                reference = 'previous', tmat_file_exist = True, tmat_file = None):
 
     transformations = {
         'TRANSLATION': StackReg.TRANSLATION,
@@ -470,17 +470,20 @@ def align_stack(stack_img, transformation = 'TRANSLATION',
         'AFFINE': StackReg.AFFINE,
         'BILINEAR': StackReg.BILINEAR
     }
-
-
     sr = StackReg(transformations[transformation])
 
-    tmats = sr.register_stack(stack_img, reference='previous')
-    out1 = sr.transform_stack(stack_img)
-    if auto_save == True:
-        tf.imsave('aligned_stack.tiff',np.float32(out1))
-        a = tmats[:,0,2]
-        b = tmats[:,1,2]
-        trans_matrix = np.column_stack([a,b])
-        np.savetxt(f'Transf_Matrix.txt',trans_matrix,fmt = '%3.5f')
-    return np.float32(out1), trans_matrix
+    if tmat_file_exist:
+        tmats_ = tmat_file
+
+    else:
+
+        if not ref_image_exist:
+            ref_stack = stack_img
+
+        tmats_ = sr.register_stack(ref_stack, reference=reference)
+        out_ref = sr.transform_stack(ref_stack)
+
+    out_stk = sr.transform_stack(stack_img, tmats=tmats_)
+
+    return np.float32(out_stk), tmats_
 

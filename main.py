@@ -24,6 +24,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.updated_stack = self.im_stack
         self.energy = energy
         self.refs = refs
+        self.alignTranform = []
 
         self.plt_colors = ['g', 'r', 'c', 'm', 'y', 'w','b',
                            pg.mkPen(70, 5, 80),pg.mkPen(255, 85, 130),
@@ -60,6 +61,9 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_crop.clicked.connect(self.view_stack)
         self.pb_ref_xanes.clicked.connect(self.select_ref_file)
         self.pb_elist_xanes.clicked.connect(self.select_elist)
+
+        #alignment
+        self.pb_alignStack.clicked.connect(self.stackRegistration)
 
         # save_options
         self.pb_save_disp_img.clicked.connect(self.save_disp_img)
@@ -266,6 +270,49 @@ class midasWindow(QtWidgets.QMainWindow):
         self.updated_stack = self.updated_stack.T
         self.update_spectrum()
         self.update_spec_image_roi()
+
+    def loadAlignTransfomation(self):
+        filename = QFileDialog().getOpenFileName(self, "TranformationMatrix", '', '.txt')
+        file_name = (str(filename[0]))
+        self.alignTranform = np.loadtxt(filename)
+
+    def stackRegistration(self):
+
+        self.transformations = {
+            'TRANSLATION': StackReg.TRANSLATION,
+            'RIGID_BODY': StackReg.RIGID_BODY,
+            'SCALED_ROTATION': StackReg.SCALED_ROTATION,
+            'AFFINE': StackReg.AFFINE,
+            'BILINEAR': StackReg.BILINEAR
+        }
+
+        self.transformType = self.transformations[self.cb_alignTransform.currentText()]
+        self.alignReferenceImage = self.cb_alignRef.currentText()
+        self.alignRefStackVoid = self.rb_alignRefVoid.isChecked()
+        self.alignMaxIter = self.sb_maxIterVal.value()
+
+        if self.alignTranform:
+
+            self.aligned_stack = align_with_tmat(self.updated_stack, tmat_file = self.alignTranform,
+                                                 transformation = self.transformType)
+        elif self.cb_iterAlign.isChecked():
+
+            self.aligned_stack = align_stack_iter(self.updated_stack, ref_stack_void = self.alignRefStackVoid,
+                                                  ref_stack = None, transformation = self.transformType,
+                                                  method=('previous', 'first'), max_iter=self.alignMaxIter)
+
+        else:
+
+            self.aligned_stack, self.tranform_file = align_stack(self.updated_stack,
+                                                                 ref_image_void = self.alignRefStackVoid,
+                                                                 ref_stack = None, transformation = self.transformType,
+                                                                 reference = self.alignReferenceImage,
+                                                                 )
+
+
+
+        self.updated_stack = self.aligned_stack
+        self.view_stack()
 
     def update_stack(self):
 

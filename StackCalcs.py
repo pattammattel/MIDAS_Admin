@@ -460,30 +460,44 @@ def energy_from_logfile(logfile = 'maps_log_tiff.txt'):
     return df[9][df[7]=='energy'].values.astype(float)
 
 
-def align_stack(stack_img, ref_image_exist = True, ref_stack = None, transformation = 'TRANSLATION',
-                reference = 'previous', tmat_file_exist = True, tmat_file = None):
+def align_stack(stack_img, ref_image_void = True, ref_stack = None, transformation = StackReg.TRANSLATION,
+                reference = 'previous'):
 
-    transformations = {
-        'TRANSLATION': StackReg.TRANSLATION,
-        'RIGID_BODY': StackReg.RIGID_BODY,
-        'SCALED_ROTATION': StackReg.SCALED_ROTATION,
-        'AFFINE': StackReg.AFFINE,
-        'BILINEAR': StackReg.BILINEAR
-    }
-    sr = StackReg(transformations[transformation])
+    ''' Image registration flow using pystack reg'''
 
-    if tmat_file_exist:
-        tmats_ = tmat_file
+    # all the options are in one function
+
+    sr = StackReg(transformation)
+
+    if ref_image_void:
+        tmats_ = sr.register_stack(stack_img, reference=reference)
 
     else:
-
-        if not ref_image_exist:
-            ref_stack = stack_img
-
         tmats_ = sr.register_stack(ref_stack, reference=reference)
         out_ref = sr.transform_stack(ref_stack)
 
     out_stk = sr.transform_stack(stack_img, tmats=tmats_)
-
     return np.float32(out_stk), tmats_
+
+def align_with_tmat(stack_img, tmat_file, transformation = StackReg.TRANSLATION):
+
+    sr = StackReg(transformation)
+    out_stk = sr.transform_stack(stack_img, tmats=tmat_file)
+    return np.float32(out_stk)
+
+def align_stack_iter(stack, ref_stack_void = True, ref_stack = None, transformation = StackReg.TRANSLATION,
+                     method=('previous', 'first'), max_iter=2):
+    if  ref_stack_void:
+        ref_stack = stack
+
+    for i in range(max_iter):
+        sr = StackReg(transformation)
+        for ii in range(len(method)):
+            print(ii,method[ii])
+            tmats = sr.register_stack(ref_stack, reference=method[ii])
+            ref_stack = sr.transform_stack(ref_stack)
+            stack = sr.transform_stack(stack, tmats=tmats)
+
+    return np.float32(stack)
+
 

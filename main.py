@@ -411,6 +411,9 @@ class midasWindow(QtWidgets.QMainWindow):
 
         logger.info(f'Updated image is in use')
 
+
+
+
     def view_stack(self):
 
         if not self.im_stack.ndim == 3:

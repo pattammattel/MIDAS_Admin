@@ -501,3 +501,18 @@ def align_stack_iter(stack, ref_stack_void = True, ref_stack = None, transformat
     return np.float32(stack)
 
 
+def modifyStack(raw_stack, normalizeValues = False, normToPoint = -1,
+                applySmooth = False, smoothWindowSize = 3,
+                applyThreshold = False, thresholdValue = 0,
+                removeOutliers = False, nSigmaOutlier = 3,
+                applyTranspose = False, transposeVals = (0,1,2),
+                applyCrop = False, cropVals = [], removeEdges = False,
+                resizeStack = False, upScaling = False, binFactor = 2,
+
+                ):
+    ''' A giant function to modify the stack with many possible operations.
+        all the changes can be saved to a jason file as a config file'''
+
+    pass
+
+

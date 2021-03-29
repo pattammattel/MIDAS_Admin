@@ -7,7 +7,7 @@ import logging, sys, webbrowser
 
 from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDesktopWidget, QApplication
-
+from PyQt5.QtCore import QObject, QTimer, QThread, pyqtSignal, pyqtSlot
 from StackPlot import *
 from StackCalcs import *
 from MaskView import *
@@ -16,6 +16,8 @@ logger = logging.getLogger()
 
 
 class midasWindow(QtWidgets.QMainWindow):
+
+
     def __init__(self, im_stack=None, energy=[], refs=[]):
         super(midasWindow, self).__init__()
         uic.loadUi('uis/mainwindow_admin.ui', self)
@@ -411,9 +413,6 @@ class midasWindow(QtWidgets.QMainWindow):
 
         logger.info(f'Updated image is in use')
 
-
-
-
     def view_stack(self):
 
         if not self.im_stack.ndim == 3:
@@ -802,7 +801,6 @@ class midasWindow(QtWidgets.QMainWindow):
                                                       axes=(1,2))
         pg.image(self.roi_mask)
 
-
     def save_stack(self):
 
         self.update_stack()
@@ -905,6 +903,28 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def open_github_link(self):
         webbrowser.open('https://github.com/pattammattel/NSLS-II-MIDAS')
+
+
+class alignWorker(QThread):
+
+    alignedStack = pyqtSignal(np.array)
+
+    def __init__(self, im_stack, transformType,alignReferenceImage,alignRefStackVoid,alignMaxIter,parent=None):
+        QThread.__init__(self, parent)
+
+        self.im_stack = im_stack
+        self.transformType = transformType
+        self.alignReferenceImage = alignReferenceImage
+        self.alignRefStackVoid = alignRefStackVoid
+        self.alignMaxIter = alignMaxIter
+
+    @pyqtSlot(np.array)
+    def alignIter(self):
+        self.aligned_stack = align_stack_iter(self.updated_stack, ref_stack_void=self.alignRefStackVoid,
+                                              ref_stack=None, transformation=self.transformType,
+                                              method=('previous', 'first'), max_iter=self.alignMaxIter)
+
+        self.alignedStack.emit(self.aligned_stack)
 
 
 if __name__ == "__main__":

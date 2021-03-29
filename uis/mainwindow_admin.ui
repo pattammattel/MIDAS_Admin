@@ -11,7 +11,7 @@
     <x>0</x>
     <y>0</y>
     <width>1454</width>
-    <height>971</height>
+    <height>997</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,8 +24,7 @@
    <string>NSLS-II MIDAS</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">
-</string>
+   <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="enabled">
@@ -130,7 +129,7 @@ color: rgb(255, 0, 127);
           <string notr="true"/>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="page">
           <property name="geometry">
@@ -138,7 +137,7 @@ color: rgb(255, 0, 127);
             <x>0</x>
             <y>0</y>
             <width>411</width>
-            <height>389</height>
+            <height>402</height>
            </rect>
           </property>
           <attribute name="label">
@@ -961,8 +960,8 @@ color: rgb(255, 0, 127);
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>405</width>
-            <height>282</height>
+            <width>411</width>
+            <height>189</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1099,8 +1098,8 @@ color: rgb(255, 0, 127);
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>405</width>
-            <height>282</height>
+            <width>390</width>
+            <height>185</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1224,8 +1223,8 @@ color: rgb(255, 0, 127);
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>405</width>
-            <height>282</height>
+            <width>411</width>
+            <height>180</height>
            </rect>
           </property>
           <attribute name="label">

@@ -479,6 +479,16 @@ def align_stack(stack_img, ref_image_void = True, ref_stack = None, transformati
     out_stk = sr.transform_stack(stack_img, tmats=tmats_)
     return np.float32(out_stk), tmats_
 
+def align_simple(stack_img, transformation = StackReg.TRANSLATION, reference = 'previous'):
+
+    sr = StackReg(transformation)
+    tmats_ = sr.register_stack(stack_img, reference = 'previous')
+    for i in range(10):
+        out_stk = sr.transform_stack(stack_img, tmats=tmats_)
+        import time
+        time.sleep(2)
+    return np.float32(out_stk)
+
 def align_with_tmat(stack_img, tmat_file, transformation = StackReg.TRANSLATION):
 
     sr = StackReg(transformation)

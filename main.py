@@ -17,7 +17,6 @@ logger = logging.getLogger()
 
 class midasWindow(QtWidgets.QMainWindow):
 
-
     def __init__(self, im_stack=None, energy=[], refs=[]):
         super(midasWindow, self).__init__()
         uic.loadUi('uis/mainwindow_admin.ui', self)

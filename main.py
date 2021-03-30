@@ -310,7 +310,8 @@ class midasWindow(QtWidgets.QMainWindow):
                                                                  )
 
         self.updated_stack = self.aligned_stack
-        self.update_image_roi()
+        #self.update_image_roi()
+        self.replot_image()
 
     def StackRegThread(self):
         # Pass the function to execute

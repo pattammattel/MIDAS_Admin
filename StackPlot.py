@@ -16,6 +16,26 @@ from StackCalcs import *
 
 logger = logging.getLogger()
 
+class singleStackViewer(QtWidgets.QMainWindow):
+    def __init__(self,  img_stack):
+        super(singleStackViewer, self).__init__()
+
+        # Load the UI Page
+        uic.loadUi('uis/singleStackView.ui', self)
+
+        self.img_stack = img_stack
+        self.displayStack()
+
+    def displayStack(self):
+        self.image_view.setImage(self.img_stack)
+        self.image_view.setPredefinedGradient('viridis')
+        self.image_view.ui.menuBtn.hide()
+        self.image_view.ui.roiBtn.hide()
+
+    def saveImageStackAsTIFF(self):
+        file_name = QFileDialog().getSaveFileName(self, "", '', 'data(*tiff *tif *txt *png )')
+        tf.imsave(str(file_name[0]), np.float32(self.img_stack.transpose(0, 2, 1)))
+
 
 class ComponentViewer(QtWidgets.QMainWindow):
 

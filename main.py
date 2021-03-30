@@ -26,6 +26,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.energy = energy
         self.refs = refs
         self.alignTransform = []
+        self.image_roi2_flag = False
 
         self.plt_colors = ['g', 'r', 'c', 'm', 'y', 'w', 'b',
                            pg.mkPen(70, 5, 80), pg.mkPen(255, 85, 130),
@@ -65,7 +66,7 @@ class midasWindow(QtWidgets.QMainWindow):
         # save_options
         self.pb_save_disp_img.clicked.connect(self.save_disp_img)
         self.pb_save_disp_spec.clicked.connect(self.save_disp_spec)
-        self.pb_get_roi_mask.clicked.connect(self.getROIMask)
+        self.pb_show_roi.clicked.connect(self.getROIMask)
 
         # Analysis
         self.pb_pca_scree.clicked.connect(self.pca_scree_)
@@ -123,7 +124,7 @@ class midasWindow(QtWidgets.QMainWindow):
         file_name = QFileDialog()
         file_name.setFileMode(QFileDialog.ExistingFiles)
         names = file_name.getOpenFileNames(self, "Open files", " ", filter)
-        if len(names) != 0:
+        if names[0]:
 
             self.file_name = names[0]
             self.reset_and_load_stack()
@@ -210,6 +211,11 @@ class midasWindow(QtWidgets.QMainWindow):
             logger.error('No file selected')
             pass
 
+        self.view_stack()
+        logger.info("Stack displayed correctly")
+        self.update_stack_info()
+
+        '''
         try:
 
             self.view_stack()
@@ -219,6 +225,7 @@ class midasWindow(QtWidgets.QMainWindow):
         except:
             logger.error("Trouble with stack display")
             self.statusbar_main.showMessage("Error: Trouble with stack display")
+        '''
 
         logger.info(f'completed image shape {np.shape(self.im_stack)}')
 
@@ -231,7 +238,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def resetStack(self):
         self.log_warning = False  # for the Qmessage box in cb_log
-        self.rb_math_roi_img.setChecked(False)
+        self.image_roi2_flag = False
         self.cb_log.setChecked(False)
         self.cb_remove_edges.setChecked(False)
         self.cb_norm.setChecked(False)
@@ -320,7 +327,6 @@ class midasWindow(QtWidgets.QMainWindow):
         worker.signals.finished.connect(self.thread_complete)
         # Execute
         self.threadpool.start(worker)
-
 
     def update_stack(self):
 
@@ -442,12 +448,6 @@ class midasWindow(QtWidgets.QMainWindow):
         self.sz = np.max(
             [int(self.dim2 * 0.1), int(self.dim3 * 0.1)])  # size of the roi set to be 10% of the image area
 
-        # a second optional ROI for calculations follow
-        self.image_roi_math = pg.PolyLineROI([[0, 0], [0, self.sz], [self.sz, self.sz], [self.sz, 0]],
-                                             pos=(int(self.dim3 // 3), int(self.dim2 // 3)),
-                                             pen='r', closed=True, removable=True)
-        self.image_roi_math.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
-
         self.stack_center = (self.energy[len(self.energy) // 2])
         self.stack_width = (self.energy.max() - self.energy.min()) // 10
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
@@ -468,7 +468,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.spec_roi.sigRegionChanged.connect(self.update_image_roi)
         self.spec_roi_math.sigRegionChangeFinished.connect(self.spec_roi_calc)
         self.rb_math_roi.clicked.connect(self.update_spectrum)
-        self.rb_math_roi_img.clicked.connect(self.math_img_roi_flag)
+        self.pb_add_roi_2.clicked.connect(self.math_img_roi_flag)
         self.image_roi_math.sigRegionChangeFinished.connect(self.image_roi_calc)
         self.rb_poly_roi.clicked.connect(self.setImageROI)
         self.rb_elli_roi.clicked.connect(self.setImageROI)
@@ -584,6 +584,9 @@ class midasWindow(QtWidgets.QMainWindow):
         self.rectROI = pg.RectROI([int(self.dim3 // 2), int(self.dim2 // 2)],
                                   [self.sz, self.sz], pen='w')
 
+        self.rectROI.addTranslateHandle([0, 0], [2, 2])
+        self.rectROI.addRotateHandle([0, 1], [2, 2])
+
         self.ellipseROI = pg.EllipseROI([int(self.dim3 // 2), int(self.dim2 // 2)],
                                         [self.sz, self.sz], pen='w')
 
@@ -594,13 +597,18 @@ class midasWindow(QtWidgets.QMainWindow):
                                           pos=(int(self.dim3 // 2), int(self.dim2 // 2)),
                                           maxBounds=QtCore.QRect(0, 0, self.dim3, self.dim2),
                                           closed=True, removable=True)
-        self.polyLineROI.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
+
+        # a second optional ROI for calculations follow
+        self.image_roi_math = pg.PolyLineROI([[0, 0], [0, self.sz], [self.sz, self.sz], [self.sz, 0]],
+                                             pos=(int(self.dim3 // 3), int(self.dim2 // 3)),
+                                             pen='r', closed=True, removable=True)
+
+
 
         self.rois = {'rb_line_roi': self.lineROI, 'rb_rect_roi': self.rectROI, 'rb_circle_roi': self.circleROI,
                      'rb_elli_roi': self.ellipseROI, 'rb_poly_roi': self.polyLineROI}
 
         button_name = self.sender()
-
 
         if button_name.objectName() in self.rois.keys():
             self.roi_preference = button_name.objectName()
@@ -617,8 +625,6 @@ class midasWindow(QtWidgets.QMainWindow):
         # ROI settings for image, used polyline roi with non rectangular shape
 
         self.image_roi = self.rois[self.roi_preference]
-        # self.image_roi.addTranslateHandle([self.sz // 2, self.sz // 2], [2, 2])
-
         self.image_view.addItem(self.image_roi)
         self.image_roi.sigRegionChanged.connect(self.update_spectrum)
 
@@ -707,7 +713,6 @@ class midasWindow(QtWidgets.QMainWindow):
             self.rb_math_roi.setStyleSheet("color : green")
             self.spectrum_view.addItem(self.spec_roi_math)
         else:
-            self.rb_math_roi.setStyleSheet("color : red")
             self.spectrum_view.removeItem(self.spec_roi_math)
 
     def spec_roi_calc(self):
@@ -737,16 +742,25 @@ class midasWindow(QtWidgets.QMainWindow):
             self.image_view.setImage(self.disp_img)
 
     def math_img_roi_flag(self):
-        if self.rb_math_roi_img.isChecked():
-            self.rb_math_roi_img.setStyleSheet("color : green")
+
+        button_name = self.sender().text()
+
+        if button_name == 'Add ROI_2':
             self.image_view.addItem(self.image_roi_math)
-        else:
-            self.rb_math_roi_img.setStyleSheet("color : red")
+            self.pb_add_roi_2.setText("Remove ROI_2")
+            self.image_roi2_flag = True
+        elif button_name == 'Remove ROI_2':
             self.image_view.removeItem(self.image_roi_math)
+            self.pb_add_roi_2.setText("Add ROI_2")
+            self.image_roi2_flag = False
+
+        else:
+            pass
+            logger.error('Unknown signal for second ROI')
 
     def image_roi_calc(self):
 
-        if self.rb_math_roi_img.isChecked():
+        if self.image_roi2_flag is True:
             self.calc = {'Divide': np.divide, 'Subtract': np.subtract, 'Add': np.add}
             ref_region = self.image_roi_math.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
             ref_reg_avg = ref_region[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean()
@@ -803,7 +817,8 @@ class midasWindow(QtWidgets.QMainWindow):
     def getROIMask(self):
         self.roi_mask = self.image_roi.getArrayRegion(self.updated_stack, self.image_view.imageItem,
                                                       axes=(1, 2))
-        pg.image(self.roi_mask)
+        self.newWindow = singleStackViewer(self.roi_mask)
+        self.newWindow.show()
 
     def save_stack(self):
 
@@ -915,7 +930,6 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def thread_complete(self):
         print("THREAD COMPLETE!")
-
 
 class WorkerSignals(QObject):
     '''

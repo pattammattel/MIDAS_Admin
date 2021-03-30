@@ -1109,8 +1109,8 @@ color: rgb(255, 0, 127);
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>329</width>
-            <height>245</height>
+            <width>405</width>
+            <height>374</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1247,8 +1247,8 @@ color: rgb(255, 0, 127);
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>329</width>
-            <height>245</height>
+            <width>405</width>
+            <height>374</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1640,7 +1640,7 @@ color: rgb(255, 0, 127);
                 <enum>Qt::LeftToRight</enum>
                </property>
                <property name="text">
-                <string>Add Math ROI</string>
+                <string>Add ROI_2</string>
                </property>
               </widget>
              </item>
@@ -1675,12 +1675,12 @@ color: rgb(255, 0, 127);
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QPushButton" name="pb_reset_roi_2">
+              <widget class="QPushButton" name="pb_add_roi_2">
                <property name="styleSheet">
                 <string notr="true">background-color: rgb(175, 236, 255);</string>
                </property>
                <property name="text">
-                <string>Reset</string>
+                <string>Add ROI_2</string>
                </property>
               </widget>
              </item>
@@ -1691,13 +1691,6 @@ color: rgb(255, 0, 127);
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QPushButton" name="pb_get_roi_mask">
-               <property name="text">
-                <string>Get Mask</string>
                </property>
               </widget>
              </item>
@@ -1869,6 +1862,13 @@ color: rgb(255, 0, 127);</string>
               <widget class="QRadioButton" name="rb_line_roi">
                <property name="text">
                 <string>Line</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QPushButton" name="pb_show_roi">
+               <property name="text">
+                <string>Show ROI Stack</string>
                </property>
               </widget>
              </item>

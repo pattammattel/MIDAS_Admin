@@ -19,7 +19,6 @@ class WorkerSignals(QObject):
     error = pyqtSignal(tuple)
     result = pyqtSignal(object)
 
-
 class Worker(QRunnable):
     '''
     Worker thread
@@ -41,7 +40,6 @@ class Worker(QRunnable):
         # Retrieve args/kwargs here; and fire processing using them
         try:
             result = self.fn(*self.args, **self.kwargs)
-            print(result)
         except:
             traceback.print_exc()
             exctype, value = sys.exc_info()[:2]
@@ -78,7 +76,7 @@ class MainWindow(QMainWindow):
 
     def align_image(self):
         self.al_img = align_simple(self.image)
-        return self.al_img
+        #return self.al_img
 
     def print_output(self, s):
         print(s)

@@ -23,14 +23,23 @@ class singleStackViewer(QtWidgets.QMainWindow):
         # Load the UI Page
         uic.loadUi('uis/singleStackView.ui', self)
 
-        self.img_stack = img_stack
-        self.displayStack()
-
-    def displayStack(self):
-        self.image_view.setImage(self.img_stack)
         self.image_view.setPredefinedGradient('viridis')
         self.image_view.ui.menuBtn.hide()
         self.image_view.ui.roiBtn.hide()
+
+        self.img_stack = img_stack
+        self.dim1, self.dim3, self.dim2 = img_stack.shape
+        self.hs_img_stack.setMaximum(self.dim1-1)
+        self.hs_img_stack.setValue(int(self.dim1/2))
+        self.displayStack()
+
+        #connections
+        self.hs_img_stack.valueChanged.connect(self.displayStack)
+
+    def displayStack(self):
+        im_index = self.hs_img_stack.value()
+        self.image_view.setImage(self.img_stack[im_index])
+        self.label_img_count.setText(f'{im_index}/{self.dim1-1}')
 
     def saveImageStackAsTIFF(self):
         file_name = QFileDialog().getSaveFileName(self, "", '', 'data(*tiff *tif *txt *png )')

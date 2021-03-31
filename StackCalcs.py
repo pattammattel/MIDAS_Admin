@@ -522,9 +522,10 @@ def modifyStack(raw_stack, normalizeStack = False, normToPoint = -1,
 
 
     ''' A giant function to modify the stack with many possible operations.
-        all the changes can be saved to a jason file as a config file'''
+        all the changes can be saved to a jason file as a config file. Enabling and
+        distabling the sliders is a problem'''
 
-
+    '''
     normStack = normalize(raw_stack, norm_point=normToPoint)
     smoothStack = smoothen(raw_stack, w_size= smoothWindowSize)
     thresholdStack = clean_stack(raw_stack, auto_bg=False, bg_percentage = thresholdValue)
@@ -533,5 +534,45 @@ def modifyStack(raw_stack, normalizeStack = False, normToPoint = -1,
     croppedStack = raw_stack[cropVals]
     edgeStack = remove_edges(raw_stack)
     binnedStack = resize_stack(raw_stack,upscaling=upScaling,scaling_factor=binFactor)
+    
+    '''
+
+    if removeOutliers:
+        modStack = remove_hot_pixels(raw_stack, NSigma=nSigmaOutlier)
+
+    else:
+        modStack = raw_stack
+
+    if applyThreshold:
+        modStack = clean_stack(modStack, auto_bg=False, bg_percentage=thresholdValue)
+
+    else:
+        pass
+
+    if applySmooth:
+        modStack = smoothen(modStack, w_size=smoothWindowSize)
+
+    else:
+        pass
+
+    if applyTranspose:
+        modStack = np.transpose(modStack, transposeVals)
+
+    else:
+        pass
+
+    if applyCrop:
+        modStack = modStack[cropVals]
+
+    else:
+        pass
+
+    if normalizeStack:
+        modStack = normalize(raw_stack, norm_point=normToPoint)
+    else:
+        modStack = raw_stack
+
+
+
 
 

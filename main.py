@@ -430,6 +430,7 @@ class midasWindow(QtWidgets.QMainWindow):
             raise ValueError("stack should be an ndarray with ndim == 3")
         else:
             self.update_stack()
+            #self.StackUpdateThread()
 
         try:
             self.image_view.removeItem(self.image_roi_math)
@@ -886,6 +887,16 @@ class midasWindow(QtWidgets.QMainWindow):
         except OverflowError:
             pass
             logger.error('Overflow Error, values are too long')
+
+    def kmeans_elbow_Thread(self):
+        # Pass the function to execute
+        worker = Worker(self.kmeans_elbow)  # Any other args, kwargs are passed to the run function
+        worker.signals.result.connect(self.print_output)
+        worker.signals.finished.connect(self.thread_complete)
+        # Execute
+        self.threadpool.start(worker)
+
+
 
     def clustering_(self):
 

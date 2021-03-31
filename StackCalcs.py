@@ -511,18 +511,27 @@ def align_stack_iter(stack, ref_stack_void = True, ref_stack = None, transformat
     return np.float32(stack)
 
 
-def modifyStack(raw_stack, normalizeValues = False, normToPoint = -1,
+def modifyStack(raw_stack, normalizeStack = False, normToPoint = -1,
                 applySmooth = False, smoothWindowSize = 3,
                 applyThreshold = False, thresholdValue = 0,
                 removeOutliers = False, nSigmaOutlier = 3,
                 applyTranspose = False, transposeVals = (0,1,2),
-                applyCrop = False, cropVals = [], removeEdges = False,
-                resizeStack = False, upScaling = False, binFactor = 2,
-
+                applyCrop = False, cropVals = (0,1,2), removeEdges = False,
+                resizeStack = False, upScaling = False, binFactor = 2
                 ):
+
+
     ''' A giant function to modify the stack with many possible operations.
         all the changes can be saved to a jason file as a config file'''
 
-    pass
+
+    normStack = normalize(raw_stack, norm_point=normToPoint)
+    smoothStack = smoothen(raw_stack, w_size= smoothWindowSize)
+    thresholdStack = clean_stack(raw_stack, auto_bg=False, bg_percentage = thresholdValue)
+    outlierStack = remove_hot_pixels(raw_stack, NSigma=nSigmaOutlier)
+    transposeStack = np.transpose(raw_stack, transposeVals)
+    croppedStack = raw_stack[cropVals]
+    edgeStack = remove_edges(raw_stack)
+    binnedStack = resize_stack(raw_stack,upscaling=upScaling,scaling_factor=binFactor)
 
 

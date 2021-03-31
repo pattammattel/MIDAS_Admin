@@ -39,7 +39,7 @@ class singleStackViewer(QtWidgets.QMainWindow):
     def displayStack(self):
         im_index = self.hs_img_stack.value()
         self.image_view.setImage(self.img_stack[im_index])
-        self.label_img_count.setText(f'{im_index}/{self.dim1-1}')
+        self.label_img_count.setText(f'{im_index+1}/{self.dim1}')
 
     def saveImageStackAsTIFF(self):
         file_name = QFileDialog().getSaveFileName(self, "", '', 'data(*tiff *tif *txt *png )')
@@ -88,6 +88,7 @@ class ComponentViewer(QtWidgets.QMainWindow):
         self.component_view.setLabel('bottom','Energy')
         self.component_view.setLabel('left', 'Weight', 'A.U.')
         self.component_view.plot(self.energy,self.comp_spectra[:, im_index], clear=True)
+        self.label_comp_number.setText(f'{im_index+1}/{self.dim1}')
         # self.image_view.setCurrentIndex(im_index-1)
         self.image_view.setImage(self.comp_stack[im_index])
 
@@ -149,6 +150,7 @@ class ClusterViewer(QtWidgets.QMainWindow):
         self.component_view.plot(self.energy, self.decon_spectra[:, im_index], clear=True)
         # self.image_view.setCurrentIndex(im_index-1)
         self.image_view.setImage(self.decon_images[im_index])
+        self.label_comp_number.setText(f'{im_index + 1}/{self.dim1}')
 
     def save_clust_data(self):
         file_name = QFileDialog().getSaveFileName(self, "", '', 'data(*tiff *tif *txt *png )')

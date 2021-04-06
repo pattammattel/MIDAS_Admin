@@ -454,7 +454,10 @@ class midasWindow(QtWidgets.QMainWindow):
         self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
                                                     self.stack_center + self.stack_width))
 
-        logger.info('Spectrum ROI Added')
+        # a second optional ROI for calculations follow
+        self.image_roi_math = pg.PolyLineROI([[0, 0], [0, self.sz], [self.sz, self.sz], [self.sz, 0]],
+                                             pos=(int(self.dim3 // 3), int(self.dim2 // 3)),
+                                             pen='r', closed=True, removable=True)
 
         self.spec_roi_math = pg.LinearRegionItem(values=(self.stack_center - self.stack_width - 10,
                                                          self.stack_center + self.stack_width - 10), pen='r',
@@ -556,26 +559,26 @@ class midasWindow(QtWidgets.QMainWindow):
                                    pen=pg.mkPen(self.plt_colors[n - 1], width=2), name=self.ref_names[n])
 
     def getPointSpectrum(self, event):
+        if event.type() == QtCore.QEvent.MouseButtonDblClick:
+            if event.button() == QtCore.Qt.LeftButton:
+                self.xpixel = int(self.image_view.view.mapSceneToView(event.pos()).x()) - 1
+                zlim, xlim, ylim = self.updated_stack.shape
 
-        if event.button() == QtCore.Qt.LeftButton:
-            self.xpixel = int(self.image_view.view.mapSceneToView(event.pos()).x()) - 1
-            zlim, xlim, ylim = self.updated_stack.shape
+                if self.xpixel > xlim:
+                    self.xpixel = xlim - 1
 
-            if self.xpixel > xlim:
-                self.xpixel = xlim - 1
+                self.ypixel = int(self.image_view.view.mapSceneToView(event.pos()).y()) - 1
+                if self.ypixel > ylim:
+                    self.ypixel = ylim - 1
 
-            self.ypixel = int(self.image_view.view.mapSceneToView(event.pos()).y()) - 1
-            if self.ypixel > ylim:
-                self.ypixel = ylim - 1
+                self.spectrum_view.addLegend()
+                self.point_spectrum = self.updated_stack[:, self.xpixel, self.ypixel]
+                self.spectrum_view.plot(self.xdata, self.point_spectrum, clear=True, pen = pg.mkPen(pg.mkColor(85,255,255,255), width=2),
+                                        name=f'Point Spectrum; x= {self.xpixel}, y= {self.ypixel}')
 
-            self.spectrum_view.addLegend()
-            self.point_spectrum = self.updated_stack[:, self.xpixel, self.ypixel]
-            self.spectrum_view.plot(self.xdata, self.point_spectrum, clear=True,
-                                    name=f'Point Spectrum; x= {self.xpixel}, y= {self.ypixel}')
+                self.spectrum_view.addItem(self.spec_roi)
 
-            self.spectrum_view.addItem(self.spec_roi)
-
-            self.statusbar_main.showMessage(f'{self.xpixel} and {self.ypixel}')
+                self.statusbar_main.showMessage(f'{self.xpixel} and {self.ypixel}')
 
     def setImageROI(self):
 
@@ -598,12 +601,6 @@ class midasWindow(QtWidgets.QMainWindow):
                                           pos=(int(self.dim3 // 2), int(self.dim2 // 2)),
                                           maxBounds=QtCore.QRect(0, 0, self.dim3, self.dim2),
                                           closed=True, removable=True)
-
-        # a second optional ROI for calculations follow
-        self.image_roi_math = pg.PolyLineROI([[0, 0], [0, self.sz], [self.sz, self.sz], [self.sz, 0]],
-                                             pos=(int(self.dim3 // 3), int(self.dim2 // 3)),
-                                             pen='r', closed=True, removable=True)
-
 
 
         self.rois = {'rb_line_roi': self.lineROI, 'rb_rect_roi': self.rectROI, 'rb_circle_roi': self.circleROI,
@@ -749,11 +746,11 @@ class midasWindow(QtWidgets.QMainWindow):
         if button_name == 'Add ROI_2':
             self.image_view.addItem(self.image_roi_math)
             self.pb_add_roi_2.setText("Remove ROI_2")
-            self.image_roi2_flag = True
+            self.image_roi2_flag = 1
         elif button_name == 'Remove ROI_2':
             self.image_view.removeItem(self.image_roi_math)
             self.pb_add_roi_2.setText("Add ROI_2")
-            self.image_roi2_flag = False
+            self.image_roi2_flag = 0
 
         else:
             pass
@@ -761,19 +758,11 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def image_roi_calc(self):
 
-        if self.image_roi2_flag is True:
+        if self.image_roi2_flag == 1:
             self.calc = {'Divide': np.divide, 'Subtract': np.subtract, 'Add': np.add}
-            ref_region = self.image_roi_math.getArrayRegion(self.updated_stack, self.image_view.imageItem, axes=(1, 2))
-            ref_reg_avg = ref_region[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean()
-            currentImage = self.updated_stack[int(self.spec_lo_idx):int(self.spec_hi_idx), :, :].mean(0)
-            if self.calc[self.cb_img_roi_action.currentText()] == 'Compare':
-                pass
-
-            else:
-                self.image_view.setImage(self.calc[self.cb_img_roi_action.currentText()]
-                                         (currentImage, (ref_reg_avg + currentImage * 0)))
             self.update_spec_image_roi()
         else:
+            logger.error("No ROI2 found")
             pass
 
     def update_spec_image_roi(self):
@@ -787,15 +776,24 @@ class midasWindow(QtWidgets.QMainWindow):
         elif self.roi_img_stk.ndim == 2:
             self.math_roi_spectra = self.math_roi_reg.mean(-1)
 
-        calc_spec = self.calc[self.cb_img_roi_action.currentText()](self.mean_spectra,
-                                                                    self.math_roi_spectra)
-        self.spectrum_view.addLegend()
-        self.spectrum_view.plot(self.xdata, calc_spec, clear=True, pen='m',
-                                name=self.cb_img_roi_action.currentText() + "ed")
-        self.spectrum_view.plot(self.xdata, self.math_roi_spectra, pen='y',
-                                name="math_region")
-        self.spectrum_view.plot(self.xdata, self.mean_spectra, pen='g',
-                                name="raw")
+        if self.cb_img_roi_action.currentText() in self.calc.keys():
+
+            calc_spec = self.calc[self.cb_img_roi_action.currentText()](self.mean_spectra,
+                                                                        self.math_roi_spectra)
+            self.spectrum_view.addLegend()
+            self.spectrum_view.plot(self.xdata, calc_spec, clear=True, pen=pg.mkPen('m', width=2),
+                                    name=self.cb_img_roi_action.currentText() + "ed")
+            self.spectrum_view.plot(self.xdata, self.math_roi_spectra, pen=pg.mkPen('y', width=2),
+                                    name="ROI2")
+            self.spectrum_view.plot(self.xdata, self.mean_spectra, pen=pg.mkPen('g', width=2),
+                                    name="ROI1")
+
+        elif self.cb_img_roi_action.currentText() == 'Compare':
+            self.spectrum_view.plot(self.xdata, self.math_roi_spectra, pen=pg.mkPen('y', width=2),
+                                    clear = True, name="ROI2")
+            self.spectrum_view.plot(self.xdata, self.mean_spectra, pen=pg.mkPen('g', width=2),
+                                    name="ROI1")
+
 
         self.spectrum_view.addItem(self.spec_roi)
 
@@ -895,8 +893,6 @@ class midasWindow(QtWidgets.QMainWindow):
         worker.signals.finished.connect(self.thread_complete)
         # Execute
         self.threadpool.start(worker)
-
-
 
     def clustering_(self):
 

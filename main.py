@@ -62,6 +62,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
         # alignment
         self.pb_alignStack.clicked.connect(self.StackRegThread)
+        #self.pb_alignStack.clicked.connect(self.stackRegistration)
 
         # save_options
         self.pb_save_disp_img.clicked.connect(self.save_disp_img)
@@ -310,15 +311,12 @@ class midasWindow(QtWidgets.QMainWindow):
 
         else:
 
-            self.aligned_stack, self.tranform_file = align_stack(self.updated_stack,
+            self.updated_stack, self.tranform_file = align_stack(self.updated_stack,
                                                                  ref_image_void=self.alignRefStackVoid,
                                                                  ref_stack=None, transformation=self.transformType,
                                                                  reference=self.alignReferenceImage,
                                                                  )
 
-        self.updated_stack = self.aligned_stack
-        #self.update_image_roi()
-        self.replot_image()
 
     def StackRegThread(self):
         # Pass the function to execute
@@ -327,6 +325,7 @@ class midasWindow(QtWidgets.QMainWindow):
         worker.signals.finished.connect(self.thread_complete)
         # Execute
         self.threadpool.start(worker)
+        self.update_image_roi()
 
     def update_stack(self):
 

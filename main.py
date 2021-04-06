@@ -284,6 +284,13 @@ class midasWindow(QtWidgets.QMainWindow):
         file_name = (str(filename[0]))
         self.alignTransform = np.loadtxt(filename)
 
+    def loadAlignRefImage(self):
+        filename = QFileDialog().getOpenFileName(self, "Image Data", '', '*.tiff *.tif')
+        file_name = (str(filename[0]))
+        self.alignRefImage = tf.imread(file_name).transpose(0, 2, 1)
+        assert self.alignRefImage.shape == self.updated_stack.shape, "Image dimensions do not match"
+
+
     def stackRegistration(self):
 
         self.transformations = {
@@ -305,13 +312,29 @@ class midasWindow(QtWidgets.QMainWindow):
                                                  transformation=self.transformType)
         elif self.cb_iterAlign.isChecked():
 
-            self.aligned_stack = align_stack_iter(self.updated_stack, ref_stack_void=self.alignRefStackVoid,
-                                                  ref_stack=None, transformation=self.transformType,
-                                                  method=('previous', 'first'), max_iter=self.alignMaxIter)
+            if self.alignRefStackVoid:
+
+                self.aligned_stack = align_stack_iter(self.updated_stack, ref_stack_void=True,
+                                                      ref_stack=self.alignRefImage, transformation=self.transformType,
+                                                      method=('previous', 'first'), max_iter=self.alignMaxIter)
+            elif not self.alignRefStackVoid:
+
+                self.aligned_stack = align_stack_iter(self.updated_stack, ref_stack_void=False,
+                                                      ref_stack=self.alignRefImage, transformation=self.transformType,
+                                                      method=('previous', 'first'), max_iter=self.alignMaxIter)
 
         else:
+            if self.alignRefStackVoid:
 
-            self.updated_stack, self.tranform_file = align_stack(self.updated_stack,
+                self.updated_stack, self.tranform_file = align_stack(self.updated_stack,
+                                                                 ref_image_void=True,
+                                                                 ref_stack=self.alignRefImage, transformation=self.transformType,
+                                                                 reference=self.alignReferenceImage,
+                                                                 )
+
+            elif not self.alignRefStackVoid:
+
+                self.updated_stack, self.tranform_file = align_stack(self.updated_stack,
                                                                  ref_image_void=self.alignRefStackVoid,
                                                                  ref_stack=None, transformation=self.transformType,
                                                                  reference=self.alignReferenceImage,

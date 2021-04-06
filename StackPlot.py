@@ -35,6 +35,7 @@ class singleStackViewer(QtWidgets.QMainWindow):
 
         #connections
         self.hs_img_stack.valueChanged.connect(self.displayStack)
+        self.actionSave.clicked.connect(self.saveImageStackAsTIFF)
 
     def displayStack(self):
         im_index = self.hs_img_stack.value()

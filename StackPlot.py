@@ -5,6 +5,7 @@ import pyqtgraph.exporters
 import numpy as np
 import os
 import logging
+from itertools import combinations
 
 from PyQt5 import QtWidgets,QtCore,QtGui, uic, QtTest
 from PyQt5.QtWidgets import QFileDialog
@@ -168,7 +169,7 @@ class ClusterViewer(QtWidgets.QMainWindow):
 
 
 class XANESViewer(QtWidgets.QMainWindow):
-
+    rfactorSignal = QtCore.pyqtSignal(float)
 
     def __init__(self, im_stack=None, e_list = None, refs = None, ref_names = None):
         super(XANESViewer, self).__init__()
@@ -240,10 +241,10 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.spectrum_view_refs.addLegend()
         for ii in range(self.inter_ref.shape[0]):
             if len(self.selected) != 0:
-                self.spectrum_view_refs.plot(self.xdata, self.inter_ref[ii], pen=self.plt_colors[ii],
+                self.spectrum_view_refs.plot(self.xdata, self.inter_ref[ii], pen=pg.mkPen(self.plt_colors[ii],width=2),
                                              name=self.selected[1:][ii])
             else:
-                self.spectrum_view_refs.plot(self.xdata, self.inter_ref[ii], pen=self.plt_colors[ii],
+                self.spectrum_view_refs.plot(self.xdata, self.inter_ref[ii], pen=pg.mkPen(self.plt_colors[ii],width=2),
                                              name="ref" + str(ii + 1))
 
     def choose_refs(self):
@@ -251,14 +252,13 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.ref_edit_window = RefChooser(self.ref_names)
         self.ref_edit_window.show()
         self.rf_list = []
-        self.rf_plot = pg.plot(title="RFactor Tracker")
+        #self.rf_plot = pg.plot(title="RFactor Tracker")
         self.ref_edit_window.signal.connect(self.update_refs)
 
     def update_refs(self,list_):
         self.selected = list_ # list_ is the signal from ref chooser
         self.update_spectrum()
-        self.re_fit_xanes()
-        self.plotRFactors()
+        self.re_fit_xanes() #emits r factor
 
     def update_spectrum(self):
 
@@ -297,23 +297,24 @@ class XANESViewer(QtWidgets.QMainWindow):
 
         self.le_r_sq.setText(str(np.around(r / self.ydata1.sum(), 4)))
 
-
+    QtCore.pyqtSlot()
     def re_fit_xanes(self):
         if len(self.selected) != 0:
             self.decon_ims, self.rfactor = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
                                        self.refs[self.selected], method='NNLS')
         else:
+            #if non athena file with no header is loaded no ref file cannot be edited
             self.decon_ims,self.rfactor  = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
                                        self.refs, method='NNLS')
 
         self.rfactor_mean = np.mean(self.rfactor)
+        self.rfactorSignal.emit(self.rfactor_mean)
         self.image_view_maps.setImage(self.decon_ims.transpose(2,0,1))
         self.scrollBar_setup()
 
     def plotRFactors(self):
         self.rf_list.append(self.rfactor_mean)
         self.rf_plot.plot(self.rf_list, clear = True)
-
 
     def save_chem_map(self):
         file_name = QFileDialog().getSaveFileName(self, "save image", '', 'image data (*tiff)')
@@ -349,43 +350,44 @@ class RefChooser(QtWidgets.QMainWindow):
         uic.loadUi('uis/RefChooser.ui', self)
         self.ref_names = ref_names
         self.all_boxes = []
+        self.rFactorList = []
 
         for n, i in enumerate(self.ref_names):
-            self.cb_i = QtWidgets.QCheckBox(self.centralwidget)
+            self.cb_i = QtWidgets.QCheckBox(self.ref_box_frame)
             if n == 0:
                 self.cb_i.setChecked(True)
                 self.cb_i.setEnabled(False)
             self.cb_i.setObjectName(i)
             self.cb_i.setText(i)
-            self.gridLayout.addWidget(self.cb_i, n, 0, 1, 1)
+            self.gridLayout_2.addWidget(self.cb_i, n, 0, 1, 1)
             self.cb_i.toggled.connect(self.enableApply)
             self.all_boxes.append(self.cb_i)
 
-        self.pb_apply = QtWidgets.QPushButton(self.centralwidget)
+        self.pb_apply = QtWidgets.QPushButton(self.ref_box_frame)
         self.pb_apply.setSizePolicy(QtWidgets.QSizePolicy.Fixed,QtWidgets.QSizePolicy.Fixed)
         self.pb_apply.setText("Apply")
-        self.gridLayout.addWidget(self.pb_apply, len(self.ref_names) + 1, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.pb_apply, len(self.ref_names) + 1, 0, 1, 1)
         self.pb_apply.setEnabled(False)
 
-        self.pb_combo = QtWidgets.QPushButton(self.centralwidget)
+        self.pb_combo = QtWidgets.QPushButton(self.ref_box_frame)
         self.pb_combo.setText("Try All Combinations")
         self.pb_combo.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.gridLayout.addWidget(self.pb_combo, len(self.ref_names) + 2, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.pb_combo, len(self.ref_names) + 2, 0, 1, 1)
 
-        self.lb = QtWidgets.QLabel(self.centralwidget)
+        self.lb = QtWidgets.QLabel(self.ref_box_frame)
         self.lb.setText("Combo of:")
         self.lb.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.gridLayout.addWidget(self.lb, len(self.ref_names) + 2, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.lb, len(self.ref_names) + 2, 1, 1, 1)
 
         self.sb_max_combo = QtWidgets.QSpinBox(self.centralwidget)
         self.sb_max_combo.setValue(2)
         self.sb_max_combo.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.gridLayout.addWidget(self.sb_max_combo, len(self.ref_names) + 2, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.sb_max_combo, len(self.ref_names) + 2, 2, 1, 1)
 
-        self.sb_time_delay = QtWidgets.QSpinBox(self.centralwidget)
+        self.sb_time_delay = QtWidgets.QSpinBox(self.ref_box_frame)
         self.sb_time_delay.setValue(2)
         self.sb_time_delay.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.gridLayout.addWidget(self.sb_time_delay, len(self.ref_names) + 2, 4, 1, 1)
+        self.gridLayout_2.addWidget(self.sb_time_delay, len(self.ref_names) + 2, 4, 1, 1)
 
         self.pb_apply.clicked.connect(self.clickedWhichAre)
         self.pb_combo.clicked.connect(self.tryAllCombo)
@@ -407,7 +409,7 @@ class RefChooser(QtWidgets.QMainWindow):
 
     QtCore.pyqtSlot()
     def tryAllCombo(self):
-        from itertools import combinations
+
         self.iter_list = list(combinations(self.ref_names[1:],self.sb_max_combo.value()))
 
         for n, refs in enumerate(self.iter_list):
@@ -416,13 +418,19 @@ class RefChooser(QtWidgets.QMainWindow):
             QtTest.QTest.qWait(self.sb_time_delay.value()*1000)
 
 
+    def getRFactor(self):
+        XANESViewer.rfactorSignal.connect(self.plotRFactor)
+
+    def plotRFactor(self, rfactor):
+        self.rFactorList.append(rfactor)
+        self.rfactor_plot.setData(self.rFactorList)
+
     def enableApply(self):
         self.populateChecked()
         if len(self.onlyCheckedBoxes)>1:
             self.pb_apply.setEnabled(True)
         else:
             self.pb_apply.setEnabled(False)
-
 
 class ScatterPlot(QtWidgets.QMainWindow):
 

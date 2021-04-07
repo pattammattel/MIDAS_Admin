@@ -559,7 +559,7 @@ border-radius: 4px;
             <x>0</x>
             <y>0</y>
             <width>411</width>
-            <height>351</height>
+            <height>311</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1234,7 +1234,7 @@ border-radius: 4px;
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>395</width>
+            <width>420</width>
             <height>344</height>
            </rect>
           </property>
@@ -1467,15 +1467,15 @@ border-radius: 4px;
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="page_5">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>395</width>
-            <height>331</height>
+            <width>420</width>
+            <height>268</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1608,8 +1608,8 @@ border-radius: 4px;
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>395</width>
-            <height>331</height>
+            <width>308</width>
+            <height>185</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1729,8 +1729,8 @@ border-radius: 4px;
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>395</width>
-            <height>331</height>
+            <width>420</width>
+            <height>268</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1846,7 +1846,7 @@ border-radius: 4px;
      <x>0</x>
      <y>0</y>
      <width>1370</width>
-     <height>27</height>
+     <height>34</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuManual">

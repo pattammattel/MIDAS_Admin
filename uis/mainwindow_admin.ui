@@ -10,8 +10,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1454</width>
-    <height>1104</height>
+    <width>1370</width>
+    <height>1034</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,67 +24,8 @@
    <string>NSLS-II MIDAS</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QSlider::groove:horizontal {
-border: 1px solid #bbb;
-background: white;
-height: 10px;
-border-radius: 4px;
-}
-
-QSlider::sub-page:horizontal {
-background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,
-    stop: 0 #66e, stop: 1 #bbf);
-background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
-    stop: 0 #bbf, stop: 1 #55f);
-border: 1px solid #777;
-height: 10px;
-border-radius: 4px;
-}
-
-QSlider::add-page:horizontal {
-background: #fff;
-border: 1px solid #777;
-height: 10px;
-border-radius: 4px;
-}
-
-QSlider::handle:horizontal {
-background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-    stop:0 #eee, stop:1 #ccc);
-border: 1px solid #777;
-width: 13px;
-margin-top: -2px;
-margin-bottom: -2px;
-border-radius: 4px;
-}
-
-QSlider::handle:horizontal:hover {
-background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-    stop:0 #fff, stop:1 #ddd);
-border: 1px solid #444;
-border-radius: 2px;
-}
-
-QSlider::sub-page:horizontal:disabled {
-background: #bbb;
-border-color: #999;
-}
-
-QSlider::add-page:horizontal:disabled {
-background: #eee;
-border-color: #999;
-}
-
-QSlider::handle:horizontal:disabled {
-background: #eee;
-border: 1px solid #aaa;
-border-radius: 4px;
-}
-
-QPushButton {
-background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-}</string>
+   <string notr="true">font: 12pt &quot;Segoe UI&quot;;
+</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="enabled">
@@ -97,7 +38,13 @@ color: rgb(255, 0, 127);
     </sizepolicy>
    </property>
    <property name="styleSheet">
-    <string notr="true">font: 12pt &quot;Segoe UI&quot;;
+    <string notr="true">
+
+
+QPushButton {
+background-color: rgb(175, 236, 255);
+color: rgb(255, 5,0);
+}
 
 QSlider::groove:horizontal {
 border: 1px solid #bbb;
@@ -156,10 +103,7 @@ border: 1px solid #aaa;
 border-radius: 4px;
 }
 
-QPushButton {
-background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-}</string>
+</string>
    </property>
    <layout class="QGridLayout" name="gridLayout_32">
     <item row="0" column="0">
@@ -197,7 +141,7 @@ color: rgb(255, 0, 127);
             <x>0</x>
             <y>0</y>
             <width>411</width>
-            <height>402</height>
+            <height>351</height>
            </rect>
           </property>
           <attribute name="label">
@@ -469,9 +413,7 @@ color: rgb(255, 0, 127);
                  <string>Adjust the dimensions of the image</string>
                 </property>
                 <property name="styleSheet">
-                 <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-</string>
+                 <string notr="true"/>
                 </property>
                 <property name="text">
                  <string>Update</string>
@@ -609,8 +551,8 @@ color: rgb(255, 0, 127);
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>329</width>
-            <height>503</height>
+            <width>334</width>
+            <height>423</height>
            </rect>
           </property>
           <attribute name="label">
@@ -874,8 +816,8 @@ color: rgb(255, 0, 127);
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>405</width>
-            <height>374</height>
+            <width>420</width>
+            <height>344</height>
            </rect>
           </property>
           <attribute name="label">
@@ -901,7 +843,7 @@ color: rgb(255, 0, 127);
               <item row="1" column="0">
                <layout class="QHBoxLayout" name="horizontalLayout_14">
                 <item>
-                 <widget class="QPushButton" name="pushButton_3">
+                 <widget class="QPushButton" name="pb_load_align_ref">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -916,7 +858,7 @@ color: rgb(255, 0, 127);
                 <item>
                  <widget class="QCheckBox" name="rb_alignRefVoid">
                   <property name="text">
-                   <string>Skip</string>
+                   <string>No Ref. Available</string>
                   </property>
                   <property name="checked">
                    <bool>true</bool>
@@ -1087,9 +1029,7 @@ color: rgb(255, 0, 127);
           </sizepolicy>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-</string>
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>Reset Image</string>
@@ -1102,15 +1042,15 @@ color: rgb(255, 0, 127);
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="page_5">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>329</width>
-            <height>244</height>
+            <width>334</width>
+            <height>252</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1128,9 +1068,7 @@ color: rgb(255, 0, 127);
                 </sizepolicy>
                </property>
                <property name="styleSheet">
-                <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>Calculate Components</string>
@@ -1146,9 +1084,7 @@ color: rgb(255, 0, 127);
                 </sizepolicy>
                </property>
                <property name="styleSheet">
-                <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>PCA Scree Plot</string>
@@ -1247,8 +1183,8 @@ color: rgb(255, 0, 127);
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>329</width>
-            <height>244</height>
+            <width>334</width>
+            <height>189</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1266,9 +1202,7 @@ color: rgb(255, 0, 127);
                 </sizepolicy>
                </property>
                <property name="styleSheet">
-                <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>Calculate Clusters</string>
@@ -1284,9 +1218,7 @@ color: rgb(255, 0, 127);
                 </sizepolicy>
                </property>
                <property name="styleSheet">
-                <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>KMeans Variance Plot</string>
@@ -1372,8 +1304,8 @@ color: rgb(255, 0, 127);
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>329</width>
-            <height>244</height>
+            <width>334</width>
+            <height>193</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1398,9 +1330,7 @@ color: rgb(255, 0, 127);
                 </sizepolicy>
                </property>
                <property name="styleSheet">
-                <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>Load Energy List</string>
@@ -1416,9 +1346,7 @@ color: rgb(255, 0, 127);
                 </sizepolicy>
                </property>
                <property name="styleSheet">
-                <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>Load Ref. Spec.</string>
@@ -1437,8 +1365,7 @@ color: rgb(255, 0, 127);
              <item row="1" column="2">
               <widget class="QPushButton" name="pb_plot_refs">
                <property name="styleSheet">
-                <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>Plot</string>
@@ -1457,9 +1384,7 @@ color: rgb(255, 0, 127);</string>
                 </sizepolicy>
                </property>
                <property name="styleSheet">
-                <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);
-</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string> Fit</string>
@@ -1637,7 +1562,7 @@ color: rgb(255, 0, 127);
              <item row="0" column="0">
               <widget class="QPushButton" name="pb_add_roi_2">
                <property name="styleSheet">
-                <string notr="true">background-color: rgb(175, 236, 255);</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>Add ROI_2</string>
@@ -1762,8 +1687,7 @@ color: rgb(255, 0, 127);
           <item row="13" column="0">
            <widget class="QPushButton" name="pb_save_disp_img">
             <property name="styleSheet">
-             <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>Save Current Image (.tiff)</string>
@@ -1786,8 +1710,7 @@ color: rgb(255, 0, 127);</string>
           <item row="14" column="0">
            <widget class="QPushButton" name="pb_save_disp_spec">
             <property name="styleSheet">
-             <string notr="true">background-color: rgb(175, 236, 255);
-color: rgb(255, 0, 127);</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>Save Current Spectrum (.txt)</string>
@@ -1915,8 +1838,8 @@ color: rgb(255, 0, 127);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1454</width>
-     <height>26</height>
+     <width>1370</width>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuManual">
@@ -1965,9 +1888,9 @@ color: rgb(255, 0, 127);</string>
      <property name="title">
       <string>Background</string>
      </property>
-     <addaction name="actionGray"/>
-     <addaction name="actionBlack_2"/>
-     <addaction name="actionWhite_2"/>
+     <addaction name="actionDefault"/>
+     <addaction name="actionDarkMode"/>
+     <addaction name="actionModern"/>
     </widget>
     <addaction name="menuBackground"/>
     <addaction name="menuPlot_Background"/>
@@ -2149,15 +2072,15 @@ color: rgb(255, 0, 127);</string>
     <string>Green</string>
    </property>
   </action>
-  <action name="actionGray">
+  <action name="actionDarkMode">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
-    <string>Gray</string>
+    <string>Dark Mode</string>
    </property>
   </action>
   <action name="actionBlack_2">
@@ -2165,9 +2088,20 @@ color: rgb(255, 0, 127);</string>
     <string>Black</string>
    </property>
   </action>
-  <action name="actionWhite_2">
+  <action name="actionDefault">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
    <property name="text">
-    <string>White</string>
+    <string>Default</string>
+   </property>
+  </action>
+  <action name="actionModern">
+   <property name="text">
+    <string>Modern</string>
    </property>
   </action>
  </widget>

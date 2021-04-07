@@ -27,6 +27,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.refs = refs
         self.alignTransform = []
         self.image_roi2_flag = False
+        self.refStackAvilable = False
 
         self.plt_colors = ['g', 'r', 'c', 'm', 'y', 'w', 'b',
                            pg.mkPen(70, 5, 80), pg.mkPen(255, 85, 130),
@@ -38,6 +39,8 @@ class midasWindow(QtWidgets.QMainWindow):
         self.actionExit.triggered.connect(self.close)
         self.actionOpen_in_GitHub.triggered.connect(self.open_github_link)
         self.actionLoad_Energy.triggered.connect(self.select_elist)
+        self.actionDarkMode.triggered.connect(self.darkMode)
+        self.actionDefault.triggered.connect(self.defaultMode)
         self.menuFile.setToolTipsVisible(True)
 
         self.actionOpen_Mask_Gen.triggered.connect(self.openMaskMaker)
@@ -61,6 +64,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_elist_xanes.clicked.connect(self.select_elist)
 
         # alignment
+        self.pb_load_align_ref.clicked.connect(self.loadAlignRefImage)
         self.pb_alignStack.clicked.connect(self.StackRegThread)
         #self.pb_alignStack.clicked.connect(self.stackRegistration)
 
@@ -81,6 +85,15 @@ class midasWindow(QtWidgets.QMainWindow):
 
         self.threadpool = QThreadPool()
         print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
+
+    #View Options
+    def darkMode(self):
+        self.centralwidget.setStyleSheet(open('darkStyle.css').read())
+
+    def defaultMode(self):
+        self.centralwidget.setStyleSheet(open('defaultStyle.css').read())
+
+    #File Loading
 
     def browse_file(self):
         """ To open a file widow and choose the data file.
@@ -193,6 +206,20 @@ class midasWindow(QtWidgets.QMainWindow):
 
         self.setStackParamsNDisplay()
 
+    def loadAlignTransfomation(self):
+        filename = QFileDialog().getOpenFileName(self, "TranformationMatrix", '', '.txt')
+        file_name = (str(filename[0]))
+        self.alignTransform = np.loadtxt(filename)
+
+    def loadAlignRefImage(self):
+        filename = QFileDialog().getOpenFileName(self, "Image Data", '', '*.tiff *.tif')
+        file_name = (str(filename[0]))
+        self.alignRefImage = tf.imread(file_name).transpose(0, 2, 1)
+        assert self.alignRefImage.shape == self.updated_stack.shape, "Image dimensions do not match"
+        self.refStackAvilable = True
+        self.rb_alignRefVoid.setChecked(False)
+        self.change_color_on_load(self.pb_load_align_ref)
+
     def setStackParamsNDisplay(self):
 
         """ Fill the stack dimensions to the GUI and set the image dimensions as max values.
@@ -266,6 +293,8 @@ class midasWindow(QtWidgets.QMainWindow):
         self.sb_yrange2.setMaximum(y)
         logger.info('Stack info has been updated')
 
+    #Image Transformations
+
     def crop_to_dim(self):
         self.x1, self.x2 = self.sb_xrange1.value(), self.sb_xrange2.value()
         self.y1, self.y2 = self.sb_yrange1.value(), self.sb_yrange2.value()
@@ -278,18 +307,6 @@ class midasWindow(QtWidgets.QMainWindow):
         self.updated_stack = self.updated_stack.T
         self.update_spectrum()
         self.update_spec_image_roi()
-
-    def loadAlignTransfomation(self):
-        filename = QFileDialog().getOpenFileName(self, "TranformationMatrix", '', '.txt')
-        file_name = (str(filename[0]))
-        self.alignTransform = np.loadtxt(filename)
-
-    def loadAlignRefImage(self):
-        filename = QFileDialog().getOpenFileName(self, "Image Data", '', '*.tiff *.tif')
-        file_name = (str(filename[0]))
-        self.alignRefImage = tf.imread(file_name).transpose(0, 2, 1)
-        assert self.alignRefImage.shape == self.updated_stack.shape, "Image dimensions do not match"
-
 
     def stackRegistration(self):
 
@@ -312,34 +329,26 @@ class midasWindow(QtWidgets.QMainWindow):
                                                  transformation=self.transformType)
         elif self.cb_iterAlign.isChecked():
 
-            if self.alignRefStackVoid:
+            if not self.refStackAvilable:
+                self.alignRefImage = self.updated_stack
+            else:
+                pass
 
-                self.aligned_stack = align_stack_iter(self.updated_stack, ref_stack_void=True,
-                                                      ref_stack=self.alignRefImage, transformation=self.transformType,
-                                                      method=('previous', 'first'), max_iter=self.alignMaxIter)
-            elif not self.alignRefStackVoid:
-
-                self.aligned_stack = align_stack_iter(self.updated_stack, ref_stack_void=False,
-                                                      ref_stack=self.alignRefImage, transformation=self.transformType,
-                                                      method=('previous', 'first'), max_iter=self.alignMaxIter)
+            self.aligned_stack = align_stack_iter(self.updated_stack, ref_stack_void=False,
+                                                    ref_stack=self.alignRefImage, transformation=self.transformType,
+                                                    method=('previous', 'first'), max_iter=self.alignMaxIter)
 
         else:
-            if self.alignRefStackVoid:
+            if not self.refStackAvilable:
+                self.alignRefImage = self.updated_stack
 
-                self.updated_stack, self.tranform_file = align_stack(self.updated_stack,
-                                                                 ref_image_void=True,
-                                                                 ref_stack=self.alignRefImage, transformation=self.transformType,
-                                                                 reference=self.alignReferenceImage,
-                                                                 )
+            else:
+                pass
 
-            elif not self.alignRefStackVoid:
-
-                self.updated_stack, self.tranform_file = align_stack(self.updated_stack,
-                                                                 ref_image_void=self.alignRefStackVoid,
-                                                                 ref_stack=None, transformation=self.transformType,
-                                                                 reference=self.alignReferenceImage,
-                                                                 )
-
+            self.updated_stack, self.tranform_file = align_stack(self.updated_stack, ref_image_void=True,
+                                                                 ref_stack=self.alignRefImage,
+                                                                 transformation=self.transformType,
+                                                                 reference=self.alignReferenceImage)
 
     def StackRegThread(self):
         # Pass the function to execute
@@ -934,7 +943,8 @@ class midasWindow(QtWidgets.QMainWindow):
         logger.info('Process complete')
 
     def change_color_on_load(self, button_name):
-        button_name.setStyleSheet("background-color : green")
+        button_name.setStyleSheet("background-color : rgb(0,150,0);"
+                                  "color: rgb(255,255,255)")
 
     def energyFileChooser(self):
         file_name = QFileDialog().getOpenFileName(self, "Open energy list", '', 'text file (*.txt)')

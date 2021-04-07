@@ -642,20 +642,22 @@ class midasWindow(QtWidgets.QMainWindow):
                                           [self.sz, self.sz]], pen='r')
 
         self.rectROI = pg.RectROI([int(self.dim3 // 2), int(self.dim2 // 2)],
-                                  [self.sz, self.sz], pen='w')
+                                  [self.sz, self.sz], pen='w',maxBounds=QtCore.QRectF(0, 0, self.dim3, self.dim2))
 
         self.rectROI.addTranslateHandle([0, 0], [2, 2])
         self.rectROI.addRotateHandle([0, 1], [2, 2])
 
         self.ellipseROI = pg.EllipseROI([int(self.dim3 // 2), int(self.dim2 // 2)],
-                                        [self.sz, self.sz], pen='w')
+                                        [self.sz, self.sz], pen='w',
+                                        maxBounds=QtCore.QRectF(0, 0, self.dim3, self.dim2))
 
         self.circleROI = pg.CircleROI([int(self.dim3 // 2), int(self.dim2 // 2)],
-                                      [self.sz, self.sz], pen='w')  # pos and size
+                                      [self.sz, self.sz], pen='w',
+                                      maxBounds=QtCore.QRectF(0, 0, self.dim3, self.dim2))  # pos and size
 
         self.polyLineROI = pg.PolyLineROI([[0, 0], [0, self.sz], [self.sz, self.sz], [self.sz, 0]],
                                           pos=(int(self.dim3 // 2), int(self.dim2 // 2)),
-                                          maxBounds=QtCore.QRect(0, 0, self.dim3, self.dim2),
+                                          maxBounds=QtCore.QRectF(0, 0, self.dim3, self.dim2),
                                           closed=True, removable=True)
 
 
@@ -668,7 +670,7 @@ class midasWindow(QtWidgets.QMainWindow):
             self.roi_preference = button_name.objectName()
 
         else:
-            self.roi_preference = 'rb_poly_roi'  # default
+            self.roi_preference = 'rb_rect_roi'  # default
 
         try:
             self.image_view.removeItem(self.image_roi)

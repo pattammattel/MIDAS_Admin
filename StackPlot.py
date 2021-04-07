@@ -36,7 +36,7 @@ class singleStackViewer(QtWidgets.QMainWindow):
 
         #connections
         self.hs_img_stack.valueChanged.connect(self.displayStack)
-        self.actionSave.clicked.connect(self.saveImageStackAsTIFF)
+        self.actionSave.triggered.connect(self.saveImageStackAsTIFF)
 
     def displayStack(self):
         im_index = self.hs_img_stack.value()
@@ -363,32 +363,6 @@ class RefChooser(QtWidgets.QMainWindow):
             self.cb_i.toggled.connect(self.enableApply)
             self.all_boxes.append(self.cb_i)
 
-        self.pb_apply = QtWidgets.QPushButton(self.ref_box_frame)
-        self.pb_apply.setSizePolicy(QtWidgets.QSizePolicy.Fixed,QtWidgets.QSizePolicy.Fixed)
-        self.pb_apply.setText("Apply")
-        self.gridLayout_2.addWidget(self.pb_apply, len(self.ref_names) + 1, 0, 1, 1)
-        self.pb_apply.setEnabled(False)
-
-        self.pb_combo = QtWidgets.QPushButton(self.ref_box_frame)
-        self.pb_combo.setText("Try All Combinations")
-        self.pb_combo.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.gridLayout_2.addWidget(self.pb_combo, len(self.ref_names) + 2, 0, 1, 1)
-
-        self.lb = QtWidgets.QLabel(self.ref_box_frame)
-        self.lb.setText("Combo of:")
-        self.lb.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.gridLayout_2.addWidget(self.lb, len(self.ref_names) + 2, 1, 1, 1)
-
-        self.sb_max_combo = QtWidgets.QSpinBox(self.centralwidget)
-        self.sb_max_combo.setValue(2)
-        self.sb_max_combo.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.gridLayout_2.addWidget(self.sb_max_combo, len(self.ref_names) + 2, 2, 1, 1)
-
-        self.sb_time_delay = QtWidgets.QSpinBox(self.ref_box_frame)
-        self.sb_time_delay.setValue(2)
-        self.sb_time_delay.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.gridLayout_2.addWidget(self.sb_time_delay, len(self.ref_names) + 2, 4, 1, 1)
-
         self.pb_apply.clicked.connect(self.clickedWhichAre)
         self.pb_combo.clicked.connect(self.tryAllCombo)
 
@@ -411,12 +385,14 @@ class RefChooser(QtWidgets.QMainWindow):
     def tryAllCombo(self):
 
         self.iter_list = list(combinations(self.ref_names[1:],self.sb_max_combo.value()))
-
+        tot_combo = len(self.iter_list)
         for n, refs in enumerate(self.iter_list):
-            self.statusbar.showMessage(f"{n+1}/{len(self.iter_list)}")
+            self.statusbar.showMessage(f"{n+1}/{tot_combo}")
+            self.fit_combo_progress.setValue((n+1)*100/tot_combo)
+            #emitting energy column+ref combination
             self.signal.emit(list((str(self.ref_names[0]),)+refs))
+            #without time delay no live plotting of the fit observed; process was okay
             QtTest.QTest.qWait(self.sb_time_delay.value()*1000)
-
 
     def getRFactor(self):
         XANESViewer.rfactorSignal.connect(self.plotRFactor)
@@ -426,11 +402,24 @@ class RefChooser(QtWidgets.QMainWindow):
         self.rfactor_plot.setData(self.rFactorList)
 
     def enableApply(self):
+
+        """  """
         self.populateChecked()
         if len(self.onlyCheckedBoxes)>1:
             self.pb_apply.setEnabled(True)
         else:
             self.pb_apply.setEnabled(False)
+
+class xanesFitStatView(QtWidgets.QMainWindow):
+    signal: pyqtSignal = QtCore.pyqtSignal(list)
+
+    def __init__(self, ref_names=[]):
+        super(xanesFitStatView, self).__init__()
+        uic.loadUi('uis/xanesFitStat.ui', self)
+        self.ref_names = ref_names
+        self.all_boxes = []
+        self.rFactorList = []
+
 
 class ScatterPlot(QtWidgets.QMainWindow):
 

@@ -432,9 +432,9 @@ border-radius: 4px;
              <item row="0" column="0" colspan="2">
               <layout class="QVBoxLayout" name="verticalLayout">
                <item>
-                <widget class="QRadioButton" name="rb_poly_roi">
+                <widget class="QRadioButton" name="rb_rect_roi">
                  <property name="text">
-                  <string>Polygon (default)</string>
+                  <string>Rectangle</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -442,9 +442,12 @@ border-radius: 4px;
                 </widget>
                </item>
                <item>
-                <widget class="QRadioButton" name="rb_rect_roi">
+                <widget class="QRadioButton" name="rb_poly_roi">
                  <property name="text">
-                  <string>Rectangle</string>
+                  <string>Polygon</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
@@ -559,7 +562,7 @@ border-radius: 4px;
             <x>0</x>
             <y>0</y>
             <width>411</width>
-            <height>311</height>
+            <height>351</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1608,8 +1611,8 @@ border-radius: 4px;
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>308</width>
-            <height>185</height>
+            <width>420</width>
+            <height>268</height>
            </rect>
           </property>
           <attribute name="label">

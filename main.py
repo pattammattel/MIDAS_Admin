@@ -25,9 +25,9 @@ class midasWindow(QtWidgets.QMainWindow):
         self.updated_stack = self.im_stack
         self.energy = energy
         self.refs = refs
-        self.alignTransform = []
+        self.loaded_tranform_file = []
         self.image_roi2_flag = False
-        self.refStackAvilable = False
+        self.refStackAvailable = False
 
         self.plt_colors = ['g', 'r', 'c', 'm', 'y', 'w', 'b',
                            pg.mkPen(70, 5, 80), pg.mkPen(255, 85, 130),
@@ -65,6 +65,8 @@ class midasWindow(QtWidgets.QMainWindow):
 
         # alignment
         self.pb_load_align_ref.clicked.connect(self.loadAlignRefImage)
+        self.pb_loadAlignTranform.clicked.connect(self.importAlignTransformation)
+        self.pb_saveAlignTranform.clicked.connect(self.exportAlignTransformation)
         self.pb_alignStack.clicked.connect(self.StackRegThread)
         #self.pb_alignStack.clicked.connect(self.stackRegistration)
 
@@ -206,20 +208,6 @@ class midasWindow(QtWidgets.QMainWindow):
 
         self.setStackParamsNDisplay()
 
-    def loadAlignTransfomation(self):
-        filename = QFileDialog().getOpenFileName(self, "TranformationMatrix", '', '.txt')
-        file_name = (str(filename[0]))
-        self.alignTransform = np.loadtxt(filename)
-
-    def loadAlignRefImage(self):
-        filename = QFileDialog().getOpenFileName(self, "Image Data", '', '*.tiff *.tif')
-        file_name = (str(filename[0]))
-        self.alignRefImage = tf.imread(file_name).transpose(0, 2, 1)
-        assert self.alignRefImage.shape == self.updated_stack.shape, "Image dimensions do not match"
-        self.refStackAvilable = True
-        self.rb_alignRefVoid.setChecked(False)
-        self.change_color_on_load(self.pb_load_align_ref)
-
     def setStackParamsNDisplay(self):
 
         """ Fill the stack dimensions to the GUI and set the image dimensions as max values.
@@ -308,6 +296,15 @@ class midasWindow(QtWidgets.QMainWindow):
         self.update_spectrum()
         self.update_spec_image_roi()
 
+    def loadAlignRefImage(self):
+        filename = QFileDialog().getOpenFileName(self, "Image Data", '', '*.tiff *.tif')
+        file_name = (str(filename[0]))
+        self.alignRefImage = tf.imread(file_name).transpose(0, 2, 1)
+        assert self.alignRefImage.shape == self.updated_stack.shape, "Image dimensions do not match"
+        self.refStackAvailable = True
+        self.rb_alignRefVoid.setChecked(False)
+        self.change_color_on_load(self.pb_load_align_ref)
+
     def stackRegistration(self):
 
         self.transformations = {
@@ -323,23 +320,31 @@ class midasWindow(QtWidgets.QMainWindow):
         self.alignRefStackVoid = self.rb_alignRefVoid.isChecked()
         self.alignMaxIter = self.sb_maxIterVal.value()
 
-        if self.alignTransform:
+        if self.cb_use_tmatFile.isChecked():
 
-            self.aligned_stack = align_with_tmat(self.updated_stack, tmat_file=self.alignTransform,
-                                                 transformation=self.transformType)
+            if len(self.loaded_tranform_file)>0:
+
+                self.updated_stack = align_with_tmat(self.updated_stack, tmat_file=self.loaded_tranform_file,
+                                                     transformation=self.transformType)
+                logger.info("Aligned to the tranform File")
+
+            else:
+                logger.error("No Tranformation File Loaded")
+
+
         elif self.cb_iterAlign.isChecked():
 
-            if not self.refStackAvilable:
+            if not self.refStackAvailable:
                 self.alignRefImage = self.updated_stack
             else:
                 pass
 
-            self.aligned_stack = align_stack_iter(self.updated_stack, ref_stack_void=False,
+            self.updated_stack = align_stack_iter(self.updated_stack, ref_stack_void=False,
                                                     ref_stack=self.alignRefImage, transformation=self.transformType,
                                                     method=('previous', 'first'), max_iter=self.alignMaxIter)
 
         else:
-            if not self.refStackAvilable:
+            if not self.refStackAvailable:
                 self.alignRefImage = self.updated_stack
 
             else:
@@ -349,6 +354,24 @@ class midasWindow(QtWidgets.QMainWindow):
                                                                  ref_stack=self.alignRefImage,
                                                                  transformation=self.transformType,
                                                                  reference=self.alignReferenceImage)
+            logger.info("New Tranformation file available")
+
+    def exportAlignTransformation(self):
+        file_name = QFileDialog().getSaveFileName(self, "Save Transformation File", 'TranformationMatrix.npy', 'text file (*.npy)')
+        if file_name[0]:
+            np.save(file_name[0], self.tranform_file)
+        else:
+            pass
+
+    def importAlignTransformation(self):
+        file_name = QFileDialog().getOpenFileName(self, "Open Transformation File", ' ',
+                                                  'text file (*.npy)')
+        if file_name[0]:
+            self.loaded_tranform_file = np.load(file_name[0])
+            self.cb_use_tmatFile.setChecked(True)
+            logger.info("Tranformation File Loaded")
+        else:
+            pass
 
     def StackRegThread(self):
         # Pass the function to execute
@@ -454,6 +477,8 @@ class midasWindow(QtWidgets.QMainWindow):
                                            norm_point=-1)
 
         logger.info(f'Updated image is in use')
+
+    #ImageView
 
     def view_stack(self):
 

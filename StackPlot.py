@@ -249,14 +249,16 @@ class XANESViewer(QtWidgets.QMainWindow):
         'Interactively exclude some standards from the reference file'
         self.ref_edit_window = RefChooser(self.ref_names,self.im_stack,self.e_list, self.refs, self.sb_e_shift.value())
         self.ref_edit_window.show()
-        self.rf_list = []
         #self.rf_plot = pg.plot(title="RFactor Tracker")
+
+        #connections
         self.ref_edit_window.choosenRefsSignal.connect(self.update_refs)
+        self.ref_edit_window.fitResultsSignal.connect(self.plotFitResults)
 
     def update_refs(self,list_):
         self.selected = list_ # list_ is the signal from ref chooser
         self.update_spectrum()
-        self.re_fit_xanes() #emits r factor
+        self.re_fit_xanes()
 
     def update_spectrum(self):
 
@@ -309,21 +311,14 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.image_view_maps.setImage(self.decon_ims.transpose(2,0,1))
         self.scrollBar_setup()
 
-    def slotForFitResults(self):
-        self.ref_edit_window.fitResultsSignal.connect(self.plotFitResults)
-
-    def plotFitResults(self,decon_ims, rfactor_mean, coeffs_arr):
+    def plotFitResults(self,decon_ims,rfactor_mean,coeff_array):
         #upadte the chem maps and scrollbar params
         self.image_view_maps.setImage(decon_ims.transpose(2, 0, 1))
-        self.hsb_chem_map.setValue(0)
-        self.hsb_chem_map.setMaximum(decon_ims.shape[-1]-1)
+        #self.hsb_chem_map.setValue(0)
+        #self.hsb_chem_map.setMaximum(decon_ims.shape[-1]-1)
 
         #set the rfactor value to the line edit slot
         self.le_r_sq.setText(f'{rfactor_mean :.4f}')
-
-    def plotRFactors(self):
-        self.rf_list.append(self.rfactor_mean)
-        self.rf_plot.plot(self.rf_list, clear = True)
 
     def save_chem_map(self):
         file_name = QFileDialog().getSaveFileName(self, "save image", '', 'image data (*tiff)')
@@ -352,7 +347,7 @@ class XANESViewer(QtWidgets.QMainWindow):
 
 class RefChooser(QtWidgets.QMainWindow):
     choosenRefsSignal: pyqtSignal = QtCore.pyqtSignal(list)
-    fitResultsSignal:pyqtSignal = QtCore.pyqtSignal(list,float,list)
+    fitResultsSignal: pyqtSignal = QtCore.pyqtSignal(np.ndarray, float, np.ndarray)
 
     def __init__(self, ref_names,im_stack,e_list, refs, e_shift):
         super(RefChooser, self).__init__()
@@ -397,33 +392,29 @@ class RefChooser(QtWidgets.QMainWindow):
         print(self.onlyCheckedBoxes)
         self.choosenRefsSignal.emit(self.onlyCheckedBoxes)
 
-    QtCore.pyqtSlot()
+    @QtCore.pyqtSlot()
     def tryAllCombo(self):
+        self.rfactor_list = []
 
         self.iter_list = list(combinations(self.ref_names[1:],self.sb_max_combo.value()))
         tot_combo = len(self.iter_list)
         for n, refs in enumerate(self.iter_list):
             self.statusbar.showMessage(f"{n+1}/{tot_combo}")
-            self.fit_combo_progress.setValue((n+1)*100/tot_combo)
-            print(refs)
-            self.re_fit_xanes(list(refs)) #emits signals to XANES Viewer
+            selectedRefs = (list((str(self.ref_names[0]),)+refs))
+            self.fit_combo_progress.setValue((n + 1) * 100 / tot_combo)
+            self.decon_ims, self.rfactor, self.coeffs_arr  = xanes_fitting(self.im_stack, self.e_list + self.e_shift,
+                                                                           self.refs[selectedRefs], method='NNLS')
+            #rfactor is a list of all spectra so take the mean
+            self.rfactor_mean = np.mean(self.rfactor)
+            #Send singals to XANESViewer for plotting
+            self.fitResultsSignal.emit(self.decon_ims,float(self.rfactor_mean),self.coeffs_arr)
+            self.rfactor_list.append(self.rfactor_mean)
+            self.stat_view.plot(self.rfactor_list, clear = True,title = 'R-Factor',
+                                pen = pg.mkPen('y', width=2, style=QtCore.Qt.DotLine), symbol='o')
+            #self.createFitResultDict(self.selected,self.coeffs_arr,self.rfactor_mean)
 
             #Sometines without time delay no live plotting of the fit observed; process was okay
             QtTest.QTest.qWait(self.sb_time_delay.value()*1000)
-
-    QtCore.pyqtSlot()
-    def re_fit_xanes(self, selectedRefs):
-        if len(selectedRefs) != 0:
-            self.decon_ims, self.rfactor, self.coeffs_arr  = xanes_fitting(self.im_stack, self.e_list + self.e_shift,
-                                       self.refs[selectedRefs], method='NNLS')
-
-        #rfactor is a list of all spectra so take the mean
-        self.rfactor_mean = np.mean(self.rfactor)
-
-        #Send singals to XANESViewer for plotting
-        self.fitResultsSignal.emit(self.decon_ims,self.rfactor, self.coeffs_arr)
-
-        self.createFitResultDict(self.selected,self.coeffs_arr,self.rfactor_mean)
 
     def createFitResultDict(self,ref_list,coeff_arr,rfactor):
 
@@ -442,14 +433,6 @@ class RefChooser(QtWidgets.QMainWindow):
 
         else:
             pass
-
-
-    def getRFactor(self):
-        XANESViewer.rfactorSignal.connect(self.plotRFactor)
-
-    def plotRFactor(self, rfactor):
-        self.rFactorList.append(rfactor)
-        self.rfactor_plot.setData(self.rFactorList)
 
     def enableApply(self):
 

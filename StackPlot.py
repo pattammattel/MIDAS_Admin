@@ -46,7 +46,6 @@ class singleStackViewer(QtWidgets.QMainWindow):
         file_name = QFileDialog().getSaveFileName(self, "", '', 'data(*tiff *tif *txt *png )')
         tf.imsave(str(file_name[0]), np.float32(self.img_stack.transpose(0, 2, 1)))
 
-
 class ComponentViewer(QtWidgets.QMainWindow):
 
     def __init__(self,  comp_stack, energy, comp_spectra, decon_spectra, decomp_map):
@@ -111,7 +110,6 @@ class ComponentViewer(QtWidgets.QMainWindow):
 
     # add energy column
 
-
 class ClusterViewer(QtWidgets.QMainWindow):
 
     def __init__(self, decon_images, energy, X_cluster, decon_spectra):
@@ -166,14 +164,13 @@ class ClusterViewer(QtWidgets.QMainWindow):
             self.statusbar.showMessage("Saving Cancelled")
             pass
 
-
 class XANESViewer(QtWidgets.QMainWindow):
-    rfactorSignal = QtCore.pyqtSignal(float)
 
     def __init__(self, im_stack=None, e_list = None, refs = None, ref_names = None):
         super(XANESViewer, self).__init__()
 
         uic.loadUi('uis/XANESViewer.ui', self)
+        self.centralwidget.setStyleSheet(open('defaultStyle.css').read())
 
         self.im_stack = im_stack
         self.e_list = e_list
@@ -250,7 +247,7 @@ class XANESViewer(QtWidgets.QMainWindow):
 
     def choose_refs(self):
         'Interactively exclude some standards from the reference file'
-        self.ref_edit_window = RefChooser(self.ref_names)
+        self.ref_edit_window = RefChooser(self.ref_names,self.im_stack,self.e_list, self.refs, self.sb_e_shift.value())
         self.ref_edit_window.show()
         self.rf_list = []
         #self.rf_plot = pg.plot(title="RFactor Tracker")
@@ -300,37 +297,25 @@ class XANESViewer(QtWidgets.QMainWindow):
 
     def re_fit_xanes(self):
         if len(self.selected) != 0:
-            self.decon_ims, self.rfactor, self.coeffs_arr  = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
+            self.decon_ims, self.rfactor, self.coeffs_arr  = xanes_fitting(self.im_stack, self.e_list + self.e_shift,
                                        self.refs[self.selected], method='NNLS')
         else:
             #if non athena file with no header is loaded no ref file cannot be edited
-            self.decon_ims,self.rfactor, self.coeffs_arr = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
+            self.decon_ims,self.rfactor, self.coeffs_arr = xanes_fitting(self.im_stack, self.e_list + self.e_shift,
                                        self.refs, method='NNLS')
 
         #rfactor is a list of all spectra so take the mean
         self.rfactor_mean = np.mean(self.rfactor)
         self.image_view_maps.setImage(self.decon_ims.transpose(2,0,1))
         self.scrollBar_setup()
-        self.createFitResultDict(self.selected,self.coeffs_arr,self.rfactor_mean)
 
-    def createFitResultDict(self,ref_list,coeff_arr,rfactor):
+    def slotForFitResults(self):
+        self.ref_edit_window.fitResultsSignal.connect(self.plotFitResults)
 
-        """ create dictionary that contains ref used, fit results and r factor.
-        This will be used to generate interactive plots after fitting with a large library """
-        result = {'RFactor': rfactor, 'Coeffs': coeff_arr.tolist()}
-
-        self.fitResultDict[str(ref_list)] = result
-        #print(self.fitResultDict)
-
-    def exportFitResults(self):
-        file_name = QFileDialog().getSaveFileName(self, "save json", 'xanes_fit_results_log.json', 'image data (*json)')
-        if file_name[0]:
-            with open(str(file_name[0]), 'w') as fp:
-                json.dump(self.fitResultDict, fp, indent=4)
-
-        else:
-            pass
-
+    def plotFitResults(self,decon_ims, rfactor_mean, coeffs_arr):
+        self.image_view_maps.setImage(decon_ims.transpose(2, 0, 1))
+        self.hsb_chem_map.setValue(0)
+        self.hsb_chem_map.setMaximum(decon_ims.shape[-1]-1)
 
     def plotRFactors(self):
         self.rf_list.append(self.rfactor_mean)
@@ -361,14 +346,20 @@ class XANESViewer(QtWidgets.QMainWindow):
         file_name = QFileDialog().getSaveFileName(self, "save spectrum", '', 'spectrum and fit (*csv)')
         exporter.export(str(file_name[0])+'.csv')
 
-
 class RefChooser(QtWidgets.QMainWindow):
-    signal: pyqtSignal = QtCore.pyqtSignal(list)
+    choosenRefsSignal: pyqtSignal = QtCore.pyqtSignal(list)
+    fitResultsSignal:pyqtSignal = QtCore.pyqtSignal(np.array,float,list)
 
-    def __init__(self, ref_names=[]):
+    def __init__(self, ref_names,im_stack,e_list, refs, e_shift):
         super(RefChooser, self).__init__()
         uic.loadUi('uis/RefChooser.ui', self)
         self.ref_names = ref_names
+        self.refs = refs
+        self.im_stack = im_stack
+        self.e_list = e_list
+        self.e_shift = e_shift
+
+
         self.all_boxes = []
         self.rFactorList = []
 
@@ -399,20 +390,57 @@ class RefChooser(QtWidgets.QMainWindow):
     QtCore.pyqtSlot()
     def clickedWhichAre(self):
         self.populateChecked()
-        self.signal.emit(self.onlyCheckedBoxes)
+        self.choosenRefsSignal.emit(self.onlyCheckedBoxes)
 
     QtCore.pyqtSlot()
     def tryAllCombo(self):
 
         self.iter_list = list(combinations(self.ref_names[1:],self.sb_max_combo.value()))
         tot_combo = len(self.iter_list)
-        for n, refs in enumerate(self.iter_list):
+        for n, self.selected in enumerate(self.iter_list):
             self.statusbar.showMessage(f"{n+1}/{tot_combo}")
             self.fit_combo_progress.setValue((n+1)*100/tot_combo)
-            #emitting energy column+ref combination
-            self.signal.emit(list((str(self.ref_names[0]),)+refs))
-            #without time delay no live plotting of the fit observed; process was okay
+            self.re_fit_xanes() #emits signals to XANES Viewer
+
+            #Sometines without time delay no live plotting of the fit observed; process was okay
             QtTest.QTest.qWait(self.sb_time_delay.value()*1000)
+
+    QtCore.pyqtSlot()
+    def re_fit_xanes(self):
+        if len(self.selected) != 0:
+            self.decon_ims, self.rfactor, self.coeffs_arr  = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
+                                       self.refs[self.selected], method='NNLS')
+        else:
+            #if non athena file with no header is loaded no ref file cannot be edited
+            self.decon_ims,self.rfactor, self.coeffs_arr = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
+                                       self.refs, method='NNLS')
+
+        #rfactor is a list of all spectra so take the mean
+        self.rfactor_mean = np.mean(self.rfactor)
+
+        #Send singals to XANESViewer for plotting
+        self.fitResultsSignal.emit(self.decon_ims,self.rfactor, self.coeffs_arr)
+
+        self.createFitResultDict(self.selected,self.coeffs_arr,self.rfactor_mean)
+
+    def createFitResultDict(self,ref_list,coeff_arr,rfactor):
+
+        """ create dictionary that contains ref used, fit results and r factor.
+        This will be used to generate interactive plots after fitting with a large library """
+        result = {'RFactor': rfactor, 'Coeffs': coeff_arr.tolist()}
+
+        self.fitResultDict[str(ref_list)] = result
+        #print(self.fitResultDict)
+
+    def exportFitResults(self):
+        file_name = QFileDialog().getSaveFileName(self, "save json", 'xanes_fit_results_log.json', 'image data (*json)')
+        if file_name[0]:
+            with open(str(file_name[0]), 'w') as fp:
+                json.dump(self.fitResultDict, fp, indent=4)
+
+        else:
+            pass
+
 
     def getRFactor(self):
         XANESViewer.rfactorSignal.connect(self.plotRFactor)
@@ -429,17 +457,6 @@ class RefChooser(QtWidgets.QMainWindow):
             self.pb_apply.setEnabled(True)
         else:
             self.pb_apply.setEnabled(False)
-
-class xanesFitStatView(QtWidgets.QMainWindow):
-    signal: pyqtSignal = QtCore.pyqtSignal(list)
-
-    def __init__(self, ref_names=[]):
-        super(xanesFitStatView, self).__init__()
-        uic.loadUi('uis/xanesFitStat.ui', self)
-        self.ref_names = ref_names
-        self.all_boxes = []
-        self.rFactorList = []
-
 
 class ScatterPlot(QtWidgets.QMainWindow):
 

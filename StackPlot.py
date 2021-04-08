@@ -209,7 +209,7 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.pb_save_spe_fit.clicked.connect(self.pg_export_spec_fit)
         self.hsb_xanes_stk.valueChanged.connect(self.display_image_data)
         self.hsb_chem_map.valueChanged.connect(self.display_image_data)
-        self.actionexportResults.triggered.connect(self.exportFitResults)
+        #self.actionexportResults.triggered.connect(self.exportFitResults)
 
         #self.pb_save_spe_fit.clicked.connect(self.save_spec_fit)
         # self.pb_play_stack.clicked.connect(self.play_stack)
@@ -251,7 +251,7 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.ref_edit_window.show()
         self.rf_list = []
         #self.rf_plot = pg.plot(title="RFactor Tracker")
-        self.ref_edit_window.signal.connect(self.update_refs)
+        self.ref_edit_window.choosenRefsSignal.connect(self.update_refs)
 
     def update_refs(self,list_):
         self.selected = list_ # list_ is the signal from ref chooser
@@ -292,16 +292,16 @@ class XANESViewer(QtWidgets.QMainWindow):
                 self.spectrum_view.plot(self.xdata1, np.dot(coff, ref), name=self.selected[1:][n],pen=plt_clr)
             else:
                 self.spectrum_view.plot(self.xdata1, np.dot(coff, ref), name="ref" + str(n + 1), pen=plt_clr)
-
+        #set the rfactor value to the line edit slot
         self.le_r_sq.setText(str(np.around(r / self.ydata1.sum(), 4)))
 
     def re_fit_xanes(self):
         if len(self.selected) != 0:
-            self.decon_ims, self.rfactor, self.coeffs_arr  = xanes_fitting(self.im_stack, self.e_list + self.e_shift,
+            self.decon_ims, self.rfactor, self.coeffs_arr  = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
                                        self.refs[self.selected], method='NNLS')
         else:
             #if non athena file with no header is loaded no ref file cannot be edited
-            self.decon_ims,self.rfactor, self.coeffs_arr = xanes_fitting(self.im_stack, self.e_list + self.e_shift,
+            self.decon_ims,self.rfactor, self.coeffs_arr = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
                                        self.refs, method='NNLS')
 
         #rfactor is a list of all spectra so take the mean
@@ -313,9 +313,13 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.ref_edit_window.fitResultsSignal.connect(self.plotFitResults)
 
     def plotFitResults(self,decon_ims, rfactor_mean, coeffs_arr):
+        #upadte the chem maps and scrollbar params
         self.image_view_maps.setImage(decon_ims.transpose(2, 0, 1))
         self.hsb_chem_map.setValue(0)
         self.hsb_chem_map.setMaximum(decon_ims.shape[-1]-1)
+
+        #set the rfactor value to the line edit slot
+        self.le_r_sq.setText(f'{rfactor_mean :.4f}')
 
     def plotRFactors(self):
         self.rf_list.append(self.rfactor_mean)
@@ -348,7 +352,7 @@ class XANESViewer(QtWidgets.QMainWindow):
 
 class RefChooser(QtWidgets.QMainWindow):
     choosenRefsSignal: pyqtSignal = QtCore.pyqtSignal(list)
-    fitResultsSignal:pyqtSignal = QtCore.pyqtSignal(np.array,float,list)
+    fitResultsSignal:pyqtSignal = QtCore.pyqtSignal(list,float,list)
 
     def __init__(self, ref_names,im_stack,e_list, refs, e_shift):
         super(RefChooser, self).__init__()
@@ -390,6 +394,7 @@ class RefChooser(QtWidgets.QMainWindow):
     QtCore.pyqtSlot()
     def clickedWhichAre(self):
         self.populateChecked()
+        print(self.onlyCheckedBoxes)
         self.choosenRefsSignal.emit(self.onlyCheckedBoxes)
 
     QtCore.pyqtSlot()
@@ -397,23 +402,20 @@ class RefChooser(QtWidgets.QMainWindow):
 
         self.iter_list = list(combinations(self.ref_names[1:],self.sb_max_combo.value()))
         tot_combo = len(self.iter_list)
-        for n, self.selected in enumerate(self.iter_list):
+        for n, refs in enumerate(self.iter_list):
             self.statusbar.showMessage(f"{n+1}/{tot_combo}")
             self.fit_combo_progress.setValue((n+1)*100/tot_combo)
-            self.re_fit_xanes() #emits signals to XANES Viewer
+            print(refs)
+            self.re_fit_xanes(list(refs)) #emits signals to XANES Viewer
 
             #Sometines without time delay no live plotting of the fit observed; process was okay
             QtTest.QTest.qWait(self.sb_time_delay.value()*1000)
 
     QtCore.pyqtSlot()
-    def re_fit_xanes(self):
-        if len(self.selected) != 0:
-            self.decon_ims, self.rfactor, self.coeffs_arr  = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
-                                       self.refs[self.selected], method='NNLS')
-        else:
-            #if non athena file with no header is loaded no ref file cannot be edited
-            self.decon_ims,self.rfactor, self.coeffs_arr = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
-                                       self.refs, method='NNLS')
+    def re_fit_xanes(self, selectedRefs):
+        if len(selectedRefs) != 0:
+            self.decon_ims, self.rfactor, self.coeffs_arr  = xanes_fitting(self.im_stack, self.e_list + self.e_shift,
+                                       self.refs[selectedRefs], method='NNLS')
 
         #rfactor is a list of all spectra so take the mean
         self.rfactor_mean = np.mean(self.rfactor)

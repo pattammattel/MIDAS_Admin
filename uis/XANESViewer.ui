@@ -24,6 +24,15 @@
     <string notr="true"/>
    </property>
    <layout class="QGridLayout" name="gridLayout_7">
+    <property name="leftMargin">
+     <number>25</number>
+    </property>
+    <property name="topMargin">
+     <number>25</number>
+    </property>
+    <property name="rightMargin">
+     <number>25</number>
+    </property>
     <item row="0" column="1">
      <layout class="QGridLayout" name="gridLayout_4">
       <item row="1" column="0" colspan="2">

@@ -46,7 +46,6 @@ class singleStackViewer(QtWidgets.QMainWindow):
         file_name = QFileDialog().getSaveFileName(self, "", '', 'data(*tiff *tif *txt *png )')
         tf.imsave(str(file_name[0]), np.float32(self.img_stack.transpose(0, 2, 1)))
 
-
 class ComponentViewer(QtWidgets.QMainWindow):
 
     def __init__(self,  comp_stack, energy, comp_spectra, decon_spectra, decomp_map):
@@ -111,7 +110,6 @@ class ComponentViewer(QtWidgets.QMainWindow):
 
     # add energy column
 
-
 class ClusterViewer(QtWidgets.QMainWindow):
 
     def __init__(self, decon_images, energy, X_cluster, decon_spectra):
@@ -165,7 +163,6 @@ class ClusterViewer(QtWidgets.QMainWindow):
             logger.error("Saving Cancelled")
             self.statusbar.showMessage("Saving Cancelled")
             pass
-
 
 class XANESViewer(QtWidgets.QMainWindow):
     rfactorSignal = QtCore.pyqtSignal(float)
@@ -361,7 +358,6 @@ class XANESViewer(QtWidgets.QMainWindow):
         file_name = QFileDialog().getSaveFileName(self, "save spectrum", '', 'spectrum and fit (*csv)')
         exporter.export(str(file_name[0])+'.csv')
 
-
 class RefChooser(QtWidgets.QMainWindow):
     signal: pyqtSignal = QtCore.pyqtSignal(list)
 
@@ -439,7 +435,6 @@ class xanesFitStatView(QtWidgets.QMainWindow):
         self.ref_names = ref_names
         self.all_boxes = []
         self.rFactorList = []
-
 
 class ScatterPlot(QtWidgets.QMainWindow):
 

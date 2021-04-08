@@ -419,10 +419,9 @@ def xanes_fitting(im_stack, e_list, refs, method='NNLS'):
 
         abundance_map = np.reshape(coeffs_arr, (im1, im2, -1))
         r_factor = np.reshape(r_factor_arr, (im1, im2))
-    logger.info("XANES Fitting done")
+    #logger.info("XANES Fitting done")
 
     return abundance_map, r_factor,np.mean(coeffs_arr,axis=0)
-
 
 def create_df_from_nor(athenafile='fe_refs.nor'):
     """create pandas dataframe from athena nor file, first column

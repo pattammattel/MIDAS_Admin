@@ -395,7 +395,7 @@ class RefChooser(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def tryAllCombo(self):
         self.rfactor_list = []
-
+        df = pd.DataFrame(columns=['combination', 'Coefficients', 'R-Factor'])
         self.iter_list = list(combinations(self.ref_names[1:],self.sb_max_combo.value()))
         tot_combo = len(self.iter_list)
         for n, refs in enumerate(self.iter_list):
@@ -411,14 +411,26 @@ class RefChooser(QtWidgets.QMainWindow):
             self.rfactor_list.append(self.rfactor_mean)
             self.stat_view.plot(self.rfactor_list, clear = True,title = 'R-Factor',
                                 pen = pg.mkPen('y', width=2, style=QtCore.Qt.DotLine), symbol='o')
-            #self.createFitResultDict(self.selected,self.coeffs_arr,self.rfactor_mean)
+
+            df2 = pd.DataFrame.from_dict({'combination':str(list(selectedRefs)), 'Coefficients': str(list(self.coeffs_arr)),
+                                          'R-Factor':[self.rfactor_mean]})
+            df = pd.concat([df,df2],ignore_index=True)
+            #self.createFitResultDataFrame(self.selected,self.coeffs_arr,self.rfactor_mean)
 
             #Sometines without time delay no live plotting of the fit observed; process was okay
             QtTest.QTest.qWait(self.sb_time_delay.value()*1000)
+        self.dataFrametoQTable(df)
 
-    def createFitResultDict(self,ref_list,coeff_arr,rfactor):
+    def dataFrametoQTable(self, df_):
+        nRows = len(df_.index)
+        nColumns = len(df_.columns)
+        self.QTable_FitResults.rowCount(nRows)
+        self.QTable_FitResults.columnCount(nColumns)
 
-        """ create dictionary that contains ref used, fit results and r factor.
+
+    def createFitResultDataFrame(self,ref_list,coeff_arr,rfactor):
+
+        """ create dataframe that contains ref used, fit results and r factor.
         This will be used to generate interactive plots after fitting with a large library """
         result = {'RFactor': rfactor, 'Coeffs': coeff_arr.tolist()}
 

@@ -1,9 +1,8 @@
-import sys
+import sys, os, json
 import tifffile as tf
 import pyqtgraph as pg
 import pyqtgraph.exporters
 import numpy as np
-import os
 import logging
 from itertools import combinations
 
@@ -181,8 +180,9 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.refs = refs
         self.ref_names = ref_names
         self.selected = self.ref_names
+        self.fitResultDict = {}
 
-        self.decon_ims, self.rfactor = xanes_fitting(self.im_stack, self.e_list, self.refs, method='NNLS')
+        self.decon_ims, self.rfactor, self.coeffs_arr = xanes_fitting(self.im_stack, self.e_list, self.refs, method='NNLS')
 
         (self.dim1, self.dim3, self.dim2) = self.im_stack.shape
         self.cn = int(self.dim2 // 2)
@@ -212,6 +212,7 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.pb_save_spe_fit.clicked.connect(self.pg_export_spec_fit)
         self.hsb_xanes_stk.valueChanged.connect(self.display_image_data)
         self.hsb_chem_map.valueChanged.connect(self.display_image_data)
+        self.actionexportResults.triggered.connect(self.exportFitResults)
 
         #self.pb_save_spe_fit.clicked.connect(self.save_spec_fit)
         # self.pb_play_stack.clicked.connect(self.play_stack)
@@ -297,20 +298,39 @@ class XANESViewer(QtWidgets.QMainWindow):
 
         self.le_r_sq.setText(str(np.around(r / self.ydata1.sum(), 4)))
 
-    QtCore.pyqtSlot()
     def re_fit_xanes(self):
         if len(self.selected) != 0:
-            self.decon_ims, self.rfactor = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
+            self.decon_ims, self.rfactor, self.coeffs_arr  = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
                                        self.refs[self.selected], method='NNLS')
         else:
             #if non athena file with no header is loaded no ref file cannot be edited
-            self.decon_ims,self.rfactor  = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
+            self.decon_ims,self.rfactor, self.coeffs_arr = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
                                        self.refs, method='NNLS')
 
+        #rfactor is a list of all spectra so take the mean
         self.rfactor_mean = np.mean(self.rfactor)
-        self.rfactorSignal.emit(self.rfactor_mean)
         self.image_view_maps.setImage(self.decon_ims.transpose(2,0,1))
         self.scrollBar_setup()
+        self.createFitResultDict(self.selected,self.coeffs_arr,self.rfactor_mean)
+
+    def createFitResultDict(self,ref_list,coeff_arr,rfactor):
+
+        """ create dictionary that contains ref used, fit results and r factor.
+        This will be used to generate interactive plots after fitting with a large library """
+        result = {'RFactor': rfactor, 'Coeffs': coeff_arr.tolist()}
+
+        self.fitResultDict[str(ref_list)] = result
+        #print(self.fitResultDict)
+
+    def exportFitResults(self):
+        file_name = QFileDialog().getSaveFileName(self, "save json", 'xanes_fit_results_log.json', 'image data (*json)')
+        if file_name[0]:
+            with open(str(file_name[0]), 'w') as fp:
+                json.dump(self.fitResultDict, fp, indent=4)
+
+        else:
+            pass
+
 
     def plotRFactors(self):
         self.rf_list.append(self.rfactor_mean)

@@ -420,7 +420,7 @@ def xanes_fitting(im_stack, e_list, refs, method='NNLS'):
         abundance_map = np.reshape(coeffs_arr, (im1, im2, -1))
         r_factor = np.reshape(r_factor_arr, (im1, im2))
 
-    return abundance_map, r_factor
+    return abundance_map, r_factor,np.mean(coeffs_arr,axis=0)
 
 
 def create_df_from_nor(athenafile='fe_refs.nor'):
@@ -509,7 +509,6 @@ def align_stack_iter(stack, ref_stack_void = True, ref_stack = None, transformat
             stack = sr.transform_stack(stack, tmats=tmats)
 
     return np.float32(stack)
-
 
 def modifyStack(raw_stack, normalizeStack = False, normToPoint = -1,
                 applySmooth = False, smoothWindowSize = 3,

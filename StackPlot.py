@@ -358,9 +358,15 @@ class RefChooser(QtWidgets.QMainWindow):
         self.e_list = e_list
         self.e_shift = e_shift
 
-
         self.all_boxes = []
         self.rFactorList = []
+
+        # selection become more apparent than default with red-ish color
+        self.tableWidget.setStyleSheet("background-color: white; selection-background-color: rgb(200,0,0);")
+
+        # add a line to the plot to walk through the table. Note that the table is not sorted
+        self.selectionLine = pg.InfiniteLine(pos=1, angle=90, pen=pg.mkPen('m', width=2.5),
+                                             movable=True, bounds=None, label='Drag to View Fit')
 
         for n, i in enumerate(self.ref_names):
             self.cb_i = QtWidgets.QCheckBox(self.ref_box_frame)
@@ -373,9 +379,12 @@ class RefChooser(QtWidgets.QMainWindow):
             self.cb_i.toggled.connect(self.enableApply)
             self.all_boxes.append(self.cb_i)
 
+        #connections
         self.pb_apply.clicked.connect(self.clickedWhichAre)
         self.pb_combo.clicked.connect(self.tryAllCombo)
         self.actionExport_Results_csv.triggered.connect(self.exportFitResults)
+        self.selectionLine.sigPositionChangeFinished.connect(self.updateFitWithLine)
+        self.tableWidget.itemSelectionChanged.connect(self.updateWithTableSelection)
 
     def clickedWhich(self):
         button_name = self.sender()
@@ -407,24 +416,24 @@ class RefChooser(QtWidgets.QMainWindow):
             self.decon_ims, self.rfactor, self.coeffs_arr  = xanes_fitting(self.im_stack, self.e_list + self.e_shift,
                                                                            self.refs[selectedRefs], method='NNLS')
             #rfactor is a list of all spectra so take the mean
-            self.rfactor_mean = np.mean(self.rfactor)
-            #Send singals to XANESViewer for plotting
-            #self.fitResultsSignal.emit(self.decon_ims,float(self.rfactor_mean),self.coeffs_arr)
+            self.rfactor_mean = np.around(np.mean(self.rfactor),4)
             self.rfactor_list.append(self.rfactor_mean)
             self.stat_view.plot(self.rfactor_list, clear = True,title = 'R-Factor',
                                 pen = pg.mkPen('y', width=2, style=QtCore.Qt.DotLine), symbol='o')
 
-            resultsDict = {'References':str(list(selectedRefs)), 'Coefficients': str(list(self.coeffs_arr)),
+            resultsDict = {'References':str(selectedRefs), 'Coefficients': str(np.around(self.coeffs_arr,4)),
                                           'R-Factor':[self.rfactor_mean]}
 
             df2 = pd.DataFrame.from_dict(resultsDict)
             self.df = pd.concat([self.df,df2],ignore_index=True)
 
-            #self.createFitResultDataFrame(self.selected,self.coeffs_arr,self.rfactor_mean)
+            self.dataFrametoQTable(self.df.round(4))
 
-            #Sometines without time delay no live plotting of the fit observed; process was okay
-            QtTest.QTest.qWait(self.sb_time_delay.value()*1000)
-            self.dataFrametoQTable(self.df)
+            # set the property of the table view. Size policy to make the contents justified
+            self.tableWidget.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+            self.tableWidget.resizeColumnsToContents()
+
+        self.stat_view.addItem(self.selectionLine)
 
     def dataFrametoQTable(self, df_:pd.DataFrame):
         nRows = len(df_.index)
@@ -438,10 +447,6 @@ class RefChooser(QtWidgets.QMainWindow):
                 cell = QtWidgets.QTableWidgetItem(str(df_.values[i][j]))
                 self.tableWidget.setItem(i, j, cell)
 
-        self.tableWidget.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        self.tableWidget.resizeColumnsToContents()
-
-
     def exportFitResults(self):
         file_name = QFileDialog().getSaveFileName(self, "save csv", 'xanes_fit_results_log.csv', 'txt data (*csv)')
         if file_name[0]:
@@ -450,6 +455,29 @@ class RefChooser(QtWidgets.QMainWindow):
 
         else:
             pass
+
+    def selectTableAndCheckBox(self,x):
+        nSelection = int(round(x))
+        self.tableWidget.selectRow(nSelection)
+        refs_selected = self.iter_list[nSelection]
+
+        #reset all the checkboxes to uncheck state, except the energy
+        for checkstate in self.findChildren(QtWidgets.QCheckBox):
+            if checkstate.isEnabled():
+                checkstate.setChecked(False)
+
+        for cb_names in refs_selected:
+            checkbox = self.findChild(QtWidgets.QCheckBox, name = cb_names)
+            checkbox.setChecked(True)
+
+    def updateFitWithLine(self):
+        x,y = self.selectionLine.pos()
+        self.selectTableAndCheckBox(x)
+
+    def updateWithTableSelection(self):
+        x = self.tableWidget.currentRow()
+        self.selectTableAndCheckBox(x)
+
 
     def enableApply(self):
 

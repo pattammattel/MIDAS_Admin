@@ -293,24 +293,30 @@
      <string>File</string>
     </property>
     <addaction name="actionexportResults"/>
+    <addaction name="actionExport_Ref_Plot"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionexportResults">
    <property name="text">
-    <string>exportResults</string>
+    <string>Export Fit Log</string>
+   </property>
+  </action>
+  <action name="actionExport_Ref_Plot">
+   <property name="text">
+    <string>Export Ref. Plot</string>
    </property>
   </action>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ImageView</class>
+   <class>PlotWidget</class>
    <extends>QGraphicsView</extends>
    <header>pyqtgraph</header>
   </customwidget>
   <customwidget>
-   <class>PlotWidget</class>
+   <class>ImageView</class>
    <extends>QGraphicsView</extends>
    <header>pyqtgraph</header>
   </customwidget>

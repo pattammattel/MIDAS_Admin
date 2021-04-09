@@ -396,6 +396,7 @@ class RefChooser(QtWidgets.QMainWindow):
     def tryAllCombo(self):
         self.rfactor_list = []
         df = pd.DataFrame(columns=['References', 'Coefficients', 'R-Factor'])
+        self.tableWidget.setHorizontalHeaderLabels(df.columns)
         self.iter_list = list(combinations(self.ref_names[1:],self.sb_max_combo.value()))
         tot_combo = len(self.iter_list)
         for n, refs in enumerate(self.iter_list):
@@ -412,9 +413,12 @@ class RefChooser(QtWidgets.QMainWindow):
             self.stat_view.plot(self.rfactor_list, clear = True,title = 'R-Factor',
                                 pen = pg.mkPen('y', width=2, style=QtCore.Qt.DotLine), symbol='o')
 
-            df2 = pd.DataFrame.from_dict({'References':str(list(selectedRefs)), 'Coefficients': str(list(self.coeffs_arr)),
-                                          'R-Factor':[self.rfactor_mean]})
+            resultsDict = {'References':str(list(selectedRefs)), 'Coefficients': str(list(self.coeffs_arr)),
+                                          'R-Factor':[self.rfactor_mean]}
+
+            df2 = pd.DataFrame.from_dict(resultsDict)
             df = pd.concat([df,df2],ignore_index=True)
+
             #self.createFitResultDataFrame(self.selected,self.coeffs_arr,self.rfactor_mean)
 
             #Sometines without time delay no live plotting of the fit observed; process was okay
@@ -424,22 +428,15 @@ class RefChooser(QtWidgets.QMainWindow):
     def dataFrametoQTable(self, df_:pd.DataFrame):
         nRows = len(df_.index)
         nColumns = len(df_.columns)
-        print(nRows,nColumns)
         self.tableWidget.setRowCount(nRows)
         self.tableWidget.setColumnCount(nColumns)
         self.tableWidget.setHorizontalHeaderLabels(df_.columns)
-        for
-        cell = QtWidgets.QTableWidgetItem('test')
-        self.tableWidget.setItem(1, 1, cell)
 
-    def createFitResultDataFrame(self,ref_list,coeff_arr,rfactor):
+        for i in range(nRows):
+            for j in range(nColumns):
+                cell = QtWidgets.QTableWidgetItem(str(df_.values[i][j]))
+                self.tableWidget.setItem(i, j, cell)
 
-        """ create dataframe that contains ref used, fit results and r factor.
-        This will be used to generate interactive plots after fitting with a large library """
-        result = {'RFactor': rfactor, 'Coeffs': coeff_arr.tolist()}
-
-        self.fitResultDict[str(ref_list)] = result
-        #print(self.fitResultDict)
 
     def exportFitResults(self):
         file_name = QFileDialog().getSaveFileName(self, "save json", 'xanes_fit_results_log.json', 'image data (*json)')

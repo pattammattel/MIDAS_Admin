@@ -375,6 +375,7 @@ class RefChooser(QtWidgets.QMainWindow):
 
         self.pb_apply.clicked.connect(self.clickedWhichAre)
         self.pb_combo.clicked.connect(self.tryAllCombo)
+        self.actionExport_Results_csv.triggered.connect(self.exportFitResults)
 
     def clickedWhich(self):
         button_name = self.sender()
@@ -395,8 +396,8 @@ class RefChooser(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def tryAllCombo(self):
         self.rfactor_list = []
-        df = pd.DataFrame(columns=['References', 'Coefficients', 'R-Factor'])
-        self.tableWidget.setHorizontalHeaderLabels(df.columns)
+        self.df = pd.DataFrame(columns=['References', 'Coefficients', 'R-Factor'])
+        self.tableWidget.setHorizontalHeaderLabels(self.df.columns)
         self.iter_list = list(combinations(self.ref_names[1:],self.sb_max_combo.value()))
         tot_combo = len(self.iter_list)
         for n, refs in enumerate(self.iter_list):
@@ -408,7 +409,7 @@ class RefChooser(QtWidgets.QMainWindow):
             #rfactor is a list of all spectra so take the mean
             self.rfactor_mean = np.mean(self.rfactor)
             #Send singals to XANESViewer for plotting
-            self.fitResultsSignal.emit(self.decon_ims,float(self.rfactor_mean),self.coeffs_arr)
+            #self.fitResultsSignal.emit(self.decon_ims,float(self.rfactor_mean),self.coeffs_arr)
             self.rfactor_list.append(self.rfactor_mean)
             self.stat_view.plot(self.rfactor_list, clear = True,title = 'R-Factor',
                                 pen = pg.mkPen('y', width=2, style=QtCore.Qt.DotLine), symbol='o')
@@ -417,13 +418,13 @@ class RefChooser(QtWidgets.QMainWindow):
                                           'R-Factor':[self.rfactor_mean]}
 
             df2 = pd.DataFrame.from_dict(resultsDict)
-            df = pd.concat([df,df2],ignore_index=True)
+            self.df = pd.concat([self.df,df2],ignore_index=True)
 
             #self.createFitResultDataFrame(self.selected,self.coeffs_arr,self.rfactor_mean)
 
             #Sometines without time delay no live plotting of the fit observed; process was okay
             QtTest.QTest.qWait(self.sb_time_delay.value()*1000)
-        self.dataFrametoQTable(df)
+            self.dataFrametoQTable(self.df)
 
     def dataFrametoQTable(self, df_:pd.DataFrame):
         nRows = len(df_.index)
@@ -437,12 +438,15 @@ class RefChooser(QtWidgets.QMainWindow):
                 cell = QtWidgets.QTableWidgetItem(str(df_.values[i][j]))
                 self.tableWidget.setItem(i, j, cell)
 
+        self.tableWidget.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.tableWidget.resizeColumnsToContents()
+
 
     def exportFitResults(self):
-        file_name = QFileDialog().getSaveFileName(self, "save json", 'xanes_fit_results_log.json', 'image data (*json)')
+        file_name = QFileDialog().getSaveFileName(self, "save csv", 'xanes_fit_results_log.csv', 'txt data (*csv)')
         if file_name[0]:
             with open(str(file_name[0]), 'w') as fp:
-                json.dump(self.fitResultDict, fp, indent=4)
+                self.df.to_csv(fp)
 
         else:
             pass

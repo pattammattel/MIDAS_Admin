@@ -395,7 +395,7 @@ class RefChooser(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def tryAllCombo(self):
         self.rfactor_list = []
-        df = pd.DataFrame(columns=['combination', 'Coefficients', 'R-Factor'])
+        df = pd.DataFrame(columns=['References', 'Coefficients', 'R-Factor'])
         self.iter_list = list(combinations(self.ref_names[1:],self.sb_max_combo.value()))
         tot_combo = len(self.iter_list)
         for n, refs in enumerate(self.iter_list):
@@ -412,7 +412,7 @@ class RefChooser(QtWidgets.QMainWindow):
             self.stat_view.plot(self.rfactor_list, clear = True,title = 'R-Factor',
                                 pen = pg.mkPen('y', width=2, style=QtCore.Qt.DotLine), symbol='o')
 
-            df2 = pd.DataFrame.from_dict({'combination':str(list(selectedRefs)), 'Coefficients': str(list(self.coeffs_arr)),
+            df2 = pd.DataFrame.from_dict({'References':str(list(selectedRefs)), 'Coefficients': str(list(self.coeffs_arr)),
                                           'R-Factor':[self.rfactor_mean]})
             df = pd.concat([df,df2],ignore_index=True)
             #self.createFitResultDataFrame(self.selected,self.coeffs_arr,self.rfactor_mean)
@@ -421,12 +421,16 @@ class RefChooser(QtWidgets.QMainWindow):
             QtTest.QTest.qWait(self.sb_time_delay.value()*1000)
         self.dataFrametoQTable(df)
 
-    def dataFrametoQTable(self, df_):
+    def dataFrametoQTable(self, df_:pd.DataFrame):
         nRows = len(df_.index)
         nColumns = len(df_.columns)
-        self.QTable_FitResults.rowCount(nRows)
-        self.QTable_FitResults.columnCount(nColumns)
-
+        print(nRows,nColumns)
+        self.tableWidget.setRowCount(nRows)
+        self.tableWidget.setColumnCount(nColumns)
+        self.tableWidget.setHorizontalHeaderLabels(df_.columns)
+        for
+        cell = QtWidgets.QTableWidgetItem('test')
+        self.tableWidget.setItem(1, 1, cell)
 
     def createFitResultDataFrame(self,ref_list,coeff_arr,rfactor):
 

@@ -165,12 +165,12 @@ class ClusterViewer(QtWidgets.QMainWindow):
             pass
 
 class XANESViewer(QtWidgets.QMainWindow):
-    rfactorSignal = QtCore.pyqtSignal(float)
 
     def __init__(self, im_stack=None, e_list = None, refs = None, ref_names = None):
         super(XANESViewer, self).__init__()
 
         uic.loadUi('uis/XANESViewer.ui', self)
+        self.centralwidget.setStyleSheet(open('defaultStyle.css').read())
 
         self.im_stack = im_stack
         self.e_list = e_list
@@ -209,7 +209,7 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.pb_save_spe_fit.clicked.connect(self.pg_export_spec_fit)
         self.hsb_xanes_stk.valueChanged.connect(self.display_image_data)
         self.hsb_chem_map.valueChanged.connect(self.display_image_data)
-        self.actionexportResults.triggered.connect(self.exportFitResults)
+        #self.actionexportResults.triggered.connect(self.exportFitResults)
 
         #self.pb_save_spe_fit.clicked.connect(self.save_spec_fit)
         # self.pb_play_stack.clicked.connect(self.play_stack)
@@ -247,16 +247,18 @@ class XANESViewer(QtWidgets.QMainWindow):
 
     def choose_refs(self):
         'Interactively exclude some standards from the reference file'
-        self.ref_edit_window = RefChooser(self.ref_names)
+        self.ref_edit_window = RefChooser(self.ref_names,self.im_stack,self.e_list, self.refs, self.sb_e_shift.value())
         self.ref_edit_window.show()
-        self.rf_list = []
         #self.rf_plot = pg.plot(title="RFactor Tracker")
-        self.ref_edit_window.signal.connect(self.update_refs)
+
+        #connections
+        self.ref_edit_window.choosenRefsSignal.connect(self.update_refs)
+        self.ref_edit_window.fitResultsSignal.connect(self.plotFitResults)
 
     def update_refs(self,list_):
         self.selected = list_ # list_ is the signal from ref chooser
         self.update_spectrum()
-        self.re_fit_xanes() #emits r factor
+        self.re_fit_xanes()
 
     def update_spectrum(self):
 
@@ -292,7 +294,7 @@ class XANESViewer(QtWidgets.QMainWindow):
                 self.spectrum_view.plot(self.xdata1, np.dot(coff, ref), name=self.selected[1:][n],pen=plt_clr)
             else:
                 self.spectrum_view.plot(self.xdata1, np.dot(coff, ref), name="ref" + str(n + 1), pen=plt_clr)
-
+        #set the rfactor value to the line edit slot
         self.le_r_sq.setText(str(np.around(r / self.ydata1.sum(), 4)))
 
     def re_fit_xanes(self):
@@ -308,30 +310,15 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.rfactor_mean = np.mean(self.rfactor)
         self.image_view_maps.setImage(self.decon_ims.transpose(2,0,1))
         self.scrollBar_setup()
-        self.createFitResultDict(self.selected,self.coeffs_arr,self.rfactor_mean)
 
-    def createFitResultDict(self,ref_list,coeff_arr,rfactor):
+    def plotFitResults(self,decon_ims,rfactor_mean,coeff_array):
+        #upadte the chem maps and scrollbar params
+        self.image_view_maps.setImage(decon_ims.transpose(2, 0, 1))
+        #self.hsb_chem_map.setValue(0)
+        #self.hsb_chem_map.setMaximum(decon_ims.shape[-1]-1)
 
-        """ create dictionary that contains ref used, fit results and r factor.
-        This will be used to generate interactive plots after fitting with a large library """
-        result = {'RFactor': rfactor, 'Coeffs': coeff_arr.tolist()}
-
-        self.fitResultDict[str(ref_list)] = result
-        #print(self.fitResultDict)
-
-    def exportFitResults(self):
-        file_name = QFileDialog().getSaveFileName(self, "save json", 'xanes_fit_results_log.json', 'image data (*json)')
-        if file_name[0]:
-            with open(str(file_name[0]), 'w') as fp:
-                json.dump(self.fitResultDict, fp, indent=4)
-
-        else:
-            pass
-
-
-    def plotRFactors(self):
-        self.rf_list.append(self.rfactor_mean)
-        self.rf_plot.plot(self.rf_list, clear = True)
+        #set the rfactor value to the line edit slot
+        self.le_r_sq.setText(f'{rfactor_mean :.4f}')
 
     def save_chem_map(self):
         file_name = QFileDialog().getSaveFileName(self, "save image", '', 'image data (*tiff)')
@@ -359,14 +346,27 @@ class XANESViewer(QtWidgets.QMainWindow):
         exporter.export(str(file_name[0])+'.csv')
 
 class RefChooser(QtWidgets.QMainWindow):
-    signal: pyqtSignal = QtCore.pyqtSignal(list)
+    choosenRefsSignal: pyqtSignal = QtCore.pyqtSignal(list)
+    fitResultsSignal: pyqtSignal = QtCore.pyqtSignal(np.ndarray, float, np.ndarray)
 
-    def __init__(self, ref_names=[]):
+    def __init__(self, ref_names,im_stack,e_list, refs, e_shift):
         super(RefChooser, self).__init__()
         uic.loadUi('uis/RefChooser.ui', self)
         self.ref_names = ref_names
+        self.refs = refs
+        self.im_stack = im_stack
+        self.e_list = e_list
+        self.e_shift = e_shift
+
         self.all_boxes = []
         self.rFactorList = []
+
+        # selection become more apparent than default with red-ish color
+        self.tableWidget.setStyleSheet("background-color: white; selection-background-color: rgb(200,0,0);")
+
+        # add a line to the plot to walk through the table. Note that the table is not sorted
+        self.selectionLine = pg.InfiniteLine(pos=1, angle=90, pen=pg.mkPen('m', width=2.5),
+                                             movable=True, bounds=None, label='Drag to View Fit')
 
         for n, i in enumerate(self.ref_names):
             self.cb_i = QtWidgets.QCheckBox(self.ref_box_frame)
@@ -379,8 +379,14 @@ class RefChooser(QtWidgets.QMainWindow):
             self.cb_i.toggled.connect(self.enableApply)
             self.all_boxes.append(self.cb_i)
 
+        #connections
         self.pb_apply.clicked.connect(self.clickedWhichAre)
         self.pb_combo.clicked.connect(self.tryAllCombo)
+        self.actionExport_Results_csv.triggered.connect(self.exportFitResults)
+        self.selectionLine.sigPositionChanged.connect(self.updateFitWithLine)
+        self.tableWidget.itemSelectionChanged.connect(self.updateWithTableSelection)
+        #self.stat_view.scene().sigMouseClicked.connect(self.moveSelectionLine)
+        self.stat_view.mouseDoubleClickEvent  = self.moveSelectionLine
 
     def clickedWhich(self):
         button_name = self.sender()
@@ -395,27 +401,94 @@ class RefChooser(QtWidgets.QMainWindow):
     QtCore.pyqtSlot()
     def clickedWhichAre(self):
         self.populateChecked()
-        self.signal.emit(self.onlyCheckedBoxes)
+        print(self.onlyCheckedBoxes)
+        self.choosenRefsSignal.emit(self.onlyCheckedBoxes)
 
-    QtCore.pyqtSlot()
+    @QtCore.pyqtSlot()
     def tryAllCombo(self):
-
+        self.rfactor_list = []
+        self.df = pd.DataFrame(columns=['References', 'Coefficients', 'R-Factor'])
+        self.tableWidget.setHorizontalHeaderLabels(self.df.columns)
         self.iter_list = list(combinations(self.ref_names[1:],self.sb_max_combo.value()))
         tot_combo = len(self.iter_list)
         for n, refs in enumerate(self.iter_list):
             self.statusbar.showMessage(f"{n+1}/{tot_combo}")
-            self.fit_combo_progress.setValue((n+1)*100/tot_combo)
-            #emitting energy column+ref combination
-            self.signal.emit(list((str(self.ref_names[0]),)+refs))
-            #without time delay no live plotting of the fit observed; process was okay
-            QtTest.QTest.qWait(self.sb_time_delay.value()*1000)
+            selectedRefs = (list((str(self.ref_names[0]),)+refs))
+            self.fit_combo_progress.setValue((n + 1) * 100 / tot_combo)
+            self.decon_ims, self.rfactor, self.coeffs_arr  = xanes_fitting(self.im_stack, self.e_list + self.e_shift,
+                                                                           self.refs[selectedRefs], method='NNLS')
+            #rfactor is a list of all spectra so take the mean
+            self.rfactor_mean = np.around(np.mean(self.rfactor),4)
+            self.rfactor_list.append(self.rfactor_mean)
+            self.stat_view.plot(x = np.arange(n+1),y = self.rfactor_list, clear = True,title = 'R-Factor',
+                                pen = pg.mkPen('y', width=2, style=QtCore.Qt.DotLine), symbol='o')
 
-    def getRFactor(self):
-        XANESViewer.rfactorSignal.connect(self.plotRFactor)
+            resultsDict = {'References':str(selectedRefs), 'Coefficients': str(np.around(self.coeffs_arr,4)),
+                                          'R-Factor':[self.rfactor_mean]}
 
-    def plotRFactor(self, rfactor):
-        self.rFactorList.append(rfactor)
-        self.rfactor_plot.setData(self.rFactorList)
+            df2 = pd.DataFrame.from_dict(resultsDict)
+            self.df = pd.concat([self.df,df2],ignore_index=True)
+
+            self.dataFrametoQTable(self.df.round(4))
+
+            # set the property of the table view. Size policy to make the contents justified
+            self.tableWidget.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+            self.tableWidget.resizeColumnsToContents()
+            QtTest.QTest.qWait(0.1)
+
+        self.stat_view.addItem(self.selectionLine)
+
+    def dataFrametoQTable(self, df_:pd.DataFrame):
+        nRows = len(df_.index)
+        nColumns = len(df_.columns)
+        self.tableWidget.setRowCount(nRows)
+        self.tableWidget.setColumnCount(nColumns)
+        self.tableWidget.setHorizontalHeaderLabels(df_.columns)
+
+        for i in range(nRows):
+            for j in range(nColumns):
+                cell = QtWidgets.QTableWidgetItem(str(df_.values[i][j]))
+                self.tableWidget.setItem(i, j, cell)
+
+    def exportFitResults(self):
+        file_name = QFileDialog().getSaveFileName(self, "save csv", 'xanes_fit_results_log.csv', 'txt data (*csv)')
+        if file_name[0]:
+            with open(str(file_name[0]), 'w') as fp:
+                self.df.to_csv(fp)
+
+        else:
+            pass
+
+    def selectTableAndCheckBox(self,x):
+        nSelection = int(round(x))
+        self.tableWidget.selectRow(nSelection)
+        refs_selected = self.iter_list[nSelection]
+
+        #reset all the checkboxes to uncheck state, except the energy
+        for checkstate in self.findChildren(QtWidgets.QCheckBox):
+            if checkstate.isEnabled():
+                checkstate.setChecked(False)
+
+        for cb_names in refs_selected:
+            checkbox = self.findChild(QtWidgets.QCheckBox, name = cb_names)
+            checkbox.setChecked(True)
+
+    def updateFitWithLine(self):
+        x,y = self.selectionLine.pos()
+        self.selectTableAndCheckBox(x)
+
+    def updateWithTableSelection(self):
+        x = self.tableWidget.currentRow()
+        self.selectTableAndCheckBox(x)
+
+    def moveSelectionLine(self,event):
+        print (event.type())
+        if event.button() == QtCore.Qt.LeftButton:
+            Pos = self.stat_view.plotItem.vb.mapSceneToView(event.pos())
+            print(Pos.x())
+            self.selectionLine.setPos(Pos.x())
+
+
 
     def enableApply(self):
 
@@ -425,16 +498,6 @@ class RefChooser(QtWidgets.QMainWindow):
             self.pb_apply.setEnabled(True)
         else:
             self.pb_apply.setEnabled(False)
-
-class xanesFitStatView(QtWidgets.QMainWindow):
-    signal: pyqtSignal = QtCore.pyqtSignal(list)
-
-    def __init__(self, ref_names=[]):
-        super(xanesFitStatView, self).__init__()
-        uic.loadUi('uis/xanesFitStat.ui', self)
-        self.ref_names = ref_names
-        self.all_boxes = []
-        self.rFactorList = []
 
 class ScatterPlot(QtWidgets.QMainWindow):
 

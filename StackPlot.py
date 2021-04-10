@@ -385,6 +385,11 @@ class RefChooser(QtWidgets.QMainWindow):
         self.actionExport_Results_csv.triggered.connect(self.exportFitResults)
         self.selectionLine.sigPositionChangeFinished.connect(self.updateFitWithLine)
         self.tableWidget.itemSelectionChanged.connect(self.updateWithTableSelection)
+        self.stat_view.mousePressEvent = self.moveSelectionLine
+
+    def moveSelectionLine(self,event):
+        if event.type ==
+
 
     def clickedWhich(self):
         button_name = self.sender()
@@ -432,6 +437,7 @@ class RefChooser(QtWidgets.QMainWindow):
             # set the property of the table view. Size policy to make the contents justified
             self.tableWidget.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
             self.tableWidget.resizeColumnsToContents()
+            QtTest.QTest.qWait(0.1)
 
         self.stat_view.addItem(self.selectionLine)
 

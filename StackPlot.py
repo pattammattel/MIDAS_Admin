@@ -383,13 +383,17 @@ class RefChooser(QtWidgets.QMainWindow):
         self.pb_apply.clicked.connect(self.clickedWhichAre)
         self.pb_combo.clicked.connect(self.tryAllCombo)
         self.actionExport_Results_csv.triggered.connect(self.exportFitResults)
-        self.selectionLine.sigPositionChangeFinished.connect(self.updateFitWithLine)
+        self.selectionLine.sigPositionChanged.connect(self.updateFitWithLine)
         self.tableWidget.itemSelectionChanged.connect(self.updateWithTableSelection)
-        self.stat_view.mousePressEvent = self.moveSelectionLine
+        #self.stat_view.scene().sigMouseClicked.connect(self.moveSelectionLine)
+        self.stat_view.mouseDoubleClickEvent  = self.moveSelectionLine
 
     def moveSelectionLine(self,event):
-        if event.type ==
-
+        print (event.type())
+        if event.button() == QtCore.Qt.LeftButton:
+            Pos = self.stat_view.plotItem.vb.mapSceneToView(event.pos())
+            print(Pos.x())
+            self.selectionLine.setPos(Pos.x())
 
     def clickedWhich(self):
         button_name = self.sender()
@@ -423,7 +427,7 @@ class RefChooser(QtWidgets.QMainWindow):
             #rfactor is a list of all spectra so take the mean
             self.rfactor_mean = np.around(np.mean(self.rfactor),4)
             self.rfactor_list.append(self.rfactor_mean)
-            self.stat_view.plot(self.rfactor_list, clear = True,title = 'R-Factor',
+            self.stat_view.plot(x = np.arange(n+1),y = self.rfactor_list, clear = True,title = 'R-Factor',
                                 pen = pg.mkPen('y', width=2, style=QtCore.Qt.DotLine), symbol='o')
 
             resultsDict = {'References':str(selectedRefs), 'Coefficients': str(np.around(self.coeffs_arr,4)),

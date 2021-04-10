@@ -116,7 +116,11 @@ color: rgb(255, 75, 52);
      </widget>
     </item>
     <item row="0" column="1" rowspan="2">
-     <widget class="PlotWidget" name="stat_view"/>
+     <widget class="PlotWidget" name="stat_view">
+      <property name="toolTip">
+       <string>Drag the line or double click on a point to select the parameters</string>
+      </property>
+     </widget>
     </item>
     <item row="3" column="0" colspan="2">
      <widget class="QTableWidget" name="tableWidget"/>

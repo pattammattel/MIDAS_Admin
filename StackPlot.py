@@ -388,13 +388,6 @@ class RefChooser(QtWidgets.QMainWindow):
         #self.stat_view.scene().sigMouseClicked.connect(self.moveSelectionLine)
         self.stat_view.mouseDoubleClickEvent  = self.moveSelectionLine
 
-    def moveSelectionLine(self,event):
-        print (event.type())
-        if event.button() == QtCore.Qt.LeftButton:
-            Pos = self.stat_view.plotItem.vb.mapSceneToView(event.pos())
-            print(Pos.x())
-            self.selectionLine.setPos(Pos.x())
-
     def clickedWhich(self):
         button_name = self.sender()
         print(button_name.objectName())
@@ -487,6 +480,14 @@ class RefChooser(QtWidgets.QMainWindow):
     def updateWithTableSelection(self):
         x = self.tableWidget.currentRow()
         self.selectTableAndCheckBox(x)
+
+    def moveSelectionLine(self,event):
+        print (event.type())
+        if event.button() == QtCore.Qt.LeftButton:
+            Pos = self.stat_view.plotItem.vb.mapSceneToView(event.pos())
+            print(Pos.x())
+            self.selectionLine.setPos(Pos.x())
+
 
 
     def enableApply(self):

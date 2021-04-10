@@ -390,7 +390,6 @@ class RefChooser(QtWidgets.QMainWindow):
 
     def clickedWhich(self):
         button_name = self.sender()
-        print(button_name.objectName())
 
     def populateChecked(self):
         self.onlyCheckedBoxes = []
@@ -401,7 +400,6 @@ class RefChooser(QtWidgets.QMainWindow):
     QtCore.pyqtSlot()
     def clickedWhichAre(self):
         self.populateChecked()
-        print(self.onlyCheckedBoxes)
         self.choosenRefsSignal.emit(self.onlyCheckedBoxes)
 
     @QtCore.pyqtSlot()
@@ -455,7 +453,6 @@ class RefChooser(QtWidgets.QMainWindow):
         if file_name[0]:
             with open(str(file_name[0]), 'w') as fp:
                 self.df.to_csv(fp)
-
         else:
             pass
 

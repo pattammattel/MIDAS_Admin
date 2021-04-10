@@ -366,7 +366,7 @@ class RefChooser(QtWidgets.QMainWindow):
 
         # add a line to the plot to walk through the table. Note that the table is not sorted
         self.selectionLine = pg.InfiniteLine(pos=1, angle=90, pen=pg.mkPen('m', width=2.5),
-                                             movable=True, bounds=None, label='Drag to View Fit')
+                                             movable=True, bounds=None, label='Move Me!')
 
         for n, i in enumerate(self.ref_names):
             self.cb_i = QtWidgets.QCheckBox(self.ref_box_frame)

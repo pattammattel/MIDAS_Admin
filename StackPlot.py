@@ -482,13 +482,9 @@ class RefChooser(QtWidgets.QMainWindow):
         self.selectTableAndCheckBox(x)
 
     def moveSelectionLine(self,event):
-        print (event.type())
         if event.button() == QtCore.Qt.LeftButton:
             Pos = self.stat_view.plotItem.vb.mapSceneToView(event.pos())
-            print(Pos.x())
             self.selectionLine.setPos(Pos.x())
-
-
 
     def enableApply(self):
 

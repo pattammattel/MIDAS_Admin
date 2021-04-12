@@ -24,7 +24,13 @@
     <string notr="true">QCheckBox:checked {
 color: rgb(255, 75, 52);
 	background-color: rgb(255, 248, 149);
-}</string>
+}
+
+QPushButton {
+background-color: rgb(175, 236, 255);
+color: rgb(255, 5,0);
+}
+</string>
    </property>
    <layout class="QGridLayout" name="gridLayout">
     <property name="leftMargin">
@@ -153,6 +159,13 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QPushButton" name="pb_sort_with_r">
+      <property name="text">
+       <string>Sort with R-Factor</string>
       </property>
      </widget>
     </item>

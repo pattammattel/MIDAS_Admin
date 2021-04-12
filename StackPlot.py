@@ -390,6 +390,8 @@ class RefChooser(QtWidgets.QMainWindow):
         #self.stat_view.scene().sigMouseClicked.connect(self.moveSelectionLine)
         self.stat_view.mouseDoubleClickEvent  = self.moveSelectionLine
         self.sb_max_combo.valueChanged.connect(self.displayCombinations)
+        #self.pb_sort_with_r.clicked.connect(lambda: self.tableWidget.sortItems(3, QtCore.Qt.AscendingOrder))
+        self.pb_sort_with_r.clicked.connect(self.sortTable)
 
     def clickedWhich(self):
         button_name = self.sender()
@@ -420,7 +422,7 @@ class RefChooser(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def tryAllCombo(self):
         self.rfactor_list = []
-        self.df = pd.DataFrame(columns=['References', 'Coefficients', 'R-Factor'])
+        self.df = pd.DataFrame(columns=['Fit Number','References', 'Coefficients', 'R-Factor'])
         self.tableWidget.setHorizontalHeaderLabels(self.df.columns)
         #self.iter_list = list(combinations(self.ref_names[1:],self.sb_max_combo.value()))
         niter, self.iter_list = self.generateRefList(self.ref_names[1:],self.sb_max_combo.value())
@@ -437,7 +439,7 @@ class RefChooser(QtWidgets.QMainWindow):
             self.stat_view.plot(x = np.arange(n+1),y = self.rfactor_list, clear = True,title = 'R-Factor',
                                 pen = pg.mkPen('y', width=2, style=QtCore.Qt.DotLine), symbol='o')
 
-            resultsDict = {'References':str(selectedRefs), 'Coefficients': str(np.around(self.coeffs_arr,4)),
+            resultsDict = {'Fit Number':n,'References':str(selectedRefs[1:]), 'Coefficients': str(np.around(self.coeffs_arr,4)),
                                           'R-Factor':[self.rfactor_mean]}
 
             df2 = pd.DataFrame.from_dict(resultsDict)
@@ -448,9 +450,10 @@ class RefChooser(QtWidgets.QMainWindow):
             # set the property of the table view. Size policy to make the contents justified
             self.tableWidget.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
             self.tableWidget.resizeColumnsToContents()
-            QtTest.QTest.qWait(0.1)
+            QtTest.QTest.qWait(0.1) # hepls with real time plotting
 
         self.stat_view.addItem(self.selectionLine)
+
 
     def dataFrametoQTable(self, df_:pd.DataFrame):
         nRows = len(df_.index)
@@ -475,7 +478,8 @@ class RefChooser(QtWidgets.QMainWindow):
     def selectTableAndCheckBox(self,x):
         nSelection = int(round(x))
         self.tableWidget.selectRow(nSelection)
-        refs_selected = self.iter_list[nSelection]
+        fit_num = int(self.tableWidget.item(nSelection, 0).text())
+        refs_selected = self.iter_list[fit_num]
 
         #reset all the checkboxes to uncheck state, except the energy
         for checkstate in self.findChildren(QtWidgets.QCheckBox):
@@ -487,7 +491,8 @@ class RefChooser(QtWidgets.QMainWindow):
             checkbox.setChecked(True)
 
     def updateFitWithLine(self):
-        x,y = self.selectionLine.pos()
+        pos_x,pos_y = self.selectionLine.pos()
+        x = self.df.index[self.df[str('Fit Number')] == np.round(pos_x)][0]
         self.selectTableAndCheckBox(x)
 
     def updateWithTableSelection(self):
@@ -498,6 +503,10 @@ class RefChooser(QtWidgets.QMainWindow):
         if event.button() == QtCore.Qt.LeftButton:
             Pos = self.stat_view.plotItem.vb.mapSceneToView(event.pos())
             self.selectionLine.setPos(Pos.x())
+
+    def sortTable(self):
+        self.df = self.df.sort_values('R-Factor',ignore_index=True)
+        self.dataFrametoQTable(self.df)
 
     def enableApply(self):
 

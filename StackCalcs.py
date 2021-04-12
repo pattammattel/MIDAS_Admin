@@ -425,9 +425,11 @@ def xanes_fitting(im_stack, e_list, refs, method='NNLS'):
 
         coeffs_arr = []
         r_factor_arr = []
-        lasso = linear_model.Lasso(positive=True, alpha=0.08)
+        #lasso = linear_model.Lasso(positive=True, alpha=0.08)
+        ridge = linear_model.Ridge(alpha=0.1)
         for i in range(im1 * im2):
-            fit_results = lasso.fit(int_refs.T, im_array[:, i])
+            #fit_results = lasso.fit(int_refs.T, im_array[:, i])
+            fit_results = ridge.fit(int_refs.T, im_array[:, i])
             r = fit_results.score(int_refs.T, im_array[:, i])
             coeffs_arr.append(fit_results.coef_)
             r_factor_arr.append(r)
@@ -437,6 +439,7 @@ def xanes_fitting(im_stack, e_list, refs, method='NNLS'):
     #logger.info("XANES Fitting done")
 
     return abundance_map, r_factor,np.mean(coeffs_arr,axis=0)
+
 def xanes_fitting_params(im_stack, e_list, refs, method='NNLS'):
     """Linear combination fit of image data with reference standards"""
     en, im1, im2 = np.shape(im_stack)
@@ -462,9 +465,11 @@ def xanes_fitting_params(im_stack, e_list, refs, method='NNLS'):
 
         coeffs_arr = []
         r_factor_arr = []
-        lasso = linear_model.Lasso(positive=True, alpha=0.1)
+        #lasso = linear_model.Lasso(positive=True, alpha=0.1)
+        ridge = linear_model.Ridge(alpha=0.1)
         for i in range(im1 * im2):
-            fit_results = lasso.fit(int_refs.T, im_array[:, i])
+            #fit_results = lasso.fit(int_refs.T, im_array[:, i])
+            fit_results = ridge.fit(int_refs.T, im_array[:, i])
             r = fit_results.score(int_refs.T, im_array[:, i])
             coeffs_arr.append(fit_results.coef_)
             r_factor_arr.append(r)
@@ -473,8 +478,6 @@ def xanes_fitting_params(im_stack, e_list, refs, method='NNLS'):
     #logger.info("XANES Fitting done")
 
     return r_factor,np.mean(coeffs_arr,axis=0)
-
-xanes_fitting_params
 
 def create_df_from_nor(athenafile='fe_refs.nor'):
     """create pandas dataframe from athena nor file, first column

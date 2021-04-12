@@ -178,8 +178,10 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.ref_names = ref_names
         self.selected = self.ref_names
         self.fitResultDict = {}
+        self.fit_method = self.cb_xanes_fit_model.currentText()
 
-        self.decon_ims, self.rfactor, self.coeffs_arr = xanes_fitting(self.im_stack, self.e_list, self.refs, method='NNLS')
+        self.decon_ims, self.rfactor, self.coeffs_arr = xanes_fitting(self.im_stack, self.e_list,
+                                                                      self.refs, method=self.fit_method)
 
         (self.dim1, self.dim3, self.dim2) = self.im_stack.shape
         self.cn = int(self.dim2 // 2)
@@ -202,7 +204,7 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.update_spectrum()
         # connections
         self.sb_e_shift.valueChanged.connect(self.update_spectrum)
-        self.sb_e_shift.valueChanged.connect(self.re_fit_xanes)
+        self.pb_re_fit.clicked.connect(self.re_fit_xanes)
         self.pb_edit_refs.clicked.connect(self.choose_refs)
         self.image_roi.sigRegionChanged.connect(self.update_spectrum)
         self.pb_save_chem_map.clicked.connect(self.save_chem_map)
@@ -247,7 +249,9 @@ class XANESViewer(QtWidgets.QMainWindow):
 
     def choose_refs(self):
         'Interactively exclude some standards from the reference file'
-        self.ref_edit_window = RefChooser(self.ref_names,self.im_stack,self.e_list, self.refs, self.sb_e_shift.value())
+        self.ref_edit_window = RefChooser(self.ref_names,self.im_stack,self.e_list,
+                                          self.refs, self.sb_e_shift.value(),
+                                          self.cb_xanes_fit_model.currentText())
         self.ref_edit_window.show()
         #self.rf_plot = pg.plot(title="RFactor Tracker")
 
@@ -276,7 +280,15 @@ class XANESViewer(QtWidgets.QMainWindow):
 
         else:
             self.inter_ref = interploate_E(self.refs, self.xdata1)
-        coeffs, r = opt.nnls(self.inter_ref.T, self.ydata1)
+        self.fit_method = self.cb_xanes_fit_model.currentText()
+        if self.fit_method == 'NNLS':
+            coeffs, r = opt.nnls(self.inter_ref.T, self.ydata1)
+
+        elif self.fit_method == 'LASSO':
+            lasso = linear_model.Lasso(positive=True, alpha=0.08)
+            fit_results = lasso.fit(self.inter_ref.T, self.ydata1)
+            coeffs, r = fit_results.coef_,lasso.score(self.inter_ref.T, self.ydata1)
+
         self.fit_ = np.dot(coeffs, self.inter_ref)
         pen = pg.mkPen('g', width=1.5)
         pen2 = pg.mkPen('r', width=1.5)
@@ -300,11 +312,11 @@ class XANESViewer(QtWidgets.QMainWindow):
     def re_fit_xanes(self):
         if len(self.selected) != 0:
             self.decon_ims, self.rfactor, self.coeffs_arr  = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
-                                       self.refs[self.selected], method='NNLS')
+                                       self.refs[self.selected], method=self.cb_xanes_fit_model.currentText())
         else:
             #if non athena file with no header is loaded no ref file cannot be edited
             self.decon_ims,self.rfactor, self.coeffs_arr = xanes_fitting(self.im_stack, self.e_list + self.sb_e_shift.value(),
-                                       self.refs, method='NNLS')
+                                       self.refs, method=self.cb_xanes_fit_model.currentText())
 
         #rfactor is a list of all spectra so take the mean
         self.rfactor_mean = np.mean(self.rfactor)
@@ -349,7 +361,7 @@ class RefChooser(QtWidgets.QMainWindow):
     choosenRefsSignal: pyqtSignal = QtCore.pyqtSignal(list)
     fitResultsSignal: pyqtSignal = QtCore.pyqtSignal(np.ndarray, float, np.ndarray)
 
-    def __init__(self, ref_names,im_stack,e_list, refs, e_shift):
+    def __init__(self, ref_names,im_stack,e_list, refs, e_shift, fit_model):
         super(RefChooser, self).__init__()
         uic.loadUi('uis/RefChooser.ui', self)
         self.ref_names = ref_names
@@ -357,6 +369,7 @@ class RefChooser(QtWidgets.QMainWindow):
         self.im_stack = im_stack
         self.e_list = e_list
         self.e_shift = e_shift
+        self.fit_model = fit_model
 
         self.all_boxes = []
         self.rFactorList = []
@@ -431,8 +444,8 @@ class RefChooser(QtWidgets.QMainWindow):
             self.statusbar.showMessage(f"{n+1}/{tot_combo}")
             selectedRefs = (list((str(self.ref_names[0]),)+refs))
             self.fit_combo_progress.setValue((n + 1) * 100 / tot_combo)
-            self.decon_ims, self.rfactor, self.coeffs_arr  = xanes_fitting(self.im_stack, self.e_list + self.e_shift,
-                                                                           self.refs[selectedRefs], method='NNLS')
+            self.rfactor, self.coeffs_arr  = xanes_fitting_params(self.im_stack, self.e_list + self.e_shift,
+                                                                           self.refs[selectedRefs], method=self.fit_model)
             #rfactor is a list of all spectra so take the mean
             self.rfactor_mean = np.around(np.mean(self.rfactor),4)
             self.rfactor_list.append(self.rfactor_mean)

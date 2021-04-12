@@ -454,7 +454,6 @@ class RefChooser(QtWidgets.QMainWindow):
 
         self.stat_view.addItem(self.selectionLine)
 
-
     def dataFrametoQTable(self, df_:pd.DataFrame):
         nRows = len(df_.index)
         nColumns = len(df_.columns)
@@ -505,7 +504,9 @@ class RefChooser(QtWidgets.QMainWindow):
             self.selectionLine.setPos(Pos.x())
 
     def sortTable(self):
-        self.df = self.df.sort_values('R-Factor',ignore_index=True)
+        #self.df = self.df.sort_values('R-Factor',ignore_index=True)
+        sorter = self.cb_sorter.currentText()
+        self.df = self.df.sort_values(sorter, ignore_index=True)
         self.dataFrametoQTable(self.df)
 
     def enableApply(self):

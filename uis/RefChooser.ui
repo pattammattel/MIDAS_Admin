@@ -30,9 +30,16 @@ QPushButton {
 background-color: rgb(175, 236, 255);
 color: rgb(255, 5,0);
 }
+
+QPushButton:disabled {
+background-color: rgb(255, 227, 213);
+color: rgb(255, 227, 213);
+}
+
+
 </string>
    </property>
-   <layout class="QGridLayout" name="gridLayout">
+   <layout class="QGridLayout" name="gridLayout_5">
     <property name="leftMargin">
      <number>25</number>
     </property>
@@ -45,6 +52,30 @@ color: rgb(255, 5,0);
     <property name="bottomMargin">
      <number>25</number>
     </property>
+    <item row="0" column="0">
+     <widget class="QFrame" name="ref_box_frame">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2"/>
+     </widget>
+    </item>
+    <item row="0" column="1" rowspan="2">
+     <widget class="PlotWidget" name="stat_view">
+      <property name="toolTip">
+       <string>Drag the line or double click on a point to select the parameters</string>
+      </property>
+     </widget>
+    </item>
     <item row="1" column="0">
      <widget class="QFrame" name="pb_frame">
       <property name="sizePolicy">
@@ -111,43 +142,6 @@ color: rgb(255, 5,0);
       </layout>
      </widget>
     </item>
-    <item row="0" column="0">
-     <widget class="QFrame" name="ref_box_frame">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_2"/>
-     </widget>
-    </item>
-    <item row="0" column="1" rowspan="2">
-     <widget class="PlotWidget" name="stat_view">
-      <property name="toolTip">
-       <string>Drag the line or double click on a point to select the parameters</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="0" colspan="2">
-     <widget class="QTableWidget" name="tableWidget"/>
-    </item>
-    <item row="2" column="1">
-     <widget class="QProgressBar" name="fit_combo_progress">
-      <property name="styleSheet">
-       <string notr="true">selection-color: rgb(0, 170, 127);</string>
-      </property>
-      <property name="value">
-       <number>1</number>
-      </property>
-     </widget>
-    </item>
     <item row="2" column="0">
      <widget class="QLabel" name="label_nComb">
       <property name="styleSheet">
@@ -162,12 +156,43 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
       </property>
      </widget>
     </item>
-    <item row="4" column="0">
-     <widget class="QPushButton" name="pb_sort_with_r">
-      <property name="text">
-       <string>Sort with R-Factor</string>
+    <item row="2" column="1">
+     <widget class="QProgressBar" name="fit_combo_progress">
+      <property name="styleSheet">
+       <string notr="true">selection-color: rgb(0, 170, 127);</string>
+      </property>
+      <property name="value">
+       <number>1</number>
       </property>
      </widget>
+    </item>
+    <item row="4" column="0">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QPushButton" name="pb_sort_with_r">
+        <property name="text">
+         <string>Sort with R-Factor</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="cb_sorter">
+        <item>
+         <property name="text">
+          <string>R-Factor</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Fit Number</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="3" column="0" colspan="2">
+     <widget class="QTableWidget" name="tableWidget"/>
     </item>
    </layout>
   </widget>

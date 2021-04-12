@@ -361,6 +361,8 @@ class RefChooser(QtWidgets.QMainWindow):
         self.all_boxes = []
         self.rFactorList = []
 
+        self.displayCombinations()
+
         # selection become more apparent than default with red-ish color
         self.tableWidget.setStyleSheet("background-color: white; selection-background-color: rgb(200,0,0);")
 
@@ -387,6 +389,7 @@ class RefChooser(QtWidgets.QMainWindow):
         self.tableWidget.itemSelectionChanged.connect(self.updateWithTableSelection)
         #self.stat_view.scene().sigMouseClicked.connect(self.moveSelectionLine)
         self.stat_view.mouseDoubleClickEvent  = self.moveSelectionLine
+        self.sb_max_combo.valueChanged.connect(self.displayCombinations)
 
     def clickedWhich(self):
         button_name = self.sender()
@@ -402,12 +405,25 @@ class RefChooser(QtWidgets.QMainWindow):
         self.populateChecked()
         self.choosenRefsSignal.emit(self.onlyCheckedBoxes)
 
+    def generateRefList(self, ref_list , maxCombo):
+        iter_list = []
+        i = 1
+        while i<maxCombo+1:
+            iter_list += list(combinations(ref_list,i))
+            i += 1
+        return len(iter_list), iter_list
+
+    def displayCombinations(self):
+        niter, self.iter_list = self.generateRefList(self.ref_names[1:], self.sb_max_combo.value())
+        self.label_nComb.setText(str(niter) + " Combinations")
+
     @QtCore.pyqtSlot()
     def tryAllCombo(self):
         self.rfactor_list = []
         self.df = pd.DataFrame(columns=['References', 'Coefficients', 'R-Factor'])
         self.tableWidget.setHorizontalHeaderLabels(self.df.columns)
-        self.iter_list = list(combinations(self.ref_names[1:],self.sb_max_combo.value()))
+        #self.iter_list = list(combinations(self.ref_names[1:],self.sb_max_combo.value()))
+        niter, self.iter_list = self.generateRefList(self.ref_names[1:],self.sb_max_combo.value())
         tot_combo = len(self.iter_list)
         for n, refs in enumerate(self.iter_list):
             self.statusbar.showMessage(f"{n+1}/{tot_combo}")

@@ -23,6 +23,7 @@
    <property name="styleSheet">
     <string notr="true">QCheckBox:checked {
 color: rgb(255, 75, 52);
+	background-color: rgb(255, 248, 149);
 }</string>
    </property>
    <layout class="QGridLayout" name="gridLayout">
@@ -60,7 +61,7 @@ color: rgb(255, 75, 52);
            <item>
             <widget class="QLabel" name="label">
              <property name="text">
-              <string>Combination of :</string>
+              <string>Max. No. of Refs</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -71,6 +72,12 @@ color: rgb(255, 75, 52);
             <widget class="QSpinBox" name="sb_max_combo">
              <property name="minimum">
               <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>10</number>
+             </property>
+             <property name="value">
+              <number>2</number>
              </property>
             </widget>
            </item>
@@ -132,6 +139,20 @@ color: rgb(255, 75, 52);
       </property>
       <property name="value">
        <number>1</number>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label_nComb">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 75, 52);
+font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
+      </property>
+      <property name="text">
+       <string>N Combinations</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </item>

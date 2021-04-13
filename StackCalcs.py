@@ -451,8 +451,8 @@ def xanes_fitting_1D(spec, e_list, refs, method='NNLS'):
     elif method == 'LASSO':
         lasso = linear_model.Lasso(positive=True, alpha=0.1)
         fit_results = lasso.fit(int_refs.T, spec)
-        r = fit_results.score(int_refs.T, spec)
         coeffs = fit_results.coef_
+        r = fit_results.score(int_refs.T, spec)
 
     elif method == 'RIDGE':
         ridge = linear_model.Ridge(alpha=0.1)

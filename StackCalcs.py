@@ -467,9 +467,9 @@ def xanes_fitting_Line(im_stack, e_list, refs, method='NNLS',alphaForLM = 0.1):
     coeffs_arr = []
     meanStats = {'R_Factor':0,'R_Square':0,'Chi_Square':0,'Reduced Chi_Square':0}
 
-    lasso = linear_model.Lasso(positive=True, alpha=alphaForLM)
     for i in range(im1):
-        stats, coeffs = xanes_fitting_1D(im_array[:, i], e_list, refs, method=method, alphaForLM=alphaForLM)
+        stats, coeffs = xanes_fitting_1D(im_array[:, i], e_list, refs,
+                                         method=method, alphaForLM=alphaForLM)
         coeffs_arr.append(coeffs)
         for key in stats.keys():
             meanStats[key] += stats[key]

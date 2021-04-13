@@ -400,45 +400,42 @@ def interploate_E(refs, e):
         all_ref.append(ref_i)
     return np.array(all_ref)
 
-def xanes_fitting(im_stack, e_list, refs, method='NNLS',alphaForLM = 0.01):
+def getStat(spec,fit, num_refs = 2):
+    stat = {}
+
+    r_factor = (np.sum(spec) - np.sum(fit)) / np.sum(spec)
+    stat['R_Factor'] = r_factor
+
+    ybar = np.sum(spec)/len(spec)      # or sum(y)/len(y)
+    ssreg = np.sum((fit-ybar)**2)   # or sum([ (yihat - ybar)**2 for yihat in yhat])
+    sstot = np.sum((spec - ybar)**2)    # or sum([ (yi - ybar)**2 for yi in y])
+    r_square = ssreg / sstot
+    stat['R_Square'] = r_square
+
+    chisq = np.sum((spec - fit) ** 2)
+    stat['Chi_Square'] = chisq
+
+    red_chisq = chisq/(spec.size - num_refs)
+    stat['Reduced Chi_Square'] = red_chisq
+
+    return r_factor, r_square
+
+def xanes_fitting(im_stack, e_list, refs, method='NNLS',alphaForLM = 0.1):
     """Linear combination fit of image data with reference standards"""
     en, im1, im2 = np.shape(im_stack)
-
-    int_refs = (interploate_E(refs, e_list))
     im_array = im_stack.reshape(en, im1 * im2)
+    coeffs_arr = []
+    r_factor_arr = []
+    lasso = linear_model.Lasso(positive=True, alpha=alphaForLM)
+    for i in range(im1 * im2):
+        r_factor, coeffs = xanes_fitting_1D(im_array[:, i], e_list, refs, method=method, alphaForLM=alphaForLM)
+        coeffs_arr.append(coeffs)
+        r_factor_arr.append(r_factor)
 
-    if method == 'NNLS':
+    abundance_map = np.reshape(coeffs_arr, (im1, im2, -1))
+    r_factor_im = np.reshape(r_factor_arr, (im1, im2))
 
-        coeffs_arr = []
-        r_factor_arr = []
-
-        for i in range(im1 * im2):
-            coeffs, r = opt.nnls(int_refs.T, im_array[:, i])
-            coeffs_arr.append(coeffs)
-            r_factor_arr.append(r)
-
-        abundance_map = np.reshape(coeffs_arr, (im1, im2, -1))
-        r_factor = np.reshape(r_factor_arr, (im1, im2))
-    #logger.info("XANES Fitting done")
-
-    elif method == 'LASSO':
-
-        coeffs_arr = []
-        r_factor_arr = []
-        #lasso = linear_model.Lasso(positive=True, alpha=0.08)
-        ridge = linear_model.Ridge(alpha=alphaForLM)
-        for i in range(im1 * im2):
-            #fit_results = lasso.fit(int_refs.T, im_array[:, i])
-            fit_results = ridge.fit(int_refs.T, im_array[:, i])
-            r = fit_results.score(int_refs.T, im_array[:, i])
-            coeffs_arr.append(fit_results.coef_)
-            r_factor_arr.append(r)
-
-        abundance_map = np.reshape(coeffs_arr, (im1, im2, -1))
-        r_factor = np.reshape(r_factor_arr, (im1, im2))
-    #logger.info("XANES Fitting done")
-
-    return abundance_map, r_factor,np.mean(coeffs_arr,axis=0)
+    return abundance_map, r_factor_im, np.mean(coeffs_arr,axis=0)
 
 def xanes_fitting_1D(spec, e_list, refs, method='NNLS', alphaForLM = 0.01):
     """Linear combination fit of image data with reference standards"""
@@ -452,15 +449,16 @@ def xanes_fitting_1D(spec, e_list, refs, method='NNLS', alphaForLM = 0.01):
         lasso = linear_model.Lasso(positive=True, alpha=alphaForLM) #lowering alpha helps with 1D fits
         fit_results = lasso.fit(int_refs.T, spec)
         coeffs = fit_results.coef_
-        r = fit_results.score(int_refs.T, spec)
 
     elif method == 'RIDGE':
         ridge = linear_model.Ridge(alpha=alphaForLM)
         fit_results = ridge.fit(int_refs.T, spec)
-        r = fit_results.score(int_refs.T, spec)
         coeffs = fit_results.coef_
 
-    return r, coeffs
+    fit = coeffs @ int_refs
+    r_factor, r_square = getStat(spec,fit)
+
+    return r_factor, coeffs
 
 def create_df_from_nor(athenafile='fe_refs.nor'):
     """create pandas dataframe from athena nor file, first column

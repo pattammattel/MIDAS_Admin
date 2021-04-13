@@ -179,6 +179,11 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
        <widget class="QComboBox" name="cb_sorter">
         <item>
          <property name="text">
+          <string>Fit Number</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>Reduced Chi-Square</string>
          </property>
         </item>
@@ -195,11 +200,6 @@ font: 10pt &quot;MS Shell Dlg 2&quot;;</string>
         <item>
          <property name="text">
           <string>Chi-Square</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Fit Number</string>
          </property>
         </item>
        </widget>

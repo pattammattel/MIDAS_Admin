@@ -269,25 +269,22 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.roi_img = self.image_roi.getArrayRegion(self.im_stack, self.image_view.imageItem, axes=(1, 2))
         sizex, sizey = self.roi_img.shape[1], self.roi_img.shape[2]
         posx, posy = self.image_roi.pos()
-        self.le_roi_xs.setText(str(int(posx))+':' +str(int(posy)))
-        self.le_roi_xe.setText(str(sizex) +','+ str(sizey))
+        self.roi_info.setText(f'ROI_Pos: {int(posx)},{int(posy)} ROI_Size: {sizex},{sizey}')
 
         self.xdata1 = self.e_list + self.sb_e_shift.value()
         self.ydata1 = get_sum_spectra(self.roi_img)
+        self.fit_method = self.cb_xanes_fit_model.currentText()
+
         if len(self.selected) != 0:
 
             self.inter_ref = interploate_E(self.refs[self.selected], self.xdata1)
+            stats, coeffs = xanes_fitting_1D(self.ydata1, self.xdata1, self.refs[self.selected],
+                                             method=self.fit_method, alphaForLM=0.05)
 
         else:
             self.inter_ref = interploate_E(self.refs, self.xdata1)
-        self.fit_method = self.cb_xanes_fit_model.currentText()
-        if self.fit_method == 'NNLS':
-            coeffs, r = opt.nnls(self.inter_ref.T, self.ydata1)
-
-        elif self.fit_method == 'LASSO':
-            lasso = linear_model.Lasso(positive=True, alpha=0.08)
-            fit_results = lasso.fit(self.inter_ref.T, self.ydata1)
-            coeffs, r = fit_results.coef_,lasso.score(self.inter_ref.T, self.ydata1)
+            stats, coeffs = xanes_fitting_1D(self.ydata1, self.xdata1, self.refs,
+                                             method=self.fit_method, alphaForLM=0.05)
 
         self.fit_ = np.dot(coeffs, self.inter_ref)
         pen = pg.mkPen('g', width=1.5)
@@ -307,7 +304,10 @@ class XANESViewer(QtWidgets.QMainWindow):
             else:
                 self.spectrum_view.plot(self.xdata1, np.dot(coff, ref), name="ref" + str(n + 1), pen=plt_clr)
         #set the rfactor value to the line edit slot
-        self.le_r_sq.setText(str(np.around(r / self.ydata1.sum(), 4)))
+        self.fit_results.setText(f"Coefficients: {coeffs} \n"
+                                 f"R-Factor: {stats['R_Factor']}, R-Square: {stats['R_Square']},\n "
+                                 f"Chi-Square: {stats['Chi_Square']}, "
+                                 f"Reduced Chi-Square: {stats['Reduced Chi_Square']}")
 
     def re_fit_xanes(self):
         if len(self.selected) != 0:
@@ -407,6 +407,7 @@ class RefChooser(QtWidgets.QMainWindow):
         self.sb_max_combo.valueChanged.connect(self.displayCombinations)
         #self.pb_sort_with_r.clicked.connect(lambda: self.tableWidget.sortItems(3, QtCore.Qt.AscendingOrder))
         self.pb_sort_with_r.clicked.connect(self.sortTable)
+        self.cb_sorter.currentTextChanged.connect(self.sortTable)
 
     def clickedWhich(self):
         button_name = self.sender()

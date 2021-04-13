@@ -460,7 +460,7 @@ def xanes_fitting(im_stack, e_list, refs, method='NNLS',alphaForLM = 0.1):
 
     return abundance_map, r_factor_im, np.mean(coeffs_arr,axis=0)
 
-def xanes_fitting_Line(im_stack, e_list, refs, method='NNLS',alphaForLM = 0.1):
+def xanes_fitting_Line(im_stack, e_list, refs, method='NNLS',alphaForLM = 0.05):
     """Linear combination fit of image data with reference standards"""
     en, im1, im2 = np.shape(im_stack)
     im_array = np.mean(im_stack,2)

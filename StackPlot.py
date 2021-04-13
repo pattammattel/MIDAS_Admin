@@ -211,6 +211,7 @@ class XANESViewer(QtWidgets.QMainWindow):
         self.pb_save_spe_fit.clicked.connect(self.pg_export_spec_fit)
         self.hsb_xanes_stk.valueChanged.connect(self.display_image_data)
         self.hsb_chem_map.valueChanged.connect(self.display_image_data)
+        self.actionexportResults.triggered.connect(self.exportFitResults)
         #self.actionexportResults.triggered.connect(self.exportFitResults)
 
         #self.pb_save_spe_fit.clicked.connect(self.save_spec_fit)
@@ -304,10 +305,12 @@ class XANESViewer(QtWidgets.QMainWindow):
             else:
                 self.spectrum_view.plot(self.xdata1, np.dot(coff, ref), name="ref" + str(n + 1), pen=plt_clr)
         #set the rfactor value to the line edit slot
-        self.fit_results.setText(f"Coefficients: {coeffs} \n"
-                                 f"R-Factor: {stats['R_Factor']}, R-Square: {stats['R_Square']},\n "
-                                 f"Chi-Square: {stats['Chi_Square']}, "
-                                 f"Reduced Chi-Square: {stats['Reduced Chi_Square']}")
+        self.results = f"Coefficients: {coeffs} \n"\
+                       f"R-Factor: {stats['R_Factor']}, R-Square: {stats['R_Square']},\n "\
+                       f"Chi-Square: {stats['Chi_Square']}, "\
+                       f"Reduced Chi-Square: {stats['Reduced Chi_Square']}"
+
+        self.fit_results.setText(self.results)
 
     def re_fit_xanes(self):
         if len(self.selected) != 0:
@@ -356,6 +359,15 @@ class XANESViewer(QtWidgets.QMainWindow):
         exporter.parameters()['columnMode'] = '(x,y,y,y) for all plots'
         file_name = QFileDialog().getSaveFileName(self, "save spectrum", '', 'spectrum and fit (*csv)')
         exporter.export(str(file_name[0])+'.csv')
+
+    def exportFitResults(self):
+        file_name = QFileDialog().getSaveFileName(self, "save txt", 'xanes_1D_fit_results.txt', 'txt data (*txt)')
+        if file_name:
+            with open(file_name[0], 'w') as file:
+                file.write(self.results)
+        else:
+            pass
+
 
 class RefChooser(QtWidgets.QMainWindow):
     choosenRefsSignal: pyqtSignal = QtCore.pyqtSignal(list)

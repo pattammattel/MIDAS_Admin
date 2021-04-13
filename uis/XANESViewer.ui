@@ -347,7 +347,7 @@ color: rgb(0, 85, 255);</string>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionexportResults">
    <property name="text">
-    <string>Export Fit Log</string>
+    <string>Export Fit Stats</string>
    </property>
   </action>
   <action name="actionExport_Ref_Plot">

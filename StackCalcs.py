@@ -400,42 +400,25 @@ def interploate_E(refs, e):
         all_ref.append(ref_i)
     return np.array(all_ref)
 
-def getStat(spec,fit, num_refs = 2):
-    stat = {}
+def getStats(spec,fit, num_refs = 2):
+    stats = {}
 
     r_factor = (np.sum(spec) - np.sum(fit)) / np.sum(spec)
-    stat['R_Factor'] = r_factor
+    stats['R_Factor'] = np.around(r_factor,5)
 
-    ybar = np.sum(spec)/len(spec)      # or sum(y)/len(y)
-    ssreg = np.sum((fit-ybar)**2)   # or sum([ (yihat - ybar)**2 for yihat in yhat])
-    sstot = np.sum((spec - ybar)**2)    # or sum([ (yi - ybar)**2 for yi in y])
-    r_square = ssreg / sstot
-    stat['R_Square'] = r_square
+    y_mean = np.sum(spec)/len(spec)
+    SS_tot = np.sum((spec-y_mean)**2)
+    SS_res = np.sum((spec - fit)**2)
+    r_square = 1 - (SS_res/ SS_tot)
+    stats['R_Square'] = np.around(r_square,4)
 
     chisq = np.sum((spec - fit) ** 2)
-    stat['Chi_Square'] = chisq
+    stats['Chi_Square'] = np.around(chisq,5)
 
     red_chisq = chisq/(spec.size - num_refs)
-    stat['Reduced Chi_Square'] = red_chisq
+    stats['Reduced Chi_Square'] = np.around(red_chisq,5)
 
-    return r_factor, r_square
-
-def xanes_fitting(im_stack, e_list, refs, method='NNLS',alphaForLM = 0.1):
-    """Linear combination fit of image data with reference standards"""
-    en, im1, im2 = np.shape(im_stack)
-    im_array = im_stack.reshape(en, im1 * im2)
-    coeffs_arr = []
-    r_factor_arr = []
-    lasso = linear_model.Lasso(positive=True, alpha=alphaForLM)
-    for i in range(im1 * im2):
-        r_factor, coeffs = xanes_fitting_1D(im_array[:, i], e_list, refs, method=method, alphaForLM=alphaForLM)
-        coeffs_arr.append(coeffs)
-        r_factor_arr.append(r_factor)
-
-    abundance_map = np.reshape(coeffs_arr, (im1, im2, -1))
-    r_factor_im = np.reshape(r_factor_arr, (im1, im2))
-
-    return abundance_map, r_factor_im, np.mean(coeffs_arr,axis=0)
+    return stats
 
 def xanes_fitting_1D(spec, e_list, refs, method='NNLS', alphaForLM = 0.01):
     """Linear combination fit of image data with reference standards"""
@@ -455,10 +438,46 @@ def xanes_fitting_1D(spec, e_list, refs, method='NNLS', alphaForLM = 0.01):
         fit_results = ridge.fit(int_refs.T, spec)
         coeffs = fit_results.coef_
 
-    fit = coeffs @ int_refs
-    r_factor, r_square = getStat(spec,fit)
+    fit = coeffs@int_refs
+    stats = getStats(spec,fit)
 
-    return r_factor, coeffs
+    return stats, coeffs
+
+def xanes_fitting(im_stack, e_list, refs, method='NNLS',alphaForLM = 0.1):
+    """Linear combination fit of image data with reference standards"""
+    en, im1, im2 = np.shape(im_stack)
+    im_array = im_stack.reshape(en, im1 * im2)
+    coeffs_arr = []
+    r_factor_arr = []
+    lasso = linear_model.Lasso(positive=True, alpha=alphaForLM)
+    for i in range(im1 * im2):
+        stats, coeffs = xanes_fitting_1D(im_array[:, i], e_list, refs, method=method, alphaForLM=alphaForLM)
+        coeffs_arr.append(coeffs)
+        r_factor_arr.append(stats['R_Factor'])
+
+    abundance_map = np.reshape(coeffs_arr, (im1, im2, -1))
+    r_factor_im = np.reshape(r_factor_arr, (im1, im2))
+
+    return abundance_map, r_factor_im, np.mean(coeffs_arr,axis=0)
+
+def xanes_fitting_Line(im_stack, e_list, refs, method='NNLS',alphaForLM = 0.1):
+    """Linear combination fit of image data with reference standards"""
+    en, im1, im2 = np.shape(im_stack)
+    im_array = np.mean(im_stack,2)
+    coeffs_arr = []
+    meanStats = {'R_Factor':0,'R_Square':0,'Chi_Square':0,'Reduced Chi_Square':0}
+
+    lasso = linear_model.Lasso(positive=True, alpha=alphaForLM)
+    for i in range(im1):
+        stats, coeffs = xanes_fitting_1D(im_array[:, i], e_list, refs, method=method, alphaForLM=alphaForLM)
+        coeffs_arr.append(coeffs)
+        for key in stats.keys():
+            meanStats[key] += stats[key]
+
+    for key, vals in meanStats.items():
+        meanStats[key] = np.around((vals/im1),5)
+
+    return meanStats, np.mean(coeffs_arr,axis=0)
 
 def create_df_from_nor(athenafile='fe_refs.nor'):
     """create pandas dataframe from athena nor file, first column

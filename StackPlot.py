@@ -382,6 +382,8 @@ class RefChooser(QtWidgets.QMainWindow):
         # add a line to the plot to walk through the table. Note that the table is not sorted
         self.selectionLine = pg.InfiniteLine(pos=1, angle=90, pen=pg.mkPen('m', width=2.5),
                                              movable=True, bounds=None, label='Move Me!')
+        self.stat_view.setLabel('bottom', 'Fit ID')
+        self.stat_view.setLabel('left', 'R-Factor')
 
         for n, i in enumerate(self.ref_names):
             self.cb_i = QtWidgets.QCheckBox(self.ref_box_frame)
@@ -435,7 +437,9 @@ class RefChooser(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def tryAllCombo(self):
         self.rfactor_list = []
-        self.df = pd.DataFrame(columns=['Fit Number','References', 'Coefficients', 'R-Factor'])
+        self.df = pd.DataFrame(columns=['Fit Number','References', 'Coefficients',
+                                        'R-Factor', 'R^2', 'chi^2', 'red-chi^2'])
+
         self.tableWidget.setHorizontalHeaderLabels(self.df.columns)
         #self.iter_list = list(combinations(self.ref_names[1:],self.sb_max_combo.value()))
         niter, self.iter_list = self.generateRefList(self.ref_names[1:],self.sb_max_combo.value())
@@ -444,28 +448,22 @@ class RefChooser(QtWidgets.QMainWindow):
             self.statusbar.showMessage(f"{n+1}/{tot_combo}")
             selectedRefs = (list((str(self.ref_names[0]),)+refs))
             self.fit_combo_progress.setValue((n + 1) * 100 / tot_combo)
-            self.rfactor, self.coeffs_arr  = xanes_fitting_1D(get_mean_spectra(self.im_stack), self.e_list + self.e_shift,
+            self.stat, self.coeffs_arr  = xanes_fitting_Line(self.im_stack, self.e_list + self.e_shift,
                                                                            self.refs[selectedRefs], method=self.fit_model)
 
-            # single spectrum results in zero contribution so doing by line than 2D to reduce computation
-
-            #rfactor is a list of all spectra so take the mean
-            self.rfactor_mean = np.around(np.mean(self.rfactor),4)
-            self.rfactor_list.append(self.rfactor_mean)
+            self.rfactor_list.append(self.stat['R_Factor'])
             self.stat_view.plot(x = np.arange(n+1),y = self.rfactor_list, clear = True,title = 'R-Factor',
                                 pen = pg.mkPen('y', width=2, style=QtCore.Qt.DotLine), symbol='o')
 
-            resultsDict = {'Fit Number':n,'References':str(selectedRefs[1:]), 'Coefficients': str(np.around(self.coeffs_arr,4)),
-                                          'R-Factor':[self.rfactor_mean]}
+            resultsDict = {'Fit Number':n,'References':str(selectedRefs[1:]),
+                           'Coefficients': str(np.around(self.coeffs_arr,4)),
+                           'R-Factor':self.stat['R_Factor'],'R^2':self.stat['R_Square'],
+                           'chi^2':self.stat['Chi_Square'], 'red-chi^2':self.stat['Reduced Chi_Square'] }
 
-            df2 = pd.DataFrame.from_dict(resultsDict)
+            df2 = pd.DataFrame([resultsDict])
             self.df = pd.concat([self.df,df2],ignore_index=True)
 
-            self.dataFrametoQTable(self.df.round(4))
-
-            # set the property of the table view. Size policy to make the contents justified
-            self.tableWidget.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-            self.tableWidget.resizeColumnsToContents()
+            self.dataFrametoQTable(self.df)
             QtTest.QTest.qWait(0.1) # hepls with real time plotting
 
         self.stat_view.addItem(self.selectionLine)
@@ -481,6 +479,10 @@ class RefChooser(QtWidgets.QMainWindow):
             for j in range(nColumns):
                 cell = QtWidgets.QTableWidgetItem(str(df_.values[i][j]))
                 self.tableWidget.setItem(i, j, cell)
+
+        # set the property of the table view. Size policy to make the contents justified
+        self.tableWidget.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.tableWidget.resizeColumnsToContents()
 
     def exportFitResults(self):
         file_name = QFileDialog().getSaveFileName(self, "save csv", 'xanes_fit_results_log.csv', 'txt data (*csv)')
@@ -520,8 +522,10 @@ class RefChooser(QtWidgets.QMainWindow):
             self.selectionLine.setPos(Pos.x())
 
     def sortTable(self):
-        #self.df = self.df.sort_values('R-Factor',ignore_index=True)
-        sorter = self.cb_sorter.currentText()
+        sorter_dict = {'R-Factor':'R-Factor','R-Square':'R^2',
+                       'Chi-Square':'chi^2', 'Reduced Chi-Square':'red-chi^2',
+                       'Fit Number':'Fit Number'}
+        sorter = sorter_dict[self.cb_sorter.currentText()]
         self.df = self.df.sort_values(sorter, ignore_index=True)
         self.dataFrametoQTable(self.df)
 

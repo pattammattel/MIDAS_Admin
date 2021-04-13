@@ -446,6 +446,9 @@ class RefChooser(QtWidgets.QMainWindow):
             self.fit_combo_progress.setValue((n + 1) * 100 / tot_combo)
             self.rfactor, self.coeffs_arr  = xanes_fitting_1D(get_mean_spectra(self.im_stack), self.e_list + self.e_shift,
                                                                            self.refs[selectedRefs], method=self.fit_model)
+
+            # single spectrum results in zero contribution so doing by line than 2D to reduce computation
+
             #rfactor is a list of all spectra so take the mean
             self.rfactor_mean = np.around(np.mean(self.rfactor),4)
             self.rfactor_list.append(self.rfactor_mean)

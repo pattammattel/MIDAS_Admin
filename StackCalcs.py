@@ -400,7 +400,7 @@ def interploate_E(refs, e):
         all_ref.append(ref_i)
     return np.array(all_ref)
 
-def xanes_fitting(im_stack, e_list, refs, method='NNLS'):
+def xanes_fitting(im_stack, e_list, refs, method='NNLS',alphaForLM = 0.01):
     """Linear combination fit of image data with reference standards"""
     en, im1, im2 = np.shape(im_stack)
 
@@ -426,7 +426,7 @@ def xanes_fitting(im_stack, e_list, refs, method='NNLS'):
         coeffs_arr = []
         r_factor_arr = []
         #lasso = linear_model.Lasso(positive=True, alpha=0.08)
-        ridge = linear_model.Ridge(alpha=0.1)
+        ridge = linear_model.Ridge(alpha=alphaForLM)
         for i in range(im1 * im2):
             #fit_results = lasso.fit(int_refs.T, im_array[:, i])
             fit_results = ridge.fit(int_refs.T, im_array[:, i])
@@ -440,7 +440,7 @@ def xanes_fitting(im_stack, e_list, refs, method='NNLS'):
 
     return abundance_map, r_factor,np.mean(coeffs_arr,axis=0)
 
-def xanes_fitting_1D(spec, e_list, refs, method='NNLS'):
+def xanes_fitting_1D(spec, e_list, refs, method='NNLS', alphaForLM = 0.01):
     """Linear combination fit of image data with reference standards"""
 
     int_refs = (interploate_E(refs, e_list))
@@ -449,13 +449,13 @@ def xanes_fitting_1D(spec, e_list, refs, method='NNLS'):
         coeffs, r = opt.nnls(int_refs.T, spec)
 
     elif method == 'LASSO':
-        lasso = linear_model.Lasso(positive=True, alpha=0.1)
+        lasso = linear_model.Lasso(positive=True, alpha=alphaForLM) #lowering alpha helps with 1D fits
         fit_results = lasso.fit(int_refs.T, spec)
         coeffs = fit_results.coef_
         r = fit_results.score(int_refs.T, spec)
 
     elif method == 'RIDGE':
-        ridge = linear_model.Ridge(alpha=0.1)
+        ridge = linear_model.Ridge(alpha=alphaForLM)
         fit_results = ridge.fit(int_refs.T, spec)
         r = fit_results.score(int_refs.T, spec)
         coeffs = fit_results.coef_

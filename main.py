@@ -6,8 +6,9 @@
 import logging, sys, webbrowser, traceback
 
 from PyQt5 import QtWidgets, uic, QtCore
-from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDesktopWidget, QApplication
+from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDesktopWidget, QApplication, QSizePolicy
 from PyQt5.QtCore import QObject, QTimer, QThread, pyqtSignal, pyqtSlot, QRunnable, QThreadPool
+from PyQt5.QtGui import QMovie
 from StackPlot import *
 from StackCalcs import *
 from MaskView import *
@@ -376,8 +377,12 @@ class midasWindow(QtWidgets.QMainWindow):
     def StackRegThread(self):
         # Pass the function to execute
         worker = Worker(self.stackRegistration)  # Any other args, kwargs are passed to the run function
+        self.splash = LoadingScreen()
+        self.splash.show()
+        worker.signals.start.connect(self.splash.startAnimation)
         worker.signals.result.connect(self.print_output)
         worker.signals.finished.connect(self.thread_complete)
+        worker.signals.finished.connect(self.splash.stopAnimation)
         # Execute
         self.threadpool.start(worker)
         self.update_image_roi()
@@ -1006,6 +1011,7 @@ class WorkerSignals(QObject):
     - result: `object` data returned from processing, anything
     - progress: `tuple` indicating progress metadata
     '''
+    start = pyqtSignal()
     finished = pyqtSignal()
     error = pyqtSignal(tuple)
     result = pyqtSignal(object)
@@ -1030,6 +1036,7 @@ class Worker(QRunnable):
         Initialise the runner function with passed args, kwargs.
         '''
         # Retrieve args/kwargs here; and fire processing using them
+        self.signals.start.emit()
         try:
             result = self.fn(*self.args, **self.kwargs)
         except:
@@ -1040,6 +1047,26 @@ class Worker(QRunnable):
             self.signals.result.emit(result)  # Return the result of the processing
         finally:
             self.signals.finished.emit()  # Done
+
+
+class LoadingScreen(QtWidgets.QSplashScreen):
+    def __init__(self):
+        super(LoadingScreen, self).__init__()
+        uic.loadUi('uis/animationWindow.ui', self)
+        self.movie = QMovie("uis/animation.gif")
+        self.label.setMovie(self.movie)
+
+    def mousePressEvent(self, event):
+        # disable default "click-to-dismiss" behaviour
+        pass
+
+    def startAnimation(self):
+        self.movie.start()
+        self.show()
+
+    def stopAnimation(self):
+        self.movie.stop()
+        self.hide()
 
 
 if __name__ == "__main__":

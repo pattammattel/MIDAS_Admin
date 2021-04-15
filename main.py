@@ -386,7 +386,7 @@ class midasWindow(QtWidgets.QMainWindow):
         pw = self.geometry().width()
         dw = self.splash.width()
         dh = self.splash.height()
-        new_x,new_y = px+(0.5*pw)-(dw/2),py+(0.5*ph)-(dh/2)
+        new_x,new_y = px+(0.5*pw)-dw, py+(0.5*ph)-dh
         self.splash.setGeometry(new_x, new_y, dw, dh)
         self.splash.show()
 

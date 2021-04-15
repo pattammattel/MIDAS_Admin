@@ -8,12 +8,17 @@ import logging, sys, webbrowser, traceback
 from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDesktopWidget, QApplication, QSizePolicy
 from PyQt5.QtCore import QObject, QTimer, QThread, pyqtSignal, pyqtSlot, QRunnable, QThreadPool
-from PyQt5.QtGui import QMovie
 from StackPlot import *
 from StackCalcs import *
 from MaskView import *
 
 logger = logging.getLogger()
+
+if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+
+if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
 
 class midasWindow(QtWidgets.QMainWindow):
@@ -97,7 +102,6 @@ class midasWindow(QtWidgets.QMainWindow):
         self.centralwidget.setStyleSheet(open('defaultStyle.css').read())
 
     #File Loading
-
     def browse_file(self):
         """ To open a file widow and choose the data file.
         The filename will be used to load data using 'rest and load stack' function """
@@ -374,11 +378,22 @@ class midasWindow(QtWidgets.QMainWindow):
         else:
             pass
 
+    def loadSplashScreen(self):
+        self.splash = LoadingScreen()
+        px = self.geometry().x()
+        py = self.geometry().y()
+        ph = self.geometry().height()
+        pw = self.geometry().width()
+        dw = self.splash.width()
+        dh = self.splash.height()
+        new_x,new_y = px+(0.5*pw)-(dw/2),py+(0.5*ph)-(dh/2)
+        self.splash.setGeometry(new_x, new_y, dw, dh)
+        self.splash.show()
+
     def StackRegThread(self):
         # Pass the function to execute
         worker = Worker(self.stackRegistration)  # Any other args, kwargs are passed to the run function
-        self.splash = LoadingScreen()
-        self.splash.show()
+        self.loadSplashScreen()
         worker.signals.start.connect(self.splash.startAnimation)
         worker.signals.result.connect(self.print_output)
         worker.signals.finished.connect(self.thread_complete)
@@ -1047,27 +1062,6 @@ class Worker(QRunnable):
             self.signals.result.emit(result)  # Return the result of the processing
         finally:
             self.signals.finished.emit()  # Done
-
-
-class LoadingScreen(QtWidgets.QSplashScreen):
-    def __init__(self):
-        super(LoadingScreen, self).__init__()
-        uic.loadUi('uis/animationWindow.ui', self)
-        self.movie = QMovie("uis/animation.gif")
-        self.label.setMovie(self.movie)
-
-    def mousePressEvent(self, event):
-        # disable default "click-to-dismiss" behaviour
-        pass
-
-    def startAnimation(self):
-        self.movie.start()
-        self.show()
-
-    def stopAnimation(self):
-        self.movie.stop()
-        self.hide()
-
 
 if __name__ == "__main__":
 

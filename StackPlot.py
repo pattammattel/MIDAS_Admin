@@ -7,6 +7,7 @@ import logging
 from itertools import combinations
 
 from PyQt5 import QtWidgets,QtCore,QtGui, uic, QtTest
+from PyQt5.QtGui import QMovie
 from PyQt5.QtWidgets import QFileDialog
 from pyqtgraph import ImageView, PlotWidget
 from PyQt5.QtCore import pyqtSignal
@@ -648,6 +649,26 @@ class ScatterPlot(QtWidgets.QMainWindow):
         self.masked_img.setImage(img_selected * self.img1)
         self.masked_img.setPredefinedGradient('bipolar')
         self.masked_img.setWindowTitle("Masked Image")
+
+class LoadingScreen(QtWidgets.QSplashScreen):
+    def __init__(self):
+        super(LoadingScreen, self).__init__()
+        uic.loadUi('uis/animationWindow.ui', self)
+        self.movie = QMovie("uis/animation2.gif")
+        self.label.setMovie(self.movie)
+
+    def mousePressEvent(self, event):
+        # disable default "click-to-dismiss" behaviour
+        pass
+
+    def startAnimation(self):
+        self.movie.start()
+        self.show()
+
+    def stopAnimation(self):
+        self.movie.stop()
+        self.hide()
+
 
 
 

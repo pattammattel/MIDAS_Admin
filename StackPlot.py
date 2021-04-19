@@ -45,7 +45,10 @@ class singleStackViewer(QtWidgets.QMainWindow):
 
     def saveImageStackAsTIFF(self):
         file_name = QFileDialog().getSaveFileName(self, "", '', 'data(*tiff *tif *txt *png )')
-        tf.imsave(str(file_name[0]), np.float32(self.img_stack.transpose(0, 2, 1)))
+        if file_name[0]:
+            tf.imsave(str(file_name[0]), np.float32(self.img_stack.transpose(0, 2, 1)))
+        else:
+            pass
 
 class ComponentViewer(QtWidgets.QMainWindow):
 
@@ -104,10 +107,13 @@ class ComponentViewer(QtWidgets.QMainWindow):
 
     def save_comp_data(self):
         file_name = QFileDialog().getSaveFileName(self, "", '', 'data(*tiff *tif *txt *png )')
-        tf.imsave(str(file_name[0]) + '_components.tiff', np.float32(self.comp_stack.transpose(0, 2, 1)), imagej=True)
-        tf.imsave(str(file_name[0]) + '_component_masks.tiff', np.float32(self.decomp_map.T),imagej=True)
-        np.savetxt(str(file_name[0]) + '_deconv_spec.txt', self.decon_spectra)
-        np.savetxt(str(file_name[0]) + '_component_spec.txt', self.comp_spectra)
+        if file_name[0]:
+            tf.imsave(str(file_name[0]) + '_components.tiff', np.float32(self.comp_stack.transpose(0, 2, 1)), imagej=True)
+            tf.imsave(str(file_name[0]) + '_component_masks.tiff', np.float32(self.decomp_map.T),imagej=True)
+            np.savetxt(str(file_name[0]) + '_deconv_spec.txt', self.decon_spectra)
+            np.savetxt(str(file_name[0]) + '_component_spec.txt', self.comp_spectra)
+        else:
+            pass
 
     # add energy column
 
@@ -338,10 +344,10 @@ class XANESViewer(QtWidgets.QMainWindow):
 
     def save_chem_map(self):
         file_name = QFileDialog().getSaveFileName(self, "save image", '', 'image data (*tiff)')
-        try:
+        if file_name[0]:
             tf.imsave(str(file_name[0]) + '_xanes_map.tiff', np.float32(self.decon_ims.T), imagej=True)
             tf.imsave(str(file_name[0]) + '_rfactor.tiff', np.float32(self.rfactor.T), imagej=True)
-        except:
+        else:
             logger.error('No file to save')
             pass
 
@@ -359,11 +365,14 @@ class XANESViewer(QtWidgets.QMainWindow):
         exporter = pg.exporters.CSVExporter(self.spectrum_view.plotItem)
         exporter.parameters()['columnMode'] = '(x,y,y,y) for all plots'
         file_name = QFileDialog().getSaveFileName(self, "save spectrum", '', 'spectrum and fit (*csv)')
-        exporter.export(str(file_name[0])+'.csv')
+        if file_name[0]:
+            exporter.export(str(file_name[0])+'.csv')
+        else:
+            pass
 
     def exportFitResults(self):
         file_name = QFileDialog().getSaveFileName(self, "save txt", 'xanes_1D_fit_results.txt', 'txt data (*txt)')
-        if file_name:
+        if file_name[0]:
             with open(file_name[0], 'w') as file:
                 file.write(self.results)
         else:
@@ -602,13 +611,19 @@ class ScatterPlot(QtWidgets.QMainWindow):
         exporter = pg.exporters.CSVExporter(self.w1)
         exporter.parameters()['columnMode'] = '(x,y,y,y) for all plots'
         file_name = QFileDialog().getSaveFileName(self, "save correlation", '', 'spectrum and fit (*csv)')
-        exporter.export(str(file_name[0])+'.csv')
-        self.statusbar.showMessage(f"Data saved to {str(file_name[0])}")
+        if file_name[0]:
+            exporter.export(str(file_name[0])+'.csv')
+            self.statusbar.showMessage(f"Data saved to {str(file_name[0])}")
+        else:
+            pass
 
     def tiff_export_images(self):
         file_name = QFileDialog().getSaveFileName(self, "save images", '', 'spectrum and fit (*tiff)')
-        tf.imsave(str(file_name[0]) + '.tiff', np.dstack([self.img1,self.img2]).T)
-        self.statusbar.showMessage(f"Images saved to {str(file_name[0])}")
+        if file_name[0]:
+            tf.imsave(str(file_name[0]) + '.tiff', np.dstack([self.img1,self.img2]).T)
+            self.statusbar.showMessage(f"Images saved to {str(file_name[0])}")
+        else:
+            pass
 
     def createMask(self):
 

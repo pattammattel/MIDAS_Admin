@@ -63,13 +63,11 @@ def get_xrf_data(h='h5file'):
 
     return remove_nan_inf(norm_xrf_stack.T), mono_e + 1000, beamline, Io_avg
 
-
 def remove_nan_inf(im):
     im = np.array(im, dtype=np.float32)
     im[np.isnan(im)] = 0
     im[np.isinf(im)] = 0
     return im
-
 
 def rebin_image(im, bin_factor):
     arrx, arry = np.shape(im)
@@ -80,7 +78,6 @@ def rebin_image(im, bin_factor):
         shape = (arrx / bin_factor, arry / bin_factor)
         return im.reshape(shape).mean(-1).mean(1)
 
-
 def remove_hot_pixels(image_array, NSigma=5):
     image_array = remove_nan_inf(image_array)
     a, b, c = np.shape(image_array)
@@ -90,7 +87,6 @@ def remove_hot_pixels(image_array, NSigma=5):
         im[abs(im) > np.std(im) * NSigma] = im.mean()
         img_stack2[i, :, :] = im
     return img_stack2
-
 
 def smoothen(image_array, w_size=5):
     a, b, c = np.shape(image_array)
@@ -108,7 +104,6 @@ def smoothen(image_array, w_size=5):
     norm_stack = np.reshape(smooth_stack, (a, b, c))
     return remove_nan_inf(norm_stack)
 
-
 def resize_stack(image_array, upscaling = False, scaling_factor = 2):
     en, im1, im2 = np.shape(image_array)
 
@@ -124,16 +119,13 @@ def resize_stack(image_array, upscaling = False, scaling_factor = 2):
 
     return img_stack_resized
 
-
 def normalize(image_array, norm_point=-1):
     norm_stack = image_array/image_array[norm_point]
     return remove_nan_inf(norm_stack)
 
-
 def remove_edges(image_array):
     # z, x, y = np.shape(image_array)
     return image_array[:, 1:- 1, 1:- 1]
-
 
 def background_value(image_array):
     img = image_array.mean(0)
@@ -143,7 +135,6 @@ def background_value(image_array):
     v = np.gradient(img_v)
     bg = np.min([img_h[h == h.max()], img_v[v == v.max()]])
     return bg
-
 
 def background_subtraction(img_stack, bg_percentage=10):
     img_stack = remove_nan_inf(img_stack)
@@ -156,7 +147,6 @@ def background_subtraction(img_stack, bg_percentage=10):
 
     bged_img_stack = img_stack - bg_stack
     return remove_nan_inf(bged_img_stack)
-
 
 def background_subtraction2(img_stack, bg_percentage=10):
     img_stack = remove_nan_inf(img_stack)
@@ -171,7 +161,6 @@ def background_subtraction2(img_stack, bg_percentage=10):
 
     return remove_nan_inf(bged_img_stack)
 
-
 def background1(img_stack):
     img = img_stack.sum(0)
     img_h = img.mean(0)
@@ -181,22 +170,18 @@ def background1(img_stack):
     bg = np.min([img_h[h == h.max()], img_v[v == v.max()]])
     return bg
 
-
 def get_sum_spectra(image_array):
     spec = np.sum(np.sum(image_array, axis=1), axis=1)
     return spec
-
 
 def get_mean_spectra(image_array):
     spec = np.mean(np.mean(image_array, axis=1), axis=1)
     return spec
 
-
 def flatten_(image_array):
     z, x, y = np.shape(image_array)
     flat_array = np.reshape(image_array, (x * y, z))
     return flat_array
-
 
 def image_to_pandas(image_array):
     a, b, c = np.shape(image_array)
@@ -207,11 +192,9 @@ def image_to_pandas(image_array):
                       columns=['s' + str(i) for i in range(b)])
     return df
 
-
 def neg_log(image_array):
     absorb = -1 * np.log(image_array)
     return remove_nan_inf(absorb)
-
 
 def clean_stack(img_stack, auto_bg=False, bg_percentage=5):
     a, b, c = np.shape(img_stack)
@@ -234,7 +217,6 @@ def clean_stack(img_stack, auto_bg=False, bg_percentage=5):
 
     return bged_img_stack
 
-
 def classify(img_stack, correlation='Pearson'):
     img_stack_ = img_stack
     a, b, c = np.shape(img_stack_)
@@ -255,7 +237,6 @@ def classify(img_stack, correlation='Pearson'):
     cluster_image = np.reshape(corr, (b, c))
     return (cluster_image ** 3), img_stack_
 
-
 def correlation_kmeans(img_stack, n_clusters, correlation='Pearson'):
     img, bg_image = classify(img_stack, correlation)
     img[np.isnan(img)] = -99999
@@ -267,7 +248,6 @@ def correlation_kmeans(img_stack, n_clusters, correlation='Pearson'):
     X_cluster = X_cluster.reshape(img.shape) + 1
 
     return X_cluster
-
 
 def cluster_stack(im_array, method='KMeans', n_clusters_=4, decomposed=False, decompose_method='PCA',
                   decompose_comp=2):
@@ -303,7 +283,6 @@ def cluster_stack(im_array, method='KMeans', n_clusters_=4, decomposed=False, de
 
     return decon_images, X_cluster, decon_spectra
 
-
 def kmeans_variance(im_array):
     a, b, c = im_array.shape
     flat_array = np.reshape(im_array, (a, (b * c)))
@@ -321,7 +300,6 @@ def kmeans_variance(im_array):
     kmeans_var_plot.setLabel('bottom', 'Cluster Number')
     kmeans_var_plot.setLabel('left', 'Sum of squared distances')
 
-
 def pca_scree(im_stack):
     new_image = im_stack.transpose(2, 1, 0)
     x, y, z = np.shape(new_image)
@@ -334,7 +312,6 @@ def pca_scree(im_stack):
                               pen = pg.mkPen('y', width=2, style=QtCore.Qt.DotLine), symbol='o')
     pca_scree_plot.setLabel('bottom', 'Component Number')
     pca_scree_plot.setLabel('left', 'Explained Varience Ratio')
-
 
 def decompose_stack(im_stack, decompose_method='PCA', n_components_=3):
     new_image = im_stack.transpose(2, 1, 0)
@@ -363,7 +340,6 @@ def decompose_stack(im_stack, decompose_method='PCA', n_components_=3):
 
     return np.float32(ims), spcs, decon_spetra, decom_map
 
-
 def denoise_with_decomposition(img_stack, method_='PCA', n_components=4):
     new_image = img_stack.transpose(2, 1, 0)
     x, y, z = np.shape(new_image)
@@ -387,7 +363,6 @@ def denoise_with_decomposition(img_stack, method_='PCA', n_components=4):
     # plt.title('background removed')
     # plt.show()
     return remove_nan_inf(filtered)
-
 
 def interploate_E(refs, e):
     n = np.shape(refs)[1]
@@ -495,7 +470,6 @@ def create_df_from_nor(athenafile='fe_refs.nor'):
     df.columns = new_col
     return df, list(new_col)
 
-
 def create_df_from_nor_try2(athenafile='fe_refs.nor'):
     """create pandas dataframe from athena nor file, first column
     is energy and headers are sample names"""
@@ -510,11 +484,9 @@ def create_df_from_nor_try2(athenafile='fe_refs.nor'):
 
     return df_refs, list(new_col)
 
-
 def energy_from_logfile(logfile = 'maps_log_tiff.txt'):
     df = pd.read_csv(logfile, header= None, delim_whitespace=True, skiprows=9)
     return df[9][df[7]=='energy'].values.astype(float)
-
 
 def align_stack(stack_img, ref_image_void = True, ref_stack = None, transformation = StackReg.TRANSLATION,
                 reference = 'previous'):

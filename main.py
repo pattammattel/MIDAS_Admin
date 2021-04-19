@@ -596,7 +596,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_xanes_fit.setEnabled(True)
         self.ref_names = []
         file_name = QFileDialog().getOpenFileName(self, "Open reference file", '', 'text file (*.txt *.nor)')
-        try:
+        if file_name[0]:
             if file_name[0].endswith('.nor'):
                 self.refs, self.ref_names = create_df_from_nor_try2(athenafile=str(file_name[0]))
                 self.change_color_on_load(self.pb_ref_xanes)
@@ -605,12 +605,8 @@ class midasWindow(QtWidgets.QMainWindow):
                 self.refs = pd.read_csv(str(file_name[0]), header=None, delim_whitespace=True)
                 self.change_color_on_load(self.pb_ref_xanes)
 
-        except OSError:
+        else:
             logger.error('No file selected')
-            pass
-
-        except:
-            logger.error('Unsupported file format')
             pass
 
         self.plt_xanes_refs()

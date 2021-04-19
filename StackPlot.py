@@ -355,7 +355,10 @@ class XANESViewer(QtWidgets.QMainWindow):
         try:
             to_save = np.column_stack([self.xdata1, self.ydata1, self.fit_])
             file_name = QFileDialog().getSaveFileName(self, "save spectrum", '', 'spectrum and fit (*txt)')
-            np.savetxt(str(file_name[0]) + '.txt', to_save)
+            if file_name[0]:
+                np.savetxt(str(file_name[0]) + '.txt', to_save)
+            else:
+                pass
         except:
             logger.error('No file to save')
             pass

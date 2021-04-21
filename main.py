@@ -102,58 +102,6 @@ class midasWindow(QtWidgets.QMainWindow):
         self.centralwidget.setStyleSheet(open('defaultStyle.css').read())
 
     #File Loading
-    def browse_file(self):
-        """ To open a file widow and choose the data file.
-        The filename will be used to load data using 'rest and load stack' function """
-
-        filename = QFileDialog().getOpenFileName(self, "Select image data", '', 'image file(*.hdf *.h5 *tiff *tif )')
-        self.file_name = (str(filename[0]))
-
-        # if user decides to cancel the file window gui returns to original state
-        if self.file_name:
-            self.reset_and_load_stack()
-
-        else:
-            self.statusbar_main.showMessage("No file has selected")
-            pass
-
-    def autoEnergyLoader(self):
-
-        dir_, filename_ = os.path.split(self.file_name)
-        self.efilePath_name = os.path.join(dir_, os.path.splitext(filename_)[0] + '.txt')
-        self.efilePath_log = os.path.join(dir_, 'maps_log_tiff.txt')
-
-        if os.path.isfile(self.efilePath_name):
-            self.efilePath = self.efilePath_name
-            self.efileLoader()
-            self.statusbar_main.showMessage(f"Energy File detected {self.efilePath}")
-
-        elif os.path.isfile(self.efilePath_log):
-            self.efilePath = self.efilePath_log
-            self.efileLoader()
-            self.statusbar_main.showMessage(f"Energy File detected {self.efilePath}")
-
-        else:
-            self.efilePath = None
-
-    def load_mutliple_files(self):
-        """ User can load multiple/series of tiff images with same shape.
-        The 'self.reset_and_load_stack()' recognizes 'self.filename as list and create the stack.
-        """
-        self.energy = []
-        filter = "TIFF (*.tiff);;TIF (*.tif)"
-        file_name = QFileDialog()
-        file_name.setFileMode(QFileDialog.ExistingFiles)
-        names = file_name.getOpenFileNames(self, "Open files", " ", filter)
-        if names[0]:
-
-            self.file_name = names[0]
-            self.reset_and_load_stack()
-
-        else:
-            self.statusbar_main.showMessage("No file has selected")
-            pass
-
     def load_stack(self):
 
         """ load the image data from the selected file.
@@ -276,6 +224,58 @@ class midasWindow(QtWidgets.QMainWindow):
 
         self.resetStack()
         self.load_stack()
+
+    def browse_file(self):
+        """ To open a file widow and choose the data file.
+        The filename will be used to load data using 'rest and load stack' function """
+
+        filename = QFileDialog().getOpenFileName(self, "Select image data", '', 'image file(*.hdf *.h5 *tiff *tif )')
+        self.file_name = (str(filename[0]))
+
+        # if user decides to cancel the file window gui returns to original state
+        if self.file_name:
+            self.reset_and_load_stack()
+
+        else:
+            self.statusbar_main.showMessage("No file has selected")
+            pass
+
+    def autoEnergyLoader(self):
+
+        dir_, filename_ = os.path.split(self.file_name)
+        self.efilePath_name = os.path.join(dir_, os.path.splitext(filename_)[0] + '.txt')
+        self.efilePath_log = os.path.join(dir_, 'maps_log_tiff.txt')
+
+        if os.path.isfile(self.efilePath_name):
+            self.efilePath = self.efilePath_name
+            self.efileLoader()
+            self.statusbar_main.showMessage(f"Energy File detected {self.efilePath}")
+
+        elif os.path.isfile(self.efilePath_log):
+            self.efilePath = self.efilePath_log
+            self.efileLoader()
+            self.statusbar_main.showMessage(f"Energy File detected {self.efilePath}")
+
+        else:
+            self.efilePath = None
+
+    def load_mutliple_files(self):
+        """ User can load multiple/series of tiff images with same shape.
+        The 'self.reset_and_load_stack()' recognizes 'self.filename as list and create the stack.
+        """
+        self.energy = []
+        filter = "TIFF (*.tiff);;TIF (*.tif)"
+        file_name = QFileDialog()
+        file_name.setFileMode(QFileDialog.ExistingFiles)
+        names = file_name.getOpenFileNames(self, "Open files", " ", filter)
+        if names[0]:
+
+            self.file_name = names[0]
+            self.reset_and_load_stack()
+
+        else:
+            self.statusbar_main.showMessage("No file has selected")
+            pass
 
     def update_stack_info(self):
         z, x, y = np.shape(self.updated_stack)

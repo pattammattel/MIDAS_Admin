@@ -17,6 +17,7 @@ from StackCalcs import *
 
 logger = logging.getLogger()
 
+
 class singleStackViewer(QtWidgets.QMainWindow):
     def __init__(self,  img_stack):
         super(singleStackViewer, self).__init__()
@@ -49,6 +50,7 @@ class singleStackViewer(QtWidgets.QMainWindow):
             tf.imsave(str(file_name[0]), np.float32(self.img_stack.transpose(0, 2, 1)))
         else:
             pass
+
 
 class ComponentViewer(QtWidgets.QMainWindow):
 
@@ -117,6 +119,7 @@ class ComponentViewer(QtWidgets.QMainWindow):
 
     # add energy column
 
+
 class ClusterViewer(QtWidgets.QMainWindow):
 
     def __init__(self, decon_images, energy, X_cluster, decon_spectra):
@@ -170,6 +173,7 @@ class ClusterViewer(QtWidgets.QMainWindow):
             logger.error("Saving Cancelled")
             self.statusbar.showMessage("Saving Cancelled")
             pass
+
 
 class XANESViewer(QtWidgets.QMainWindow):
 
@@ -564,6 +568,7 @@ class RefChooser(QtWidgets.QMainWindow):
         else:
             self.pb_apply.setEnabled(False)
 
+
 class ScatterPlot(QtWidgets.QMainWindow):
 
     def __init__(self, img1, img2):
@@ -667,6 +672,7 @@ class ScatterPlot(QtWidgets.QMainWindow):
         self.masked_img.setImage(img_selected * self.img1)
         self.masked_img.setPredefinedGradient('bipolar')
         self.masked_img.setWindowTitle("Masked Image")
+
 
 class LoadingScreen(QtWidgets.QSplashScreen):
     def __init__(self):

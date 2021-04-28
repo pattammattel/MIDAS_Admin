@@ -28,12 +28,21 @@ class midasWindow(QtWidgets.QMainWindow):
         uic.loadUi('uis/mainwindow_admin.ui', self)
 
         self.im_stack = im_stack
-        self.updated_stack = self.im_stack
         self.energy = energy
         self.refs = refs
         self.loaded_tranform_file = []
         self.image_roi2_flag = False
         self.refStackAvailable = False
+
+        self.imageUpdateDictionary = {'Image':self.im_stack, 'normalizeStack':False, 'normToPoint':-1,
+                                      'applySmooth':False, 'smoothWindowSize':3,
+                                      'applyThreshold':False, 'thresholdValue':0,
+                                      'removeOutliers':False, 'nSigmaOutlier':3,
+                                      'applyTranspose':False, 'transposeVals':(0,1,2),
+                                      'applyCrop':False, 'cropVals' : (0,1,2), 'removeEdges' : False,
+                                      'resizeStack' : False, 'upScaling' : False, 'binFactor' : 2}
+
+        self.updated_stack = np.array(self.imageUpdateDictionary['Image'])
 
         self.plt_colors = ['g', 'r', 'c', 'm', 'y', 'w', 'b',
                            pg.mkPen(70, 5, 80), pg.mkPen(255, 85, 130),
@@ -56,13 +65,13 @@ class midasWindow(QtWidgets.QMainWindow):
         self.cb_upscale.stateChanged.connect(self.view_stack)
         self.sb_scaling_factor.valueChanged.connect(self.view_stack)
         self.cb_remove_edges.stateChanged.connect(self.view_stack)
-        self.cb_norm.stateChanged.connect(self.replot_image)
+        self.cb_norm.stateChanged.connect(self.normalizeStack)
         self.cb_smooth.stateChanged.connect(self.replot_image)
         self.hs_smooth_size.valueChanged.connect(self.replot_image)
         self.cb_remove_outliers.stateChanged.connect(self.replot_image)
-        self.cb_remove_bg.stateChanged.connect(self.replot_image)
+        self.cb_remove_bg.stateChanged.connect(self.thresholdStack)
         self.hs_nsigma.valueChanged.connect(self.replot_image)
-        self.hs_bg_threshold.valueChanged.connect(self.replot_image)
+        self.hs_bg_threshold.valueChanged.connect(self.thresholdStack)
         self.pb_reset_img.clicked.connect(self.reset_and_load_stack)
         self.pb_crop.clicked.connect(self.crop_to_dim)
         self.pb_crop.clicked.connect(self.view_stack)
@@ -151,6 +160,8 @@ class midasWindow(QtWidgets.QMainWindow):
 
                 else:
                     self.im_stack = self.im_stack_.transpose(0, 2, 1)
+
+
                 self.sb_zrange2.setValue(self.im_stack.shape[0])
                 self.autoEnergyLoader()
                 self.energyUnitCheck()
@@ -158,7 +169,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
             else:
                 logger.error('Unknown data format')
-
+        self.imageUpdateDictionary['Image'] = self.im_stack
         self.setStackParamsNDisplay()
 
     def setStackParamsNDisplay(self):
@@ -402,22 +413,42 @@ class midasWindow(QtWidgets.QMainWindow):
         self.threadpool.start(worker)
         self.update_image_roi()
 
-    def createImageUpdateDictionary(self):
-        self.imageUpdateDictionary = {'Image':self.updated_stack, 'normalizeStack':False, 'normToPoint':-1,
-                                      'applySmooth':False, 'smoothWindowSize':3,
-                                      'applyThreshold':False, 'thresholdValue':0,
-                                      'removeOutliers':False, 'nSigmaOutlier':3,
-                                      'applyTranspose':False, 'transposeVals':(0,1,2),
-                                      'applyCrop':False, 'cropVals' : (0,1,2), 'removeEdges' : False,
-                                      'resizeStack' : False, 'upScaling' : False, 'binFactor' : 2}
+    def replotImage(self):
+        self.updated_stack = np.array(self.imageUpdateDictionary['Image'])
+        self.update_spectrum()
+        self.update_image_roi()
 
-    def updateStackWithDictionary(self, im_dict):
-        pass
+    def normalizeStack(self):
+        self.imageUpdateDictionary['normalizeStack'] = self.cb_remove_bg.isChecked()
+        self.imageUpdateDictionary['normToPoint'] = -1
+        if self.cb_remove_bg.isChecked():
+            self.imageUpdateDictionary['Image'] = normalize(self.imageUpdateDictionary['Image'],
+                                                        norm_point=self.imageUpdateDictionary['normToPoint'])
+        self.replotImage()
+
+    def thresholdStack(self):
+        self.imageUpdateDictionary['applyThreshold'] = self.cb_remove_bg.isChecked()
+        self.imageUpdateDictionary['thresholdValue'] = self.hs_bg_threshold.value()
+        if self.cb_remove_bg.isChecked():
+            self.hs_bg_threshold.setEnabled(True)
+            self.imageUpdateDictionary['Image'] = clean_stack(self.imageUpdateDictionary['Image'], auto_bg=False,
+                                            bg_percentage=self.hs_bg_threshold.value())
+        elif not self.cb_remove_bg.isChecked():
+            self.hs_bg_threshold.setEnabled(False)
+
+        self.replotImage()
+
+
 
     def update_stack(self):
 
         self.crop_to_dim()
 
+        self.imageUpdateDictionary = updateStackWithDictionary(self.imageUpdateDictionary)
+        self.updated_stack = np.array(self.imageUpdateDictionary['Image'])
+        print(self.imageUpdateDictionary)
+
+        '''
         if self.cb_rebin.isChecked():
             self.cb_upscale.setChecked(False)
             self.sb_scaling_factor.setEnabled(True)
@@ -509,6 +540,7 @@ class midasWindow(QtWidgets.QMainWindow):
                                            norm_point=-1)
 
         logger.info(f'Updated image is in use')
+        '''
 
     #ImageView
 
@@ -525,7 +557,7 @@ class midasWindow(QtWidgets.QMainWindow):
         except:
             pass
 
-        (self.dim1, self.dim3, self.dim2) = self.updated_stack.shape
+        (self.dim1, self.dim3, self.dim2) = np.shape(self.updated_stack)
         self.image_view.setImage(self.updated_stack)
         self.image_view.ui.menuBtn.hide()
         self.image_view.ui.roiBtn.hide()

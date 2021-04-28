@@ -538,6 +538,30 @@ def align_stack_iter(stack, ref_stack_void = True, ref_stack = None, transformat
 
     return np.float32(stack)
 
+def updateStackWithDictionary(settingsDict):
+
+    if settingsDict['removeOutliers']:
+        settingsDict['Image'] = remove_hot_pixels(settingsDict['Image'], NSigma=settingsDict['nSigmaOutlier'])
+
+    if settingsDict['applyThreshold']:
+        settingsDict['Image'] = clean_stack(settingsDict['Image'], auto_bg=False,
+                                            bg_percentage=settingsDict['thresholdValue'])
+
+    if settingsDict['applySmooth']:
+        settingsDict['Image'] = smoothen(settingsDict['Image'], w_size=settingsDict['smoothWindowSize'])
+
+    if settingsDict['applyTranspose']:
+        settingsDict['Image'] = np.transpose(settingsDict['Image'], settingsDict['transposeVals'])
+
+    if settingsDict['applyCrop']:
+        settingsDict['Image'] = settingsDict['Image'][settingsDict['cropVals']]
+
+    if settingsDict['normalizeStack']:
+        settingsDict['Image'] = normalize(settingsDict['Image'], norm_point=settingsDict['normToPoint'])
+
+    return settingsDict
+
+
 def modifyStack(raw_stack, normalizeStack = False, normToPoint = -1,
                 applySmooth = False, smoothWindowSize = 3,
                 applyThreshold = False, thresholdValue = 0,

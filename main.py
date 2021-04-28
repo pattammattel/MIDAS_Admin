@@ -402,6 +402,18 @@ class midasWindow(QtWidgets.QMainWindow):
         self.threadpool.start(worker)
         self.update_image_roi()
 
+    def createImageUpdateDictionary(self):
+        self.imageUpdateDictionary = {'Image':self.updated_stack, 'normalizeStack':False, 'normToPoint':-1,
+                                      'applySmooth':False, 'smoothWindowSize':3,
+                                      'applyThreshold':False, 'thresholdValue':0,
+                                      'removeOutliers':False, 'nSigmaOutlier':3,
+                                      'applyTranspose':False, 'transposeVals':(0,1,2),
+                                      'applyCrop':False, 'cropVals' : (0,1,2), 'removeEdges' : False,
+                                      'resizeStack' : False, 'upScaling' : False, 'binFactor' : 2}
+
+    def updateStackWithDictionary(self, im_dict):
+        pass
+
     def update_stack(self):
 
         self.crop_to_dim()

@@ -414,7 +414,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.update_image_roi()
 
     def replotImage(self):
-        self.updated_stack = np.array(self.imageUpdateDictionary['Image'])
+        #self.updated_stack = np.array(self.imageUpdateDictionary['Image'])
         self.update_spectrum()
         self.update_image_roi()
 
@@ -431,9 +431,9 @@ class midasWindow(QtWidgets.QMainWindow):
         self.imageUpdateDictionary['thresholdValue'] = self.hs_bg_threshold.value()
         if self.cb_remove_bg.isChecked():
             self.hs_bg_threshold.setEnabled(True)
-            self.imageUpdateDictionary['Image'] = clean_stack(self.imageUpdateDictionary['Image'], auto_bg=False,
-                                            bg_percentage=self.hs_bg_threshold.value())
-        elif not self.cb_remove_bg.isChecked():
+            self.updated_stack = updateStackWithDictionary(self.imageUpdateDictionary)
+        else:
+            self.imageUpdateDictionary['applyThreshold'] = self.cb_remove_bg.isChecked()
             self.hs_bg_threshold.setEnabled(False)
 
         self.replotImage()
@@ -444,9 +444,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
         self.crop_to_dim()
 
-        self.imageUpdateDictionary = updateStackWithDictionary(self.imageUpdateDictionary)
-        self.updated_stack = np.array(self.imageUpdateDictionary['Image'])
-        print(self.imageUpdateDictionary)
+        self.updated_stack = np.array(updateStackWithDictionary(self.imageUpdateDictionary))
 
         '''
         if self.cb_rebin.isChecked():

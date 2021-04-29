@@ -541,25 +541,27 @@ def align_stack_iter(stack, ref_stack_void = True, ref_stack = None, transformat
 def updateStackWithDictionary(settingsDict):
 
     if settingsDict['removeOutliers']:
-        settingsDict['Image'] = remove_hot_pixels(settingsDict['Image'], NSigma=settingsDict['nSigmaOutlier'])
+        modStack = remove_hot_pixels(settingsDict['Image'], NSigma=settingsDict['nSigmaOutlier'])
+    else:
+        modStack = settingsDict['Image']
 
     if settingsDict['applyThreshold']:
-        settingsDict['Image'] = clean_stack(settingsDict['Image'], auto_bg=False,
+        modStack = clean_stack(modStack, auto_bg=False,
                                             bg_percentage=settingsDict['thresholdValue'])
 
     if settingsDict['applySmooth']:
-        settingsDict['Image'] = smoothen(settingsDict['Image'], w_size=settingsDict['smoothWindowSize'])
+        modStack = smoothen(modStack, w_size=settingsDict['smoothWindowSize'])
 
     if settingsDict['applyTranspose']:
-        settingsDict['Image'] = np.transpose(settingsDict['Image'], settingsDict['transposeVals'])
+        modStack = np.transpose(modStack, settingsDict['transposeVals'])
 
     if settingsDict['applyCrop']:
-        settingsDict['Image'] = settingsDict['Image'][settingsDict['cropVals']]
+        modStack = modStack[settingsDict['cropVals']]
 
     if settingsDict['normalizeStack']:
-        settingsDict['Image'] = normalize(settingsDict['Image'], norm_point=settingsDict['normToPoint'])
+        modStack = normalize(modStack, norm_point=settingsDict['normToPoint'])
 
-    return settingsDict
+    return modStack
 
 
 def modifyStack(raw_stack, normalizeStack = False, normToPoint = -1,

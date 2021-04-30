@@ -99,6 +99,19 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_xanes_fit.clicked.connect(self.fast_xanes_fitting)
         self.pb_plot_refs.clicked.connect(self.plt_xanes_refs)
 
+        # image connections
+        self.image_view.mousePressEvent = self.getPointSpectrum
+        self.spec_roi.sigRegionChanged.connect(self.update_image_roi)
+        self.spec_roi_math.sigRegionChangeFinished.connect(self.spec_roi_calc)
+        self.rb_math_roi.clicked.connect(self.update_spectrum)
+        self.pb_add_roi_2.clicked.connect(self.math_img_roi_flag)
+        self.image_roi_math.sigRegionChangeFinished.connect(self.image_roi_calc)
+        self.rb_poly_roi.clicked.connect(self.setImageROI)
+        self.rb_elli_roi.clicked.connect(self.setImageROI)
+        self.rb_rect_roi.clicked.connect(self.setImageROI)
+        self.rb_line_roi.clicked.connect(self.setImageROI)
+        self.rb_circle_roi.clicked.connect(self.setImageROI)
+
         self.show()
 
         self.threadpool = QThreadPool()
@@ -250,7 +263,6 @@ class midasWindow(QtWidgets.QMainWindow):
         else:
             self.efilePath = False
             self.efileLoader()
-
 
     def load_mutliple_files(self):
         """ User can load multiple/series of tiff images with same shape.
@@ -523,6 +535,47 @@ class midasWindow(QtWidgets.QMainWindow):
         '''
 
     #ImageView
+
+    def displayStackFromDictionary(self):
+
+        self.updated_stack  = updateStackWithDictionary(self.imageUpdateDictionary)
+
+        try:
+            self.image_view.removeItem(self.image_roi_math)
+        except:
+            pass
+
+        (self.dim1, self.dim3, self.dim2) = np.shape(self.updated_stack)
+        self.image_view.setImage(self.updated_stack)
+        self.image_view.ui.menuBtn.hide()
+        self.image_view.ui.roiBtn.hide()
+        self.image_view.setPredefinedGradient('viridis')
+        self.image_view.setCurrentIndex(self.dim1 // 2)
+        if len(self.energy) == 0:
+            self.energy = np.arange(self.z1, self.z2) * 10
+            logger.info("Arbitary X-axis used in the plot for XANES")
+        self.sz = np.max(
+            [int(self.dim2 * 0.1), int(self.dim3 * 0.1)])  # size of the roi set to be 10% of the image area
+
+        self.stack_center = (self.energy[len(self.energy) // 2])
+        self.stack_width = (self.energy.max() - self.energy.min()) // 10
+        self.spec_roi = pg.LinearRegionItem(values=(self.stack_center - self.stack_width,
+                                                    self.stack_center + self.stack_width))
+
+        # a second optional ROI for calculations follow
+        self.image_roi_math = pg.PolyLineROI([[0, 0], [0, self.sz], [self.sz, self.sz], [self.sz, 0]],
+                                             pos=(int(self.dim3 // 3), int(self.dim2 // 3)),
+                                             pen='r', closed=True, removable=True)
+
+        self.spec_roi_math = pg.LinearRegionItem(values=(self.stack_center - self.stack_width - 10,
+                                                         self.stack_center + self.stack_width - 10), pen='r',
+                                                 brush=QtGui.QColor(0, 255, 200, 50)
+                                                 )
+        self.setImageROI()
+        self.update_spectrum()
+        self.update_image_roi()
+
+
 
     def view_stack(self):
 

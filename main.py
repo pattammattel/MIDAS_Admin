@@ -34,13 +34,14 @@ class midasWindow(QtWidgets.QMainWindow):
         self.image_roi2_flag = False
         self.refStackAvailable = False
 
-        self.imageUpdateDictionary = {'Image':self.im_stack, 'normalizeStack':False, 'normToPoint':-1,
+        self.imageUpdateDictionary = {'Image':self.im_stack, 'Energy':self.energy,
+                                      'normalizeStack':False, 'normToPoint':-1,
                                       'applySmooth':False, 'smoothWindowSize':3,
                                       'applyThreshold':False, 'thresholdValue':0,
                                       'removeOutliers':False, 'nSigmaOutlier':3,
                                       'applyTranspose':False, 'transposeVals':(0,1,2),
                                       'applyCrop':False, 'cropVals' : (0,1,2), 'removeEdges' : False,
-                                      'resizeStack' : False, 'upScaling' : False, 'binFactor' : 2}
+                                      'resizeStack' : False, 'upScaling' : False, 'binFactor': 2}
 
         self.updated_stack = np.array(self.imageUpdateDictionary['Image'])
 
@@ -72,7 +73,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.cb_remove_bg.stateChanged.connect(self.thresholdStack)
         self.hs_nsigma.valueChanged.connect(self.replot_image)
         self.hs_bg_threshold.valueChanged.connect(self.thresholdStack)
-        self.pb_reset_img.clicked.connect(self.reset_and_load_stack)
+        self.pb_reset_img.clicked.connect(self.load_stack)
         self.pb_crop.clicked.connect(self.crop_to_dim)
         self.pb_crop.clicked.connect(self.view_stack)
         self.pb_ref_xanes.clicked.connect(self.select_ref_file)
@@ -123,6 +124,21 @@ class midasWindow(QtWidgets.QMainWindow):
         The output 'self.im_stack' is the unmodified data file
         """
 
+        self.log_warning = False  # for the Qmessage box in cb_log
+        self.image_roi2_flag = False
+        self.cb_log.setChecked(False)
+        self.cb_remove_edges.setChecked(False)
+        self.cb_norm.setChecked(False)
+        self.cb_smooth.setChecked(False)
+        self.cb_remove_outliers.setChecked(False)
+        self.cb_remove_bg.setChecked(False)
+        self.cb_rebin.setChecked(False)
+        self.cb_upscale.setChecked(False)
+        self.sb_xrange1.setValue(0)
+        self.sb_yrange1.setValue(0)
+        self.sb_zrange1.setValue(0)
+
+
         self.menuMask.setEnabled(True)
         self.actionLoad_Energy.setEnabled(True)
         self.actionSave_Energy_List.setEnabled(True)
@@ -161,7 +177,6 @@ class midasWindow(QtWidgets.QMainWindow):
                 else:
                     self.im_stack = self.im_stack_.transpose(0, 2, 1)
 
-
                 self.sb_zrange2.setValue(self.im_stack.shape[0])
                 self.autoEnergyLoader()
                 self.energyUnitCheck()
@@ -170,9 +185,6 @@ class midasWindow(QtWidgets.QMainWindow):
             else:
                 logger.error('Unknown data format')
         self.imageUpdateDictionary['Image'] = self.im_stack
-        self.setStackParamsNDisplay()
-
-    def setStackParamsNDisplay(self):
 
         """ Fill the stack dimensions to the GUI and set the image dimensions as max values.
          This prevent user from choosing higher image dimensions during a resizing event"""
@@ -194,19 +206,6 @@ class midasWindow(QtWidgets.QMainWindow):
         self.view_stack()
         logger.info("Stack displayed correctly")
         self.update_stack_info()
-
-        '''
-        try:
-
-            self.view_stack()
-            logger.info("Stack displayed correctly")
-            self.update_stack_info()
-
-        except:
-            logger.error("Trouble with stack display")
-            self.statusbar_main.showMessage("Error: Trouble with stack display")
-        '''
-
         logger.info(f'completed image shape {np.shape(self.im_stack)}')
 
         try:
@@ -216,25 +215,6 @@ class midasWindow(QtWidgets.QMainWindow):
             self.statusbar_main.showMessage('New Stack is made from selected tiffs')
             pass
 
-    def resetStack(self):
-        self.log_warning = False  # for the Qmessage box in cb_log
-        self.image_roi2_flag = False
-        self.cb_log.setChecked(False)
-        self.cb_remove_edges.setChecked(False)
-        self.cb_norm.setChecked(False)
-        self.cb_smooth.setChecked(False)
-        self.cb_remove_outliers.setChecked(False)
-        self.cb_remove_bg.setChecked(False)
-        self.cb_rebin.setChecked(False)
-        self.cb_upscale.setChecked(False)
-        self.sb_xrange1.setValue(0)
-        self.sb_yrange1.setValue(0)
-        self.sb_zrange1.setValue(0)
-
-    def reset_and_load_stack(self):
-
-        self.resetStack()
-        self.load_stack()
 
     def browse_file(self):
         """ To open a file widow and choose the data file.
@@ -245,7 +225,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
         # if user decides to cancel the file window gui returns to original state
         if self.file_name:
-            self.reset_and_load_stack()
+            self.load_stack()
 
         else:
             self.statusbar_main.showMessage("No file has selected")
@@ -274,7 +254,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def load_mutliple_files(self):
         """ User can load multiple/series of tiff images with same shape.
-        The 'self.reset_and_load_stack()' recognizes 'self.filename as list and create the stack.
+        The 'self.load_stack()' recognizes 'self.filename as list and create the stack.
         """
         self.energy = []
         filter = "TIFF (*.tiff);;TIF (*.tif)"
@@ -284,7 +264,7 @@ class midasWindow(QtWidgets.QMainWindow):
         if names[0]:
 
             self.file_name = names[0]
-            self.reset_and_load_stack()
+            self.load_stack()
 
         else:
             self.statusbar_main.showMessage("No file has selected")

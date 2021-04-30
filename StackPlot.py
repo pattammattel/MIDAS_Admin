@@ -19,17 +19,20 @@ logger = logging.getLogger()
 
 
 class singleStackViewer(QtWidgets.QMainWindow):
-    def __init__(self,  img_stack):
+    def __init__(self,  img_stack, gradient = 'viridis'):
         super(singleStackViewer, self).__init__()
 
         # Load the UI Page
         uic.loadUi('uis/singleStackView.ui', self)
 
-        self.image_view.setPredefinedGradient('viridis')
+
         self.image_view.ui.menuBtn.hide()
         self.image_view.ui.roiBtn.hide()
 
         self.img_stack = img_stack
+        self.gradient = gradient
+        self.image_view.setPredefinedGradient(gradient)
+
         if self.img_stack.ndim == 3:
             self.dim1, self.dim3, self.dim2 = img_stack.shape
         elif self.img_stack.ndim == 2:
@@ -676,17 +679,8 @@ class ScatterPlot(QtWidgets.QMainWindow):
         selected = [roiShape.contains(pt) for pt in self._points]
         img_selected = np.reshape(selected, (self.img1.shape))
 
-        self.masked_img = singleStackViewer(img_selected * self.img1)
+        self.masked_img = singleStackViewer(img_selected * self.img1, gradient='bipolar')
         self.masked_img.show()
-
-        '''
-        #self.clearPgPlot()
-        self.masked_img = pg.ImageView()
-        self.masked_img.show()
-        self.masked_img.setImage(img_selected * self.img1)
-        self.masked_img.setPredefinedGradient('bipolar')
-        self.masked_img.setWindowTitle("Masked Image")
-        '''
 
 class LoadingScreen(QtWidgets.QSplashScreen):
     def __init__(self):

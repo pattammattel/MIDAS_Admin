@@ -60,7 +60,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.menuFile.setToolTipsVisible(True)
 
         self.actionOpen_Mask_Gen.triggered.connect(self.openMaskMaker)
-        self.cb_transpose.stateChanged.connect(self.transpose_stack)
+        self.cb_transpose.stateChanged.connect(self.transposeStack)
         self.cb_log.stateChanged.connect(self.replot_image)
         self.cb_rebin.stateChanged.connect(self.view_stack)
         self.cb_upscale.stateChanged.connect(self.view_stack)
@@ -99,18 +99,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_xanes_fit.clicked.connect(self.fast_xanes_fitting)
         self.pb_plot_refs.clicked.connect(self.plt_xanes_refs)
 
-        # image connections
-        self.image_view.mousePressEvent = self.getPointSpectrum
-        self.spec_roi.sigRegionChanged.connect(self.update_image_roi)
-        self.spec_roi_math.sigRegionChangeFinished.connect(self.spec_roi_calc)
-        self.rb_math_roi.clicked.connect(self.update_spectrum)
-        self.pb_add_roi_2.clicked.connect(self.math_img_roi_flag)
-        self.image_roi_math.sigRegionChangeFinished.connect(self.image_roi_calc)
-        self.rb_poly_roi.clicked.connect(self.setImageROI)
-        self.rb_elli_roi.clicked.connect(self.setImageROI)
-        self.rb_rect_roi.clicked.connect(self.setImageROI)
-        self.rb_line_roi.clicked.connect(self.setImageROI)
-        self.rb_circle_roi.clicked.connect(self.setImageROI)
+
 
         self.show()
 
@@ -301,24 +290,19 @@ class midasWindow(QtWidgets.QMainWindow):
         self.updated_stack = remove_nan_inf(self.im_stack[self.z1:self.z2,
                                             self.x1:self.x2, self.y1:self.y2])
 
-    def transpose_stack(self):
-        self.updated_stack = self.updated_stack.T
-        self.update_spectrum()
-        self.update_spec_image_roi()
-
-
     def replotImage(self):
         #self.updated_stack = np.array(self.imageUpdateDictionary['Image'])
         self.update_spectrum()
         self.update_image_roi()
 
     def normalizeStack(self):
-        self.imageUpdateDictionary['normalizeStack'] = self.cb_remove_bg.isChecked()
+        self.imageUpdateDictionary['normalizeStack'] = self.cb_norm.isChecked()
         self.imageUpdateDictionary['normToPoint'] = -1
-        if self.cb_remove_bg.isChecked():
+        if self.cb_norm.isChecked():
             self.updated_stack = updateStackWithDictionary(self.imageUpdateDictionary)
         else:
-            self.imageUpdateDictionary['normalizeStack'] = self.cb_remove_bg.isChecked()
+            self.imageUpdateDictionary['normalizeStack'] = self.cb_norm.isChecked()
+            self.updated_stack = updateStackWithDictionary(self.imageUpdateDictionary)
 
         self.replotImage()
 
@@ -330,19 +314,28 @@ class midasWindow(QtWidgets.QMainWindow):
             self.updated_stack = updateStackWithDictionary(self.imageUpdateDictionary)
         else:
             self.imageUpdateDictionary['applyThreshold'] = self.cb_remove_bg.isChecked()
+            self.updated_stack = updateStackWithDictionary(self.imageUpdateDictionary)
             self.hs_bg_threshold.setEnabled(False)
 
         self.replotImage()
-
+    #try to use argv rather writing seperate functions
     def transposeStack(self):
         self.imageUpdateDictionary['applyTranspose'] = self.cb_transpose.isChecked()
         self.imageUpdateDictionary['transposeVals'] = (2,1,0)
-        if self.cb_transpose.isChecked()():
+        if self.cb_transpose.isChecked():
             self.updated_stack = updateStackWithDictionary(self.imageUpdateDictionary)
         else:
-            self.imageUpdateDictionary['applyTranspose'] = self.self.cb_transpose.isChecked()
+            self.imageUpdateDictionary['applyTranspose'] = self.cb_transpose.isChecked()
+            self.updated_stack = updateStackWithDictionary(self.imageUpdateDictionary)
 
         self.replotImage()
+
+    def logStack(self):
+        pass
+    def smoothStack(self):
+        pass
+    def removeOutliersStack(self):
+        pass
 
 
 
@@ -483,6 +476,20 @@ class midasWindow(QtWidgets.QMainWindow):
                                                          self.stack_center + self.stack_width - 10), pen='r',
                                                  brush=QtGui.QColor(0, 255, 200, 50)
                                                  )
+
+        # image connections
+        self.image_view.mousePressEvent = self.getPointSpectrum
+        self.spec_roi.sigRegionChanged.connect(self.update_image_roi)
+        self.spec_roi_math.sigRegionChangeFinished.connect(self.spec_roi_calc)
+        self.rb_math_roi.clicked.connect(self.update_spectrum)
+        self.pb_add_roi_2.clicked.connect(self.math_img_roi_flag)
+        self.image_roi_math.sigRegionChangeFinished.connect(self.image_roi_calc)
+        self.rb_poly_roi.clicked.connect(self.setImageROI)
+        self.rb_elli_roi.clicked.connect(self.setImageROI)
+        self.rb_rect_roi.clicked.connect(self.setImageROI)
+        self.rb_line_roi.clicked.connect(self.setImageROI)
+        self.rb_circle_roi.clicked.connect(self.setImageROI)
+
         self.setImageROI()
         self.update_spectrum()
         self.update_image_roi()

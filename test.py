@@ -1,5 +1,8 @@
-import os
+# Python program to illustrate
+# *args with first extra argument
+def myFun(arg1, *argv):
+    print ("First argument :", arg1)
+    print(type(argv[0]))
 
-dir = r'C:\Users\pattammattel\Desktop\HXN_GUI\Scan\BSUI_Logo.jpeg'
 
-print(os.path.dirname(dir))
+myFun('Hello', 'Welcome', 'to', 'GeeksforGeeks')

@@ -306,106 +306,6 @@ class midasWindow(QtWidgets.QMainWindow):
         self.update_spectrum()
         self.update_spec_image_roi()
 
-    def loadAlignRefImage(self):
-        filename = QFileDialog().getOpenFileName(self, "Image Data", '', '*.tiff *.tif')
-        file_name = (str(filename[0]))
-        self.alignRefImage = tf.imread(file_name).transpose(0, 2, 1)
-        assert self.alignRefImage.shape == self.updated_stack.shape, "Image dimensions do not match"
-        self.refStackAvailable = True
-        self.rb_alignRefVoid.setChecked(False)
-        self.change_color_on_load(self.pb_load_align_ref)
-
-    def stackRegistration(self):
-
-        self.transformations = {
-            'TRANSLATION': StackReg.TRANSLATION,
-            'RIGID_BODY': StackReg.RIGID_BODY,
-            'SCALED_ROTATION': StackReg.SCALED_ROTATION,
-            'AFFINE': StackReg.AFFINE,
-            'BILINEAR': StackReg.BILINEAR
-        }
-
-        self.transformType = self.transformations[self.cb_alignTransform.currentText()]
-        self.alignReferenceImage = self.cb_alignRef.currentText()
-        self.alignRefStackVoid = self.rb_alignRefVoid.isChecked()
-        self.alignMaxIter = self.sb_maxIterVal.value()
-
-        if self.cb_use_tmatFile.isChecked():
-
-            if len(self.loaded_tranform_file)>0:
-
-                self.updated_stack = align_with_tmat(self.updated_stack, tmat_file=self.loaded_tranform_file,
-                                                     transformation=self.transformType)
-                logger.info("Aligned to the tranform File")
-
-            else:
-                logger.error("No Tranformation File Loaded")
-
-
-        elif self.cb_iterAlign.isChecked():
-
-            if not self.refStackAvailable:
-                self.alignRefImage = self.updated_stack
-            else:
-                pass
-
-            self.updated_stack = align_stack_iter(self.updated_stack, ref_stack_void=False,
-                                                    ref_stack=self.alignRefImage, transformation=self.transformType,
-                                                    method=('previous', 'first'), max_iter=self.alignMaxIter)
-
-        else:
-            if not self.refStackAvailable:
-                self.alignRefImage = self.updated_stack
-
-            else:
-                pass
-
-            self.updated_stack, self.tranform_file = align_stack(self.updated_stack, ref_image_void=True,
-                                                                 ref_stack=self.alignRefImage,
-                                                                 transformation=self.transformType,
-                                                                 reference=self.alignReferenceImage)
-            logger.info("New Tranformation file available")
-
-    def exportAlignTransformation(self):
-        file_name = QFileDialog().getSaveFileName(self, "Save Transformation File", 'TranformationMatrix.npy', 'text file (*.npy)')
-        if file_name[0]:
-            np.save(file_name[0], self.tranform_file)
-        else:
-            pass
-
-    def importAlignTransformation(self):
-        file_name = QFileDialog().getOpenFileName(self, "Open Transformation File", ' ',
-                                                  'text file (*.npy)')
-        if file_name[0]:
-            self.loaded_tranform_file = np.load(file_name[0])
-            self.cb_use_tmatFile.setChecked(True)
-            logger.info("Tranformation File Loaded")
-        else:
-            pass
-
-    def loadSplashScreen(self):
-        self.splash = LoadingScreen()
-        px = self.geometry().x()
-        py = self.geometry().y()
-        ph = self.geometry().height()
-        pw = self.geometry().width()
-        dw = self.splash.width()
-        dh = self.splash.height()
-        new_x,new_y = px+(0.5*pw)-dw, py+(0.5*ph)-dh
-        self.splash.setGeometry(new_x, new_y, dw, dh)
-        self.splash.show()
-
-    def StackRegThread(self):
-        # Pass the function to execute
-        worker = Worker(self.stackRegistration)  # Any other args, kwargs are passed to the run function
-        self.loadSplashScreen()
-        worker.signals.start.connect(self.splash.startAnimation)
-        worker.signals.result.connect(self.print_output)
-        worker.signals.finished.connect(self.thread_complete)
-        worker.signals.finished.connect(self.splash.stopAnimation)
-        # Execute
-        self.threadpool.start(worker)
-        self.update_image_roi()
 
     def replotImage(self):
         #self.updated_stack = np.array(self.imageUpdateDictionary['Image'])
@@ -416,8 +316,10 @@ class midasWindow(QtWidgets.QMainWindow):
         self.imageUpdateDictionary['normalizeStack'] = self.cb_remove_bg.isChecked()
         self.imageUpdateDictionary['normToPoint'] = -1
         if self.cb_remove_bg.isChecked():
-            self.imageUpdateDictionary['Image'] = normalize(self.imageUpdateDictionary['Image'],
-                                                        norm_point=self.imageUpdateDictionary['normToPoint'])
+            self.updated_stack = updateStackWithDictionary(self.imageUpdateDictionary)
+        else:
+            self.imageUpdateDictionary['normalizeStack'] = self.cb_remove_bg.isChecked()
+
         self.replotImage()
 
     def thresholdStack(self):
@@ -429,6 +331,16 @@ class midasWindow(QtWidgets.QMainWindow):
         else:
             self.imageUpdateDictionary['applyThreshold'] = self.cb_remove_bg.isChecked()
             self.hs_bg_threshold.setEnabled(False)
+
+        self.replotImage()
+
+    def transposeStack(self):
+        self.imageUpdateDictionary['applyTranspose'] = self.cb_transpose.isChecked()
+        self.imageUpdateDictionary['transposeVals'] = (2,1,0)
+        if self.cb_transpose.isChecked()():
+            self.updated_stack = updateStackWithDictionary(self.imageUpdateDictionary)
+        else:
+            self.imageUpdateDictionary['applyTranspose'] = self.self.cb_transpose.isChecked()
 
         self.replotImage()
 
@@ -632,6 +544,108 @@ class midasWindow(QtWidgets.QMainWindow):
         self.rb_rect_roi.clicked.connect(self.setImageROI)
         self.rb_line_roi.clicked.connect(self.setImageROI)
         self.rb_circle_roi.clicked.connect(self.setImageROI)
+
+    def loadAlignRefImage(self):
+        filename = QFileDialog().getOpenFileName(self, "Image Data", '', '*.tiff *.tif')
+        file_name = (str(filename[0]))
+        self.alignRefImage = tf.imread(file_name).transpose(0, 2, 1)
+        assert self.alignRefImage.shape == self.updated_stack.shape, "Image dimensions do not match"
+        self.refStackAvailable = True
+        self.rb_alignRefVoid.setChecked(False)
+        self.change_color_on_load(self.pb_load_align_ref)
+
+    def stackRegistration(self):
+
+        self.transformations = {
+            'TRANSLATION': StackReg.TRANSLATION,
+            'RIGID_BODY': StackReg.RIGID_BODY,
+            'SCALED_ROTATION': StackReg.SCALED_ROTATION,
+            'AFFINE': StackReg.AFFINE,
+            'BILINEAR': StackReg.BILINEAR
+        }
+
+        self.transformType = self.transformations[self.cb_alignTransform.currentText()]
+        self.alignReferenceImage = self.cb_alignRef.currentText()
+        self.alignRefStackVoid = self.rb_alignRefVoid.isChecked()
+        self.alignMaxIter = self.sb_maxIterVal.value()
+
+        if self.cb_use_tmatFile.isChecked():
+
+            if len(self.loaded_tranform_file)>0:
+
+                self.updated_stack = align_with_tmat(self.updated_stack, tmat_file=self.loaded_tranform_file,
+                                                     transformation=self.transformType)
+                logger.info("Aligned to the tranform File")
+
+            else:
+                logger.error("No Tranformation File Loaded")
+
+
+        elif self.cb_iterAlign.isChecked():
+
+            if not self.refStackAvailable:
+                self.alignRefImage = self.updated_stack
+            else:
+                pass
+
+            self.updated_stack = align_stack_iter(self.updated_stack, ref_stack_void=False,
+                                                    ref_stack=self.alignRefImage, transformation=self.transformType,
+                                                    method=('previous', 'first'), max_iter=self.alignMaxIter)
+
+        else:
+            if not self.refStackAvailable:
+                self.alignRefImage = self.updated_stack
+
+            else:
+                pass
+
+            self.updated_stack, self.tranform_file = align_stack(self.updated_stack, ref_image_void=True,
+                                                                 ref_stack=self.alignRefImage,
+                                                                 transformation=self.transformType,
+                                                                 reference=self.alignReferenceImage)
+            logger.info("New Tranformation file available")
+
+    def exportAlignTransformation(self):
+        file_name = QFileDialog().getSaveFileName(self, "Save Transformation File", 'TranformationMatrix.npy', 'text file (*.npy)')
+        if file_name[0]:
+            np.save(file_name[0], self.tranform_file)
+        else:
+            pass
+
+    def importAlignTransformation(self):
+        file_name = QFileDialog().getOpenFileName(self, "Open Transformation File", ' ',
+                                                  'text file (*.npy)')
+        if file_name[0]:
+            self.loaded_tranform_file = np.load(file_name[0])
+            self.cb_use_tmatFile.setChecked(True)
+            logger.info("Tranformation File Loaded")
+        else:
+            pass
+
+    def loadSplashScreen(self):
+        self.splash = LoadingScreen()
+        px = self.geometry().x()
+        py = self.geometry().y()
+        ph = self.geometry().height()
+        pw = self.geometry().width()
+        dw = self.splash.width()
+        dh = self.splash.height()
+        new_x,new_y = px+(0.5*pw)-dw, py+(0.5*ph)-dh
+        self.splash.setGeometry(new_x, new_y, dw, dh)
+        self.splash.show()
+
+    def StackRegThread(self):
+        # Pass the function to execute
+        worker = Worker(self.stackRegistration)  # Any other args, kwargs are passed to the run function
+        self.loadSplashScreen()
+        worker.signals.start.connect(self.splash.startAnimation)
+        worker.signals.result.connect(self.print_output)
+        worker.signals.finished.connect(self.thread_complete)
+        worker.signals.finished.connect(self.splash.stopAnimation)
+        # Execute
+        self.threadpool.start(worker)
+        self.update_image_roi()
+
 
     def select_elist(self):
         self.energyFileChooser()

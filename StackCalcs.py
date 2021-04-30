@@ -540,6 +540,7 @@ def align_stack_iter(stack, ref_stack_void = True, ref_stack = None, transformat
 
 def updateStackWithDictionary(settingsDict):
 
+
     if settingsDict['removeOutliers']:
         modStack = remove_hot_pixels(settingsDict['Image'], NSigma=settingsDict['nSigmaOutlier'])
     else:

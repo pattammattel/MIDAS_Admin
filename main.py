@@ -14,6 +14,8 @@ from MaskView import *
 
 logger = logging.getLogger()
 
+ui_path = os.path.dirname(os.path.abspath(__file__))
+
 if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
@@ -25,8 +27,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def __init__(self, im_stack=None, energy=[], refs=[]):
         super(midasWindow, self).__init__()
-        uic.loadUi('uis/mainwindow_admin.ui', self)
-
+        uic.loadUi(os.path.join(ui_path, 'uis/mainwindow_admin.ui'), self)
         self.im_stack = im_stack
         self.updated_stack = self.im_stack
         self.energy = energy
@@ -37,10 +38,10 @@ class midasWindow(QtWidgets.QMainWindow):
 
         self.plt_colors = ['g', 'r', 'c', 'm', 'y', 'w', 'b',
                            pg.mkPen(70, 5, 80), pg.mkPen(255, 85, 130),
-                           pg.mkPen(0, 85, 130), pg.mkPen(255, 170, 60)]
+                           pg.mkPen(0, 85, 130), pg.mkPen(255, 170, 60)]*3
 
         self.actionOpen_Image_Data.triggered.connect(self.browse_file)
-        self.actionOpen_Multiple_Files.triggered.connect(self.load_mutliple_files)
+        self.actionOpen_Multiple_Files.triggered.connect(self.createVirtualStack)
         self.actionSave_as.triggered.connect(self.save_stack)
         self.actionExit.triggered.connect(self.close)
         self.actionOpen_in_GitHub.triggered.connect(self.open_github_link)
@@ -63,7 +64,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.cb_remove_bg.stateChanged.connect(self.replot_image)
         self.hs_nsigma.valueChanged.connect(self.replot_image)
         self.hs_bg_threshold.valueChanged.connect(self.replot_image)
-        self.pb_reset_img.clicked.connect(self.reset_and_load_stack)
+        self.pb_reset_img.clicked.connect(self.load_stack)
         self.pb_crop.clicked.connect(self.crop_to_dim)
         self.pb_crop.clicked.connect(self.view_stack)
         self.pb_ref_xanes.clicked.connect(self.select_ref_file)
@@ -102,6 +103,24 @@ class midasWindow(QtWidgets.QMainWindow):
         self.centralwidget.setStyleSheet(open('defaultStyle.css').read())
 
     #File Loading
+    def createVirtualStack(self):
+        """ User can load multiple/series of tiff images with same shape.
+        The 'self.load_stack()' recognizes 'self.filename as list and create the stack.
+        """
+        self.energy = []
+        filter = "TIFF (*.tiff);;TIF (*.tif)"
+        file_name = QFileDialog()
+        file_name.setFileMode(QFileDialog.ExistingFiles)
+        names = file_name.getOpenFileNames(self, "Open files", " ", filter)
+        if names[0]:
+
+            self.file_name = names[0]
+            self.load_stack()
+
+        else:
+            self.statusbar_main.showMessage("No file has selected")
+            pass
+
     def load_stack(self):
 
         """ load the image data from the selected file.
@@ -113,6 +132,20 @@ class midasWindow(QtWidgets.QMainWindow):
 
         The output 'self.im_stack' is the unmodified data file
         """
+
+        self.log_warning = False  # for the Qmessage box in cb_log
+        self.image_roi2_flag = False
+        self.cb_log.setChecked(False)
+        self.cb_remove_edges.setChecked(False)
+        self.cb_norm.setChecked(False)
+        self.cb_smooth.setChecked(False)
+        self.cb_remove_outliers.setChecked(False)
+        self.cb_remove_bg.setChecked(False)
+        self.cb_rebin.setChecked(False)
+        self.cb_upscale.setChecked(False)
+        self.sb_xrange1.setValue(0)
+        self.sb_yrange1.setValue(0)
+        self.sb_zrange1.setValue(0)
 
         self.menuMask.setEnabled(True)
         self.actionLoad_Energy.setEnabled(True)
@@ -159,10 +192,6 @@ class midasWindow(QtWidgets.QMainWindow):
             else:
                 logger.error('Unknown data format')
 
-        self.setStackParamsNDisplay()
-
-    def setStackParamsNDisplay(self):
-
         """ Fill the stack dimensions to the GUI and set the image dimensions as max values.
          This prevent user from choosing higher image dimensions during a resizing event"""
 
@@ -184,18 +213,6 @@ class midasWindow(QtWidgets.QMainWindow):
         logger.info("Stack displayed correctly")
         self.update_stack_info()
 
-        '''
-        try:
-
-            self.view_stack()
-            logger.info("Stack displayed correctly")
-            self.update_stack_info()
-
-        except:
-            logger.error("Trouble with stack display")
-            self.statusbar_main.showMessage("Error: Trouble with stack display")
-        '''
-
         logger.info(f'completed image shape {np.shape(self.im_stack)}')
 
         try:
@@ -204,26 +221,6 @@ class midasWindow(QtWidgets.QMainWindow):
         except AttributeError:
             self.statusbar_main.showMessage('New Stack is made from selected tiffs')
             pass
-
-    def resetStack(self):
-        self.log_warning = False  # for the Qmessage box in cb_log
-        self.image_roi2_flag = False
-        self.cb_log.setChecked(False)
-        self.cb_remove_edges.setChecked(False)
-        self.cb_norm.setChecked(False)
-        self.cb_smooth.setChecked(False)
-        self.cb_remove_outliers.setChecked(False)
-        self.cb_remove_bg.setChecked(False)
-        self.cb_rebin.setChecked(False)
-        self.cb_upscale.setChecked(False)
-        self.sb_xrange1.setValue(0)
-        self.sb_yrange1.setValue(0)
-        self.sb_zrange1.setValue(0)
-
-    def reset_and_load_stack(self):
-
-        self.resetStack()
-        self.load_stack()
 
     def browse_file(self):
         """ To open a file widow and choose the data file.
@@ -234,7 +231,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
         # if user decides to cancel the file window gui returns to original state
         if self.file_name:
-            self.reset_and_load_stack()
+            self.load_stack()
 
         else:
             self.statusbar_main.showMessage("No file has selected")
@@ -257,25 +254,8 @@ class midasWindow(QtWidgets.QMainWindow):
             self.statusbar_main.showMessage(f"Energy File detected {self.efilePath}")
 
         else:
-            self.efilePath = None
-
-    def load_mutliple_files(self):
-        """ User can load multiple/series of tiff images with same shape.
-        The 'self.reset_and_load_stack()' recognizes 'self.filename as list and create the stack.
-        """
-        self.energy = []
-        filter = "TIFF (*.tiff);;TIF (*.tif)"
-        file_name = QFileDialog()
-        file_name.setFileMode(QFileDialog.ExistingFiles)
-        names = file_name.getOpenFileNames(self, "Open files", " ", filter)
-        if names[0]:
-
-            self.file_name = names[0]
-            self.reset_and_load_stack()
-
-        else:
-            self.statusbar_main.showMessage("No file has selected")
-            pass
+            self.efilePath = False
+            self.efileLoader()
 
     def update_stack_info(self):
         z, x, y = np.shape(self.updated_stack)
@@ -300,6 +280,8 @@ class midasWindow(QtWidgets.QMainWindow):
         self.updated_stack = self.updated_stack.T
         self.update_spectrum()
         self.update_spec_image_roi()
+
+    #Alignement
 
     def loadAlignRefImage(self):
         filename = QFileDialog().getOpenFileName(self, "Image Data", '', '*.tiff *.tif')
@@ -543,7 +525,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.update_spectrum()
         self.update_image_roi()
 
-        # connections
+        # image connections
         self.image_view.mousePressEvent = self.getPointSpectrum
         self.spec_roi.sigRegionChanged.connect(self.update_image_roi)
         self.spec_roi_math.sigRegionChangeFinished.connect(self.spec_roi_calc)
@@ -572,14 +554,13 @@ class midasWindow(QtWidgets.QMainWindow):
 
             else:
                 self.energy = np.loadtxt(str(self.efilePath))
+            self.change_color_on_load(self.pb_elist_xanes)
+            logger.info('Energy file loaded')
 
         else:
-            self.statusbar_main.showMessage("No Energy List Selected")
-
-        logger.info('Energy file loaded')
-
-        if self.energy.any():
-            self.change_color_on_load(self.pb_elist_xanes)
+            self.statusbar_main.showMessage("No Energy List Selected, Setting Arbitary Axis")
+            self.energy = np.arange(self.im_stack.shape[0])
+            logger.info('Arbitary Energy Axis')
 
         # assert len(self.energy) == self.dim1, "Number of Energy Points is not equal to stack length"
 

@@ -11,6 +11,7 @@ from PyQt5.QtCore import QObject, QTimer, QThread, pyqtSignal, pyqtSlot, QRunnab
 from StackPlot import *
 from StackCalcs import *
 from MaskView import *
+from stackInfo import *
 
 logger = logging.getLogger()
 
@@ -69,6 +70,9 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_crop.clicked.connect(self.view_stack)
         self.pb_ref_xanes.clicked.connect(self.select_ref_file)
         self.pb_elist_xanes.clicked.connect(self.select_elist)
+
+        #stack ingo
+        self.pb_stack_info.clicked.connect(self.displayStackInfo)
 
         # alignment
         self.pb_load_align_ref.clicked.connect(self.loadAlignRefImage)
@@ -256,6 +260,20 @@ class midasWindow(QtWidgets.QMainWindow):
         else:
             self.efilePath = False
             self.efileLoader()
+
+    def displayStackInfo(self):
+
+        if isinstance(self.file_name, list):
+            info = f'Folder; {os.path.dirname(self.file_name[0])} \n'
+            for n, name in enumerate(self.file_name):
+                info += f'{n}: {os.path.basename(name)} \n'
+
+            #info = f'Stack order; {[name for name in enumerate(self.file_name)]}'
+        else:
+            info = f'Stack; {self.file_name}'
+
+        self.infoWindow = StackInfo(str(info))
+        self.infoWindow.show()
 
     def update_stack_info(self):
         z, x, y = np.shape(self.updated_stack)

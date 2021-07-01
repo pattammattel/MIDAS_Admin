@@ -646,6 +646,7 @@ class ScatterPlot(QtWidgets.QMainWindow):
         self.actionSave_Images.triggered.connect(self.tiff_export_images)
         self.pb_define_mask.clicked.connect(self.createMask)
         self.pb_apply_mask.clicked.connect(self.getMaskRegion)
+        self.pb_reset_mask.clicked.connect(self.resetMask)
 
     def pg_export_correlation(self):
 
@@ -724,6 +725,9 @@ class ComponentScatterPlot(QtWidgets.QMainWindow):
         self.actionSave_Plot.triggered.connect(self.pg_export_correlation)
         self.actionSave_Images.triggered.connect(self.tiff_export_images)
         self.pb_updateComponents.clicked.connect(self.setImageAndScatterPlot)
+        self.pb_define_mask.clicked.connect(self.createMask)
+        self.pb_apply_mask.clicked.connect(self.getMaskRegion)
+        self.pb_reset_mask.clicked.connect(self.resetMask)
 
     def setImageAndScatterPlot(self):
 
@@ -733,7 +737,7 @@ class ComponentScatterPlot(QtWidgets.QMainWindow):
             pass
 
         comp_tuple = self.cb_scatter_comp.currentData()
-
+        self.img1,self.img2  = self.decomp_stack[comp_tuple[0]],self.decomp_stack[comp_tuple[-1]]
         self.image_view.setImage(self.decomp_stack[comp_tuple[0]])
         self.image_view.ui.menuBtn.hide()
         self.image_view.ui.roiBtn.hide()
@@ -745,8 +749,7 @@ class ComponentScatterPlot(QtWidgets.QMainWindow):
         self.image_view2.setPredefinedGradient('bipolar')
 
         points = []
-        for i,j in zip(self.decomp_stack[comp_tuple[0]].flatten(),
-                       self.decomp_stack[comp_tuple[-1]].flatten()):
+        for i,j in zip(self.img1.flatten(),self.img2.flatten()):
 
                 points.append({'pos': (i,j), 'data' : 'id', 'size': 5, 'pen': pg.mkPen(None),
                            'brush': pg.mkBrush(255, 255, 0, 160)})
@@ -776,6 +779,41 @@ class ComponentScatterPlot(QtWidgets.QMainWindow):
         self.w1.setLabel('bottom', 'Image ROI')
         self.w1.setLabel('left', 'Math ROI')
         self.w1.addItem(self.s1)
+
+    def createMask(self):
+
+        self.size = self.img1.max() / 10
+        self.pos = int(self.img1.mean())
+
+        self.scatter_mask = pg.PolyLineROI([[0, 0], [0, self.size], [self.size, self.size], [self.size, 0]],
+                                           pos=(self.pos, self.pos), pen='r', closed=True, removable=True)
+
+        self.w1.addItem(self.scatter_mask)
+
+    def resetMask(self):
+        self.w1.removeItem(self.scatter_mask)
+        self.createMask()
+
+    def clearPgPlot(self):
+        try:
+            self.masked_img.close()
+        except:
+            pass
+
+    def getMaskRegion(self):
+
+        # Ref : https://stackoverflow.com/questions/57719303/how-to-map-mouse-position-on-a-scatterplot
+
+        roiShape = self.scatter_mask.mapToItem(self.s1, self.scatter_mask.shape())
+        self._points = list()
+        for i in range(len(self.img1.flatten())):
+            self._points.append(QtCore.QPointF(self.img1.flatten()[i], self.img2.flatten()[i]))
+
+        selected = [roiShape.contains(pt) for pt in self._points]
+        img_selected = np.reshape(selected, (self.img1.shape))
+
+        self.masked_img = singleStackViewer(img_selected * self.img1, gradient='bipolar')
+        self.masked_img.show()
 
     def pg_export_correlation(self):
 

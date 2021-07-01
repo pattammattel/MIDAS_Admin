@@ -774,11 +774,13 @@ class ComponentScatterPlot(QtWidgets.QMainWindow):
         '''
 
         self.s1.addPoints(points)
-
+        self.w1.addItem(self.s1)
         #self.s1.setData(self.specs[:, comp_tuple[0]], self.specs[:, comp_tuple[-1]])
         self.w1.setLabel('bottom', f'PC{comp_tuple[0]+1}')
         self.w1.setLabel('left', f'PC{comp_tuple[-1]+1}')
-        self.w1.addItem(self.s1)
+        self.label_im1.setText(f'PC{comp_tuple[0]+1}')
+        self.label_im2.setText(f'PC{comp_tuple[-1]+1}')
+
 
     def createMask(self):
 
@@ -791,8 +793,12 @@ class ComponentScatterPlot(QtWidgets.QMainWindow):
         self.w1.addItem(self.scatter_mask)
 
     def resetMask(self):
-        self.w1.removeItem(self.scatter_mask)
-        self.createMask()
+        try:
+            self.w1.removeItem(self.scatter_mask)
+            self.createMask()
+        except AttributeError:
+            pass
+
 
     def clearPgPlot(self):
         try:

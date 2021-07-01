@@ -263,17 +263,22 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def displayStackInfo(self):
 
-        if isinstance(self.file_name, list):
-            info = f'Folder; {os.path.dirname(self.file_name[0])} \n'
-            for n, name in enumerate(self.file_name):
-                info += f'{n}: {os.path.basename(name)} \n'
+        try:
 
-            #info = f'Stack order; {[name for name in enumerate(self.file_name)]}'
-        else:
-            info = f'Stack; {self.file_name}'
+            if isinstance(self.file_name, list):
+                info = f'Folder; {os.path.dirname(self.file_name[0])} \n'
+                for n, name in enumerate(self.file_name):
+                    info += f'{n}: {os.path.basename(name)} \n'
 
-        self.infoWindow = StackInfo(str(info))
-        self.infoWindow.show()
+                #info = f'Stack order; {[name for name in enumerate(self.file_name)]}'
+            else:
+                info = f'Stack; {self.file_name}'
+
+            self.infoWindow = StackInfo(str(info))
+            self.infoWindow.show()
+
+        except AttributeError:
+            self.statusbar_main.showMessage('Warning: No Image Data Loaded')
 
     def update_stack_info(self):
         z, x, y = np.shape(self.updated_stack)

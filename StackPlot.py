@@ -728,6 +728,7 @@ class ComponentScatterPlot(QtWidgets.QMainWindow):
         self.pb_define_mask.clicked.connect(self.createMask)
         self.pb_apply_mask.clicked.connect(self.getMaskRegion)
         self.pb_reset_mask.clicked.connect(self.resetMask)
+        self.pb_addALine.clicked.connect(lambda: self.createMask(Line=True))
 
     def setImageAndScatterPlot(self):
 
@@ -782,15 +783,28 @@ class ComponentScatterPlot(QtWidgets.QMainWindow):
         self.label_im2.setText(f'PC{comp_tuple[-1]+1}')
 
 
-    def createMask(self):
+    def createMask(self, Line = False):
 
         self.size = self.img1.max() / 10
         self.pos = int(self.img1.mean())
 
-        self.scatter_mask = pg.PolyLineROI([[0, 0], [0, self.size], [self.size, self.size], [self.size, 0]],
-                                           pos=(self.pos, self.pos), pen='r', closed=True, removable=True)
+        if Line:
+            self.lineROI = pg.LineSegmentROI([0, 1],pos=(self.pos, self.pos),
+                                             pen=pg.mkPen('r', width=4),hoverPen=pg.mkPen('g', width=4),
+                                             removable=True)
+            self.w1.addItem(self.lineROI)
 
-        self.w1.addItem(self.scatter_mask)
+        else:
+
+            self.scatter_mask = pg.PolyLineROI([[0, 0], [0, self.size], [self.size, self.size], [self.size, 0]],
+                                               pos=(self.pos, self.pos), pen=pg.mkPen('r', width=4),
+                                               hoverPen=pg.mkPen('g', width=4),
+                                               closed=True, removable=True)
+
+            self.w1.addItem(self.scatter_mask)
+
+
+
 
     def resetMask(self):
         try:

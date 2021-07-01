@@ -708,7 +708,7 @@ class ComponentScatterPlot(QtWidgets.QMainWindow):
     def __init__(self, decomp_stack, specs):
         super(ComponentScatterPlot, self).__init__()
 
-        uic.loadUi(os.path.join(ui_path, 'uis/ScatterPlot.ui'), self)
+        uic.loadUi(os.path.join(ui_path, 'uis/ComponentScatterPlot.ui'), self)
 
         self.w1 = self.scatterViewer.addPlot()
         self.decomp_stack = decomp_stack

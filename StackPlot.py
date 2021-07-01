@@ -72,6 +72,7 @@ class ComponentViewer(QtWidgets.QMainWindow):
 
         # Load the UI Page
         uic.loadUi(os.path.join(ui_path, 'uis/ComponentView.ui'), self)
+        self.centralwidget.setStyleSheet(open('defaultStyle.css').read())
 
         self.comp_stack = comp_stack
         self.energy = energy

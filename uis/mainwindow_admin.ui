@@ -23,6 +23,10 @@
   <property name="windowTitle">
    <string>NSLS-II MIDAS</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../pancake.ico</normaloff>../pancake.ico</iconset>
+  </property>
   <property name="styleSheet">
    <string notr="true">font: 12pt &quot;Segoe UI&quot;;
 </string>
@@ -1832,7 +1836,7 @@ border-radius: 4px;
           <item row="13" column="0">
            <widget class="QPushButton" name="pushButton_2">
             <property name="text">
-             <string>Move Live Plot to Collector</string>
+             <string>Add Live Plot to Collector</string>
             </property>
            </widget>
           </item>

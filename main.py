@@ -925,7 +925,14 @@ class midasWindow(QtWidgets.QMainWindow):
             pass
 
     def addSpectrumToCollector(self):
-        self.spectrum_view_collect.plot(self.xdata, self.mean_spectra, name='ROI Spectrum')
+        data = np.squeeze([c.getData() for c in self.spectrum_view.plotItem.curves])
+        #print(np.shape(data))
+        self.spectrum_view_collect.plot(data[0], data[-1], name='ROI Spectrum')
+        #print(self.spectrum_view.listDataItems())
+
+    def nomalizeCollectorSpec(self):
+        pass
+
 
     def saveCollectorPlot(self):
         exporter = pg.exporters.CSVExporter(self.spectrum_view_collect.plotItem)

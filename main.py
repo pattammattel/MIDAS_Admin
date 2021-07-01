@@ -85,6 +85,9 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_save_disp_img.clicked.connect(self.save_disp_img)
         self.pb_save_disp_spec.clicked.connect(self.save_disp_spec)
         self.pb_show_roi.clicked.connect(self.getROIMask)
+        self.pb_addToCollector.clicked.connect(self.addSpectrumToCollector)
+        self.pb_collect_clear.clicked.connect(lambda:self.spectrum_view_collect.clear())
+        self.pb_saveCollectorPlot.clicked.connect(self.saveCollectorPlot)
 
         # Analysis
         self.pb_pca_scree.clicked.connect(self.pca_scree_)
@@ -918,6 +921,19 @@ class midasWindow(QtWidgets.QMainWindow):
 
         else:
             logger.error('No file to save')
+            self.statusbar_main.showMessage('Saving cancelled')
+            pass
+
+    def addSpectrumToCollector(self):
+        self.spectrum_view_collect.plot(self.xdata, self.mean_spectra, name='ROI Spectrum')
+
+    def saveCollectorPlot(self):
+        exporter = pg.exporters.CSVExporter(self.spectrum_view_collect.plotItem)
+        exporter.parameters()['columnMode'] = '(x,y,y,y) for all plots'
+        file_name = QFileDialog().getSaveFileName(self, "save spectra", '', 'spectra (*csv)')
+        if file_name[0]:
+            exporter.export(str(file_name[0]) + '.csv')
+        else:
             self.statusbar_main.showMessage('Saving cancelled')
             pass
 

@@ -937,19 +937,35 @@ class midasWindow(QtWidgets.QMainWindow):
         #print(self.spectrum_view.listDataItems())
 
     def nomalizeLiveSpec(self):
+
         data = np.squeeze([c.getData() for c in self.spectrum_view.plotItem.curves])
-        mu_ = data[-1]
-        e_ = data[0]
+        print(np.shape(data))
+        if data.ndim == 2:
+            mu_ = data[1]
+            e_ = data[0]
+        elif data.ndim == 3:
+            e_mu = data[0,:,:]
+            mu_ = e_mu[1]
+            e_ = e_mu[0]
+
+        else:
+            logger.error(f" Data shape of {data.ndim} is not supported")
+            pass
+
+        self.spectrum_view.clear()
         eo_ = self.dsb_norm_Eo.value()
         pre1_, pre2_ = self.dsb_norm_pre1.value(), self.dsb_norm_pre2.value()
         norm1_, norm2_ = self.dsb_norm_post1.value(), self.dsb_norm_post2.value()
         norm_order = self.sb_norm_order.value()
-        pre_line, post_line, normXANES = xanesNormalization(e_, mu_, e0=eo_, step=None,
+        pre_line, post_line, self.normXANES = xanesNormalization(e_, mu_, e0=eo_, step=None,
                            nnorm=norm_order, nvict=0, pre1=pre1_, pre2=pre2_,
                            norm1=norm1_, norm2=norm2_)
-        names = np.array('Raw','Pre','Post')
-        self.spectrum_view.clear()
-        for data, clr, name in zip(np.array(mu_,pre_line, post_line, normXANES), self.plt_colors):
+
+        names = np.array(('Spectrum','Pre','Post'))
+        data_array = np.array((mu_, pre_line, post_line))
+        colors = np.array(('c', 'r', 'm'))
+
+        for data, clr, name in zip(data_array, colors, names):
             self.spectrum_view.plot(e_, data, pen=pg.mkPen(clr, width=2),name=name)
 
         #e0_ = e_[np.argmax(np.gradient(mu_))]

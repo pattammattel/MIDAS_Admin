@@ -91,6 +91,9 @@ class midasWindow(QtWidgets.QMainWindow):
         #self.pb_norm_collect_spec.clicked.connect(self.nomalizeCollectorSpec)
         #self.pb_reset_collect_spec.clicked.connect(self.resetCollectorSpec)
 
+        #XANES Normalization
+        self.pb_apply_xanes_norm.clicked.connect(self.nomalizeLiveSpec)
+
 
         # Analysis
         self.pb_pca_scree.clicked.connect(self.pca_scree_)

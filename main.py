@@ -88,6 +88,9 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_addToCollector.clicked.connect(self.addSpectrumToCollector)
         self.pb_collect_clear.clicked.connect(lambda:self.spectrum_view_collect.clear())
         self.pb_saveCollectorPlot.clicked.connect(self.saveCollectorPlot)
+        #self.pb_norm_collect_spec.clicked.connect(self.nomalizeCollectorSpec)
+        #self.pb_reset_collect_spec.clicked.connect(self.resetCollectorSpec)
+
 
         # Analysis
         self.pb_pca_scree.clicked.connect(self.pca_scree_)
@@ -930,7 +933,25 @@ class midasWindow(QtWidgets.QMainWindow):
         self.spectrum_view_collect.plot(data[0], data[-1], name='ROI Spectrum')
         #print(self.spectrum_view.listDataItems())
 
-    def nomalizeCollectorSpec(self):
+    def nomalizeLiveSpec(self):
+        data = np.squeeze([c.getData() for c in self.spectrum_view.plotItem.curves])
+        mu_ = data[-1]
+        e_ = data[0]
+        eo_ = self.dsb_norm_Eo.value()
+        pre1_, pre2_ = self.dsb_norm_pre1.value(), self.dsb_norm_pre2.value()
+        norm1_, norm2_ = self.dsb_norm_post1.value(), self.dsb_norm_post2.value()
+        norm_order = self.sb_norm_order.value()
+        pre_line, post_line, normXANES = xanesNormalization(e_, mu_, e0=eo_, step=None,
+                           nnorm=norm_order, nvict=0, pre1=pre1_, pre2=pre2_,
+                           norm1=norm1_, norm2=norm2_)
+        names = np.array('Raw','Pre','Post')
+        self.spectrum_view.clear()
+        for data, clr, name in zip(np.array(mu_,pre_line, post_line, normXANES), self.plt_colors):
+            self.spectrum_view.plot(e_, data, pen=pg.mkPen(clr, width=2),name=name)
+
+        #e0_ = e_[np.argmax(np.gradient(mu_))]
+
+    def resetCollectorSpec(self):
         pass
 
 

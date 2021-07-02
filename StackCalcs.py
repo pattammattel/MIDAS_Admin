@@ -9,6 +9,7 @@ import h5py
 import logging
 import tifffile as tf
 
+from larch.xafs import preedge
 from pystackreg import StackReg
 from PyQt5 import QtCore
 from scipy.signal import savgol_filter
@@ -487,6 +488,15 @@ def create_df_from_nor_try2(athenafile='fe_refs.nor'):
 def energy_from_logfile(logfile = 'maps_log_tiff.txt'):
     df = pd.read_csv(logfile, header= None, delim_whitespace=True, skiprows=9)
     return df[9][df[7]=='energy'].values.astype(float)
+
+def xanesNormalization(e, mu, e0=7125, step=None,
+            nnorm=2, nvict=0, pre1=None, pre2=-50,
+            norm1=100, norm2=None):
+
+    result = preedge(e, mu, e0, step, nnorm,
+                     nvict, pre1, pre2, norm1, norm2)
+
+    return result['pre_edge'],result['post_edge'],result['norm']
 
 def align_stack(stack_img, ref_image_void = True, ref_stack = None, transformation = StackReg.TRANSLATION,
                 reference = 'previous'):

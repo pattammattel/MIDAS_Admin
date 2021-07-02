@@ -931,42 +931,47 @@ class midasWindow(QtWidgets.QMainWindow):
             pass
 
     def addSpectrumToCollector(self):
-        data = np.squeeze([c.getData() for c in self.spectrum_view.plotItem.curves])
-        #print(np.shape(data))
-        self.spectrum_view_collect.plot(data[0], data[-1], name='ROI Spectrum')
+        self.getLivePlotData()
+        #data = np.squeeze([c.getData() for c in self.spectrum_view.plotItem.curves])
+        self.spectrum_view_collect.plot(self.e_, self.mu_, name='ROI Spectrum')
         #print(self.spectrum_view.listDataItems())
 
-    def nomalizeLiveSpec(self):
-
+    def getLivePlotData(self):
         data = np.squeeze([c.getData() for c in self.spectrum_view.plotItem.curves])
         print(np.shape(data))
         if data.ndim == 2:
-            mu_ = data[1]
-            e_ = data[0]
+            self.mu_ = data[1]
+            self.e_ = data[0]
         elif data.ndim == 3:
             e_mu = data[0,:,:]
-            mu_ = e_mu[1]
-            e_ = e_mu[0]
+            self.mu_ = e_mu[1]
+            self.e_ = e_mu[0]
 
         else:
             logger.error(f" Data shape of {data.ndim} is not supported")
             pass
 
+
+    def nomalizeLiveSpec(self):
+
+        self.getLivePlotData()
         self.spectrum_view.clear()
         eo_ = self.dsb_norm_Eo.value()
         pre1_, pre2_ = self.dsb_norm_pre1.value(), self.dsb_norm_pre2.value()
         norm1_, norm2_ = self.dsb_norm_post1.value(), self.dsb_norm_post2.value()
         norm_order = self.sb_norm_order.value()
-        pre_line, post_line, self.normXANES = xanesNormalization(e_, mu_, e0=eo_, step=None,
+        pre_line, post_line, normXANES = xanesNormalization(self.e_, self.mu_, e0=eo_, step=None,
                            nnorm=norm_order, nvict=0, pre1=pre1_, pre2=pre2_,
                            norm1=norm1_, norm2=norm2_)
 
         names = np.array(('Spectrum','Pre','Post'))
-        data_array = np.array((mu_, pre_line, post_line))
+        data_array = np.array((self.mu_, pre_line, post_line))
         colors = np.array(('c', 'r', 'm'))
 
         for data, clr, name in zip(data_array, colors, names):
-            self.spectrum_view.plot(e_, data, pen=pg.mkPen(clr, width=2),name=name)
+            self.spectrum_view.plot(self.e_, data, pen=pg.mkPen(clr, width=2),name=name)
+
+        self.spectrum_view_norm.plot(self.e_, normXANES, pen=pg.mkPen(self.plt_colors[-1], width=2))
 
         #e0_ = e_[np.argmax(np.gradient(mu_))]
 

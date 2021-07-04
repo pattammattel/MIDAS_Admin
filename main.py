@@ -92,6 +92,8 @@ class midasWindow(QtWidgets.QMainWindow):
         #XANES Normalization
         self.pb_apply_xanes_norm.clicked.connect(self.nomalizeLiveSpec)
         self.pb_auto_Eo.clicked.connect(self.findEo)
+        self.pb_xanes_norm_vals.clicked.connect(self.initNormVals)
+
 
         # Analysis
         self.pb_pca_scree.clicked.connect(self.pca_scree_)
@@ -925,27 +927,11 @@ class midasWindow(QtWidgets.QMainWindow):
             self.statusbar_main.showMessage('Saving cancelled')
             pass
 
-    def addSpectrumToCollector(self):
-        self.getLivePlotData()
-        #data = np.squeeze([c.getData() for c in self.spectrum_view.plotItem.curves])
-        self.spectrum_view_collect.plot(self.e_, self.mu_, name='ROI Spectrum')
-        #print(self.spectrum_view.listDataItems())
-
-    def findEo(self):
-        try:
-            self.getLivePlotData()
-            e0_init = self.e_[np.argmax(np.gradient(self.mu_))]
-            self.dsb_norm_Eo.setValue(e0_init)
-
-        except AttributeError:
-            logger.error ("No data loaded")
-            pass
-
     def getLivePlotData(self):
         try:
 
             data = np.squeeze([c.getData() for c in self.spectrum_view.plotItem.curves])
-            print(np.shape(data))
+            #print(np.shape(data))
             if data.ndim == 2:
                 self.mu_ = data[1]
                 self.e_ = data[0]
@@ -960,6 +946,33 @@ class midasWindow(QtWidgets.QMainWindow):
         except AttributeError:
             logger.error ("No data loaded")
             pass
+
+    def addSpectrumToCollector(self):
+        self.getLivePlotData()
+        self.spectrum_view_collect.plot(self.e_, self.mu_, name='ROI Spectrum')
+        self.spectrum_view_collect.setLabel('bottom', 'Energy', self.e_unit)
+        self.spectrum_view_collect.setLabel('left', 'Intensity', 'A.U.')
+
+    def findEo(self):
+        try:
+            self.getLivePlotData()
+            e0_init = self.e_[np.argmax(np.gradient(self.mu_))]
+            self.dsb_norm_Eo.setValue(e0_init)
+
+        except AttributeError:
+            logger.error ("No data loaded")
+            pass
+
+    def initNormVals(self):
+        self.getLivePlotData()
+        e0_init = self.e_[np.argmax(np.gradient(self.mu_))]
+        pre1, pre2, post1,post2 = xanesNormalization(self.e_, self.mu_, e0=e0_init, step=None,
+                                                            nnorm=1, nvict=0, guess = True)
+        self.dsb_norm_pre1.setValue(pre1)
+        self.dsb_norm_pre2.setValue(pre2)
+        self.dsb_norm_post1.setValue(post1)
+        self.dsb_norm_post2.setValue(post2)
+        self.dsb_norm_Eo.setValue(e0_init)
 
     def nomalizeLiveSpec(self):
 
@@ -980,7 +993,10 @@ class midasWindow(QtWidgets.QMainWindow):
         for data, clr, name in zip(data_array, colors, names):
             self.spectrum_view.plot(self.e_, data, pen=pg.mkPen(clr, width=2),name=name)
 
-        self.spectrum_view_norm.plot(self.e_, normXANES, pen=pg.mkPen(self.plt_colors[-1], width=2))
+        self.spectrum_view_norm.plot(self.e_, normXANES,clear = True,
+                                     pen=pg.mkPen(self.plt_colors[-1], width=2))
+        self.spectrum_view_norm.setLabel('bottom', 'Energy', self.e_unit)
+        self.spectrum_view_norm.setLabel('left', 'Norm. Intensity', 'A.U.')
 
     def resetCollectorSpec(self):
         pass

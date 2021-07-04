@@ -11,7 +11,7 @@
     <x>0</x>
     <y>0</y>
     <width>1463</width>
-    <height>925</height>
+    <height>950</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -145,7 +145,7 @@ border-radius: 4px;
             <x>0</x>
             <y>0</y>
             <width>411</width>
-            <height>351</height>
+            <height>345</height>
            </rect>
           </property>
           <attribute name="label">
@@ -568,7 +568,7 @@ border-radius: 4px;
             <x>0</x>
             <y>0</y>
             <width>334</width>
-            <height>400</height>
+            <height>423</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1072,8 +1072,8 @@ border-radius: 4px;
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>411</width>
-            <height>215</height>
+            <width>390</width>
+            <height>189</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1206,8 +1206,8 @@ border-radius: 4px;
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>411</width>
-            <height>215</height>
+            <width>390</width>
+            <height>185</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1328,7 +1328,7 @@ border-radius: 4px;
             <x>0</x>
             <y>0</y>
             <width>411</width>
-            <height>218</height>
+            <height>199</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1480,7 +1480,7 @@ border-radius: 4px;
        <item row="2" column="0" colspan="2">
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -1893,8 +1893,8 @@ border-radius: 4px;
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>303</width>
-            <height>167</height>
+            <width>361</width>
+            <height>128</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1967,8 +1967,8 @@ border-radius: 4px;
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>303</width>
-            <height>180</height>
+            <width>361</width>
+            <height>168</height>
            </rect>
           </property>
           <attribute name="label">
@@ -2073,24 +2073,43 @@ border-radius: 4px;
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>478</width>
-            <height>219</height>
+            <width>412</width>
+            <height>264</height>
            </rect>
           </property>
           <attribute name="label">
            <string>XANES Normalization</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_39">
-           <item row="5" column="1" colspan="3">
-            <widget class="QPushButton" name="pb_apply_xanes_norm">
+           <item row="3" column="2">
+            <widget class="QLabel" name="label_25">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>to</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QSpinBox" name="sb_norm_order">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="text">
-              <string>Apply Norm.</string>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>5</number>
              </property>
             </widget>
            </item>
@@ -2129,10 +2148,23 @@ border-radius: 4px;
              </property>
             </widget>
            </item>
+           <item row="5" column="1" colspan="3">
+            <widget class="QPushButton" name="pb_apply_xanes_norm">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Apply Norm.</string>
+             </property>
+            </widget>
+           </item>
            <item row="1" column="3">
             <widget class="QPushButton" name="pb_auto_Eo">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -2142,19 +2174,6 @@ border-radius: 4px;
              </property>
              <property name="text">
               <string>Auto Eo</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_16">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Pre-edge</string>
              </property>
             </widget>
            </item>
@@ -2186,8 +2205,8 @@ border-radius: 4px;
              </property>
             </widget>
            </item>
-           <item row="2" column="2">
-            <widget class="QLabel" name="label_24">
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_16">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -2195,10 +2214,7 @@ border-radius: 4px;
               </sizepolicy>
              </property>
              <property name="text">
-              <string>to</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <string>Pre-edge</string>
              </property>
             </widget>
            </item>
@@ -2237,6 +2253,38 @@ border-radius: 4px;
              </property>
             </widget>
            </item>
+           <item row="2" column="2">
+            <widget class="QLabel" name="label_24">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>to</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_23">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Norm. Order </string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
            <item row="3" column="1">
             <widget class="QDoubleSpinBox" name="dsb_norm_post1">
              <property name="sizePolicy">
@@ -2259,51 +2307,32 @@ border-radius: 4px;
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_23">
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="le_norm_elem">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt; For mbak algorithm only, must be in &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;element&amp;lt;space&amp;gt;edge&lt;/span&gt; format&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="placeholderText">
+              <string>Fe K</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_18">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
              <property name="text">
-              <string>Norm. Order </string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <widget class="QSpinBox" name="sb_norm_order">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>5</number>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="2">
-            <widget class="QLabel" name="label_25">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>to</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <string>Element:</string>
              </property>
             </widget>
            </item>
@@ -2329,32 +2358,10 @@ border-radius: 4px;
              </property>
             </widget>
            </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_18">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
+           <item row="0" column="3">
+            <widget class="QPushButton" name="pb_xanes_norm_vals">
              <property name="text">
-              <string>Element:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="le_norm_elem">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt; For mbak algorithm only, must be in &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;element&amp;lt;space&amp;gt;edge&lt;/span&gt; format&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="placeholderText">
-              <string>Fe K</string>
+              <string>Initial Guess</string>
              </property>
             </widget>
            </item>
@@ -2386,7 +2393,7 @@ border-radius: 4px;
      <x>0</x>
      <y>0</y>
      <width>1463</width>
-     <height>27</height>
+     <height>34</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuManual">

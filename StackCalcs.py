@@ -491,12 +491,18 @@ def energy_from_logfile(logfile = 'maps_log_tiff.txt'):
 
 def xanesNormalization(e, mu, e0=7125, step=None,
             nnorm=2, nvict=0, pre1=None, pre2=-50,
-            norm1=100, norm2=None):
+            norm1=100, norm2=None, guess = False):
+    if guess:
+        result = preedge(e, mu, e0, step = step, nnorm=nnorm,
+                         nvict = nvict)
 
-    result = preedge(e, mu, e0, step, nnorm,
-                     nvict, pre1, pre2, norm1, norm2)
+        return result['pre1'],result['pre2'],result['norm1'],result['norm2']
 
-    return result['pre_edge'],result['post_edge'],result['norm']
+    else:
+        result = preedge(e, mu, e0, step, nnorm,
+                         nvict, pre1, pre2, norm1, norm2)
+
+        return result['pre_edge'],result['post_edge'],result['norm']
 
 def align_stack(stack_img, ref_image_void = True, ref_stack = None, transformation = StackReg.TRANSLATION,
                 reference = 'previous'):

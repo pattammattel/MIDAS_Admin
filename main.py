@@ -88,12 +88,10 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_addToCollector.clicked.connect(self.addSpectrumToCollector)
         self.pb_collect_clear.clicked.connect(lambda:self.spectrum_view_collect.clear())
         self.pb_saveCollectorPlot.clicked.connect(self.saveCollectorPlot)
-        #self.pb_norm_collect_spec.clicked.connect(self.nomalizeCollectorSpec)
-        #self.pb_reset_collect_spec.clicked.connect(self.resetCollectorSpec)
 
         #XANES Normalization
         self.pb_apply_xanes_norm.clicked.connect(self.nomalizeLiveSpec)
-
+        self.pb_auto_Eo.clicked.connect(self.findEo)
 
         # Analysis
         self.pb_pca_scree.clicked.connect(self.pca_scree_)
@@ -936,21 +934,36 @@ class midasWindow(QtWidgets.QMainWindow):
         self.spectrum_view_collect.plot(self.e_, self.mu_, name='ROI Spectrum')
         #print(self.spectrum_view.listDataItems())
 
-    def getLivePlotData(self):
-        data = np.squeeze([c.getData() for c in self.spectrum_view.plotItem.curves])
-        print(np.shape(data))
-        if data.ndim == 2:
-            self.mu_ = data[1]
-            self.e_ = data[0]
-        elif data.ndim == 3:
-            e_mu = data[0,:,:]
-            self.mu_ = e_mu[1]
-            self.e_ = e_mu[0]
+    def findEo(self):
+        try:
+            self.getLivePlotData()
+            e0_init = self.e_[np.argmax(np.gradient(self.mu_))]
+            self.dsb_norm_Eo.setValue(e0_init)
 
-        else:
-            logger.error(f" Data shape of {data.ndim} is not supported")
+        except AttributeError:
+            logger.error ("No data loaded")
             pass
 
+
+    def getLivePlotData(self):
+        try:
+
+            data = np.squeeze([c.getData() for c in self.spectrum_view.plotItem.curves])
+            print(np.shape(data))
+            if data.ndim == 2:
+                self.mu_ = data[1]
+                self.e_ = data[0]
+            elif data.ndim == 3:
+                e_mu = data[0,:,:]
+                self.mu_ = e_mu[1]
+                self.e_ = e_mu[0]
+
+            else:
+                logger.error(f" Data shape of {data.ndim} is not supported")
+                pass
+        except AttributeError:
+            logger.error ("No data loaded")
+            pass
 
     def nomalizeLiveSpec(self):
 
@@ -973,11 +986,8 @@ class midasWindow(QtWidgets.QMainWindow):
 
         self.spectrum_view_norm.plot(self.e_, normXANES, pen=pg.mkPen(self.plt_colors[-1], width=2))
 
-        #e0_ = e_[np.argmax(np.gradient(mu_))]
-
     def resetCollectorSpec(self):
         pass
-
 
     def saveCollectorPlot(self):
         exporter = pg.exporters.CSVExporter(self.spectrum_view_collect.plotItem)

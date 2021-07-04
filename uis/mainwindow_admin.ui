@@ -137,7 +137,7 @@ border-radius: 4px;
           <string notr="true"/>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="page">
           <property name="geometry">
@@ -145,7 +145,7 @@ border-radius: 4px;
             <x>0</x>
             <y>0</y>
             <width>411</width>
-            <height>348</height>
+            <height>351</height>
            </rect>
           </property>
           <attribute name="label">
@@ -369,6 +369,12 @@ border-radius: 4px;
                 </item>
                 <item row="2" column="2">
                  <widget class="QLabel" name="label_9">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string>to</string>
                   </property>
@@ -379,6 +385,12 @@ border-radius: 4px;
                 </item>
                 <item row="1" column="2">
                  <widget class="QLabel" name="label_5">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string>to</string>
                   </property>
@@ -390,7 +402,7 @@ border-radius: 4px;
                 <item row="0" column="2">
                  <widget class="QLabel" name="label_22">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -556,7 +568,7 @@ border-radius: 4px;
             <x>0</x>
             <y>0</y>
             <width>334</width>
-            <height>384</height>
+            <height>400</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1053,15 +1065,15 @@ border-radius: 4px;
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="page_5">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>420</width>
-            <height>222</height>
+            <width>411</width>
+            <height>215</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1194,8 +1206,8 @@ border-radius: 4px;
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>420</width>
-            <height>222</height>
+            <width>411</width>
+            <height>215</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1315,8 +1327,8 @@ border-radius: 4px;
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>420</width>
-            <height>222</height>
+            <width>411</width>
+            <height>218</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1468,7 +1480,7 @@ border-radius: 4px;
        <item row="2" column="0" colspan="2">
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -1529,16 +1541,16 @@ border-radius: 4px;
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QPushButton" name="pushButton_3">
+            <widget class="QPushButton" name="pb_clear_norm">
              <property name="text">
               <string>Clear</string>
              </property>
             </widget>
            </item>
            <item row="2" column="2">
-            <widget class="QPushButton" name="pushButton_4">
+            <widget class="QPushButton" name="pb_norm_to_collector">
              <property name="text">
-              <string>Send to Norm. to Collector</string>
+              <string> Norm. to Collector</string>
              </property>
             </widget>
            </item>
@@ -2125,6 +2137,9 @@ border-radius: 4px;
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="toolTip">
+              <string>calculate the energy point with maximum derivative</string>
+             </property>
              <property name="text">
               <string>Auto Eo</string>
              </property>
@@ -2334,6 +2349,9 @@ border-radius: 4px;
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt; For mbak algorithm only, must be in &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;element&amp;lt;space&amp;gt;edge&lt;/span&gt; format&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="placeholderText">
               <string>Fe K</string>

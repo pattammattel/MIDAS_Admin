@@ -562,11 +562,8 @@ class midasWindow(QtWidgets.QMainWindow):
         self.rb_math_roi.clicked.connect(self.update_spectrum)
         self.pb_add_roi_2.clicked.connect(self.math_img_roi_flag)
         self.image_roi_math.sigRegionChangeFinished.connect(self.image_roi_calc)
-        self.rb_poly_roi.clicked.connect(self.setImageROI)
-        self.rb_elli_roi.clicked.connect(self.setImageROI)
-        self.rb_rect_roi.clicked.connect(self.setImageROI)
-        self.rb_line_roi.clicked.connect(self.setImageROI)
-        self.rb_circle_roi.clicked.connect(self.setImageROI)
+        for rbs in [self.rb_poly_roi,self.rb_elli_roi,self.rb_rect_roi,self.rb_line_roi,self.rb_circle_roi]:
+            rbs.clicked.connect(self.setImageROI)
 
     def select_elist(self):
         self.energyFileChooser()
@@ -943,7 +940,6 @@ class midasWindow(QtWidgets.QMainWindow):
         except AttributeError:
             logger.error ("No data loaded")
             pass
-
 
     def getLivePlotData(self):
         try:

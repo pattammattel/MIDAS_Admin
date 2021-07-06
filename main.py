@@ -109,10 +109,10 @@ class midasWindow(QtWidgets.QMainWindow):
 
     #View Options
     def darkMode(self):
-        self.centralwidget.setStyleSheet(open('darkStyle.css').read())
+        self.centralwidget.setStyleSheet(open(os.path.join(ui_path, 'darkStyle.css')).read())
 
     def defaultMode(self):
-        self.centralwidget.setStyleSheet(open('defaultStyle.css').read())
+        self.centralwidget.setStyleSheet(open(os.path.join(ui_path, 'defaultStyle.css')).read())
 
     def threadMaker(self, funct):
         # Pass the function to execute
@@ -406,7 +406,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def loadSplashScreen(self):
         self.splash = LoadingScreen()
-        '''
+
         px = self.geometry().x()
         py = self.geometry().y()
         ph = self.geometry().height()
@@ -415,7 +415,7 @@ class midasWindow(QtWidgets.QMainWindow):
         dh = self.splash.height()
         new_x,new_y = px+(0.5*pw)-dw, py+(0.5*ph)-dh
         self.splash.setGeometry(new_x, new_y, dw, dh)
-        '''
+
         self.splash.show()
 
     def update_stack(self):

@@ -860,10 +860,9 @@ class LoadingScreen(QtWidgets.QSplashScreen):
 
     def __init__(self):
         super(LoadingScreen, self).__init__()
-        ui_path = os.path.dirname(os.path.abspath(__file__))
         uic.loadUi(os.path.join(ui_path, 'uis/animationWindow.ui'), self)
         self.setWindowOpacity(0.65)
-        self.movie = QMovie("uis/animation.gif")
+        self.movie = QMovie("uis/animation_atom.gif")
         self.label.setMovie(self.movie)
 
     def mousePressEvent(self, event):

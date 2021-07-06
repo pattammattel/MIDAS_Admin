@@ -55,6 +55,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_reset_img.clicked.connect(self.load_stack)
         self.pb_crop.clicked.connect(self.crop_to_dim)
         self.pb_crop.clicked.connect(self.view_stack)
+        self.sb_scaling_factor.valueChanged.connect(self.view_stack)
         self.pb_ref_xanes.clicked.connect(self.select_ref_file)
         self.pb_elist_xanes.clicked.connect(self.select_elist)
 
@@ -66,7 +67,7 @@ class midasWindow(QtWidgets.QMainWindow):
            self.cb_norm,self.cb_log]]
 
         [uis.stateChanged.connect(self.view_stack) for uis in
-         [self.sb_scaling_factor,self.cb_remove_edges,self.cb_upscale,
+         [self.cb_remove_edges,self.cb_upscale,
           self.cb_rebin]]
 
         #stack ingo
@@ -76,7 +77,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_load_align_ref.clicked.connect(self.loadAlignRefImage)
         self.pb_loadAlignTranform.clicked.connect(self.importAlignTransformation)
         self.pb_saveAlignTranform.clicked.connect(self.exportAlignTransformation)
-        self.pb_alignStack.clicked.connect(self.StackRegThread)
+        self.pb_alignStack.clicked.connect(lambda:self.threadMaker(self.stackRegistration))
         #self.pb_alignStack.clicked.connect(self.stackRegistration)
 
         # save_options
@@ -91,7 +92,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_apply_xanes_norm.clicked.connect(self.nomalizeLiveSpec)
         self.pb_auto_Eo.clicked.connect(self.findEo)
         self.pb_xanes_norm_vals.clicked.connect(self.initNormVals)
-        self.pb_apply_norm_to_stack.clicked.connect(self.StackNormThread)
+        self.pb_apply_norm_to_stack.clicked.connect(lambda:self.threadMaker(self.normalizeStack))
 
         # Analysis
         self.pb_pca_scree.clicked.connect(self.pca_scree_)
@@ -104,7 +105,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.show()
 
         self.threadpool = QThreadPool()
-        print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
+        print(f"Multithreading with maximum  {self.threadpool.maxThreadCount()} threads")
 
     #View Options
     def darkMode(self):
@@ -112,6 +113,19 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def defaultMode(self):
         self.centralwidget.setStyleSheet(open('defaultStyle.css').read())
+
+    def threadMaker(self, funct):
+        # Pass the function to execute
+        worker = Worker(funct)  # Any other args, kwargs are passed to the run function
+        self.loadSplashScreen()
+        worker.signals.start.connect(self.splash.startAnimation)
+        worker.signals.result.connect(self.print_output)
+
+        list(map(worker.signals.finished.connect, [self.thread_complete, self.splash.stopAnimation,
+                                                   self.update_spectrum,self.update_image_roi]))
+
+        # Execute
+        self.threadpool.start(worker)
 
     #File Loading
     def createVirtualStack(self):
@@ -402,17 +416,6 @@ class midasWindow(QtWidgets.QMainWindow):
         self.splash.setGeometry(new_x, new_y, dw, dh)
         self.splash.show()
 
-    def StackRegThread(self):
-        # Pass the function to execute
-        worker = Worker(self.stackRegistration)  # Any other args, kwargs are passed to the run function
-        self.loadSplashScreen()
-        worker.signals.start.connect(self.splash.startAnimation)
-        worker.signals.result.connect(self.print_output)
-        list(map(worker.signals.finished.connect, [self.thread_complete, self.splash.stopAnimation,
-                                                   self.update_spectrum,self.update_image_roi]))
-        # Execute
-        self.threadpool.start(worker)
-
     def update_stack(self):
         self.updated_stack = self.im_stack
 
@@ -566,7 +569,6 @@ class midasWindow(QtWidgets.QMainWindow):
         [rbs.clicked.connect(self.setImageROI) for rbs in
          [self.rb_poly_roi,self.rb_elli_roi,self.rb_rect_roi,
           self.rb_line_roi,self.rb_circle_roi]]
-
 
     def select_elist(self):
         self.energyFileChooser()
@@ -984,7 +986,6 @@ class midasWindow(QtWidgets.QMainWindow):
 
         return eo_,pre1_, pre2_,norm1_, norm2_,norm_order
 
-
     def nomalizeLiveSpec(self):
         eo_, pre1_, pre2_, norm1_, norm2_, norm_order = self.getNormParams()
         self.spectrum_view.clear()
@@ -1012,20 +1013,6 @@ class midasWindow(QtWidgets.QMainWindow):
         self.updated_stack = xanesNormStack(self.e_, self.updated_stack, e0=eo_, step=None,
                        nnorm=norm_order, nvict=0, pre1=pre1_, pre2=pre2_,
                        norm1=norm1_, norm2=norm2_)
-
-
-    def StackNormThread(self):
-        # Pass the function to execute
-        worker = Worker(self.normalizeStack)  # Any other args, kwargs are passed to the run function
-        self.loadSplashScreen()
-        worker.signals.start.connect(self.splash.startAnimation)
-        worker.signals.result.connect(self.print_output)
-
-        list(map(worker.signals.finished.connect, [self.thread_complete, self.splash.stopAnimation,
-                                                   self.update_spectrum,self.update_image_roi]))
-
-        # Execute
-        self.threadpool.start(worker)
 
     def resetCollectorSpec(self):
         pass

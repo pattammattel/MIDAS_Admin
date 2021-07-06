@@ -406,6 +406,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def loadSplashScreen(self):
         self.splash = LoadingScreen()
+        '''
         px = self.geometry().x()
         py = self.geometry().y()
         ph = self.geometry().height()
@@ -414,6 +415,7 @@ class midasWindow(QtWidgets.QMainWindow):
         dh = self.splash.height()
         new_x,new_y = px+(0.5*pw)-dw, py+(0.5*ph)-dh
         self.splash.setGeometry(new_x, new_y, dw, dh)
+        '''
         self.splash.show()
 
     def update_stack(self):

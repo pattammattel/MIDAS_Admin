@@ -30,7 +30,6 @@ class midasWindow(QtWidgets.QMainWindow):
         super(midasWindow, self).__init__()
         uic.loadUi(os.path.join(ui_path, 'uis/mainwindow_admin.ui'), self)
         self.im_stack = im_stack
-        self.updated_stack = self.im_stack
         self.energy = energy
         self.refs = refs
         self.loaded_tranform_file = []
@@ -53,23 +52,22 @@ class midasWindow(QtWidgets.QMainWindow):
 
         self.actionOpen_Mask_Gen.triggered.connect(self.openMaskMaker)
         self.cb_transpose.stateChanged.connect(self.transpose_stack)
-        self.cb_log.stateChanged.connect(self.replot_image)
-        self.cb_rebin.stateChanged.connect(self.view_stack)
-        self.cb_upscale.stateChanged.connect(self.view_stack)
-        self.sb_scaling_factor.valueChanged.connect(self.view_stack)
-        self.cb_remove_edges.stateChanged.connect(self.view_stack)
-        self.cb_norm.stateChanged.connect(self.replot_image)
-        self.cb_smooth.stateChanged.connect(self.replot_image)
-        self.hs_smooth_size.valueChanged.connect(self.replot_image)
-        self.cb_remove_outliers.stateChanged.connect(self.replot_image)
-        self.cb_remove_bg.stateChanged.connect(self.replot_image)
-        self.hs_nsigma.valueChanged.connect(self.replot_image)
-        self.hs_bg_threshold.valueChanged.connect(self.replot_image)
         self.pb_reset_img.clicked.connect(self.load_stack)
         self.pb_crop.clicked.connect(self.crop_to_dim)
         self.pb_crop.clicked.connect(self.view_stack)
         self.pb_ref_xanes.clicked.connect(self.select_ref_file)
         self.pb_elist_xanes.clicked.connect(self.select_elist)
+
+        [uis.valueChanged.connect(self.replot_image) for uis in
+         [self.hs_smooth_size,self.hs_nsigma,self.hs_bg_threshold]]
+
+        [uis.stateChanged.connect(self.replot_image) for uis in
+         [self.cb_remove_bg,self.cb_remove_outliers,self.cb_smooth,
+           self.cb_norm,self.cb_log]]
+
+        [uis.stateChanged.connect(self.view_stack) for uis in
+         [self.sb_scaling_factor,self.cb_remove_edges,self.cb_upscale,
+          self.cb_rebin]]
 
         #stack ingo
         self.pb_stack_info.clicked.connect(self.displayStackInfo)
@@ -93,7 +91,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_apply_xanes_norm.clicked.connect(self.nomalizeLiveSpec)
         self.pb_auto_Eo.clicked.connect(self.findEo)
         self.pb_xanes_norm_vals.clicked.connect(self.initNormVals)
-        self.pb_apply_norm_to_stack.clicked.connect(self.normalizeStack)
+        self.pb_apply_norm_to_stack.clicked.connect(self.StackNormThread)
 
         # Analysis
         self.pb_pca_scree.clicked.connect(self.pca_scree_)
@@ -305,7 +303,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.y1, self.y2 = self.sb_yrange1.value(), self.sb_yrange2.value()
         self.z1, self.z2 = self.sb_zrange1.value(), self.sb_zrange2.value()
 
-        self.updated_stack = remove_nan_inf(self.im_stack[self.z1:self.z2,
+        self.updated_stack = remove_nan_inf(self.updated_stack[self.z1:self.z2,
                                             self.x1:self.x2, self.y1:self.y2])
 
     def transpose_stack(self):
@@ -410,13 +408,13 @@ class midasWindow(QtWidgets.QMainWindow):
         self.loadSplashScreen()
         worker.signals.start.connect(self.splash.startAnimation)
         worker.signals.result.connect(self.print_output)
-        worker.signals.finished.connect(self.thread_complete)
-        worker.signals.finished.connect(self.splash.stopAnimation)
+        list(map(worker.signals.finished.connect, [self.thread_complete, self.splash.stopAnimation,
+                                                   self.update_spectrum,self.update_image_roi]))
         # Execute
         self.threadpool.start(worker)
-        self.update_image_roi()
 
     def update_stack(self):
+        self.updated_stack = self.im_stack
 
         self.crop_to_dim()
 
@@ -564,8 +562,11 @@ class midasWindow(QtWidgets.QMainWindow):
         self.rb_math_roi.clicked.connect(self.update_spectrum)
         self.pb_add_roi_2.clicked.connect(self.math_img_roi_flag)
         self.image_roi_math.sigRegionChangeFinished.connect(self.image_roi_calc)
-        for rbs in [self.rb_poly_roi,self.rb_elli_roi,self.rb_rect_roi,self.rb_line_roi,self.rb_circle_roi]:
-            rbs.clicked.connect(self.setImageROI)
+
+        [rbs.clicked.connect(self.setImageROI) for rbs in
+         [self.rb_poly_roi,self.rb_elli_roi,self.rb_rect_roi,
+          self.rb_line_roi,self.rb_circle_roi]]
+
 
     def select_elist(self):
         self.energyFileChooser()
@@ -1011,9 +1012,20 @@ class midasWindow(QtWidgets.QMainWindow):
         self.updated_stack = xanesNormStack(self.e_, self.updated_stack, e0=eo_, step=None,
                        nnorm=norm_order, nvict=0, pre1=pre1_, pre2=pre2_,
                        norm1=norm1_, norm2=norm2_)
-        self.update_spectrum()
-        self.update_image_roi()
 
+
+    def StackNormThread(self):
+        # Pass the function to execute
+        worker = Worker(self.normalizeStack)  # Any other args, kwargs are passed to the run function
+        self.loadSplashScreen()
+        worker.signals.start.connect(self.splash.startAnimation)
+        worker.signals.result.connect(self.print_output)
+
+        list(map(worker.signals.finished.connect, [self.thread_complete, self.splash.stopAnimation,
+                                                   self.update_spectrum,self.update_image_roi]))
+
+        # Execute
+        self.threadpool.start(worker)
 
     def resetCollectorSpec(self):
         pass

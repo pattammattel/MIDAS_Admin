@@ -93,7 +93,7 @@ class midasWindow(QtWidgets.QMainWindow):
         self.pb_apply_xanes_norm.clicked.connect(self.nomalizeLiveSpec)
         self.pb_auto_Eo.clicked.connect(self.findEo)
         self.pb_xanes_norm_vals.clicked.connect(self.initNormVals)
-
+        self.pb_apply_norm_to_stack.clicked.connect(self.normalizeStack)
 
         # Analysis
         self.pb_pca_scree.clicked.connect(self.pca_scree_)
@@ -974,14 +974,20 @@ class midasWindow(QtWidgets.QMainWindow):
         self.dsb_norm_post2.setValue(post2)
         self.dsb_norm_Eo.setValue(e0_init)
 
-    def nomalizeLiveSpec(self):
-
+    def getNormParams(self):
         self.getLivePlotData()
-        self.spectrum_view.clear()
         eo_ = self.dsb_norm_Eo.value()
         pre1_, pre2_ = self.dsb_norm_pre1.value(), self.dsb_norm_pre2.value()
         norm1_, norm2_ = self.dsb_norm_post1.value(), self.dsb_norm_post2.value()
         norm_order = self.sb_norm_order.value()
+
+        return eo_,pre1_, pre2_,norm1_, norm2_,norm_order
+
+
+    def nomalizeLiveSpec(self):
+        eo_, pre1_, pre2_, norm1_, norm2_, norm_order = self.getNormParams()
+        self.spectrum_view.clear()
+
         pre_line, post_line, normXANES = xanesNormalization(self.e_, self.mu_, e0=eo_, step=None,
                            nnorm=norm_order, nvict=0, pre1=pre1_, pre2=pre2_,
                            norm1=norm1_, norm2=norm2_)
@@ -997,6 +1003,17 @@ class midasWindow(QtWidgets.QMainWindow):
                                      pen=pg.mkPen(self.plt_colors[-1], width=2))
         self.spectrum_view_norm.setLabel('bottom', 'Energy', self.e_unit)
         self.spectrum_view_norm.setLabel('left', 'Norm. Intensity', 'A.U.')
+
+    def normalizeStack(self):
+        self.getLivePlotData()
+        eo_, pre1_, pre2_, norm1_, norm2_, norm_order = self.getNormParams()
+
+        self.updated_stack = xanesNormStack(self.e_, self.updated_stack, e0=eo_, step=None,
+                       nnorm=norm_order, nvict=0, pre1=pre1_, pre2=pre2_,
+                       norm1=norm1_, norm2=norm2_)
+        self.update_spectrum()
+        self.update_image_roi()
+
 
     def resetCollectorSpec(self):
         pass

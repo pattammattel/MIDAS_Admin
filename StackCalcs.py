@@ -504,6 +504,22 @@ def xanesNormalization(e, mu, e0=7125, step=None,
 
         return result['pre_edge'],result['post_edge'],result['norm']
 
+def xanesNormStack(e_list,im_stack, e0=7125, step=None,
+            nnorm=2, nvict=0, pre1=None, pre2=-50,
+            norm1=100, norm2=None):
+
+    en, im1, im2 = np.shape(im_stack)
+    im_array = im_stack.reshape(en, im1 * im2)
+    normedStackArray = np.zeros_like(im_array)
+
+    for i in range(im1 * im2):
+        pre_line, post_line, normXANES = xanesNormalization(e_list, im_array[:, i], e0=e0, step=step,
+                           nnorm=nnorm, nvict=nvict, pre1=pre1, pre2=pre2,
+                           norm1=norm1, norm2=norm2, guess=False)
+        normedStackArray[:, i] = normXANES
+
+    return np.reshape(normedStackArray,(en, im1, im2))
+
 def align_stack(stack_img, ref_image_void = True, ref_stack = None, transformation = StackReg.TRANSLATION,
                 reference = 'previous'):
 

@@ -216,7 +216,7 @@ def clean_stack(img_stack, auto_bg=False, bg_percentage=5):
 
     bged_img_stack = img_stack * bg2
 
-    return bged_img_stack
+    return remove_nan_inf(bged_img_stack)
 
 def classify(img_stack, correlation='Pearson'):
     img_stack_ = img_stack
@@ -518,7 +518,7 @@ def xanesNormStack(e_list,im_stack, e0=7125, step=None,
                            norm1=norm1, norm2=norm2, guess=False)
         normedStackArray[:, i] = normXANES
 
-    return np.reshape(normedStackArray,(en, im1, im2))
+    return remove_nan_inf(np.reshape(normedStackArray,(en, im1, im2)))
 
 def align_stack(stack_img, ref_image_void = True, ref_stack = None, transformation = StackReg.TRANSLATION,
                 reference = 'previous'):

@@ -910,8 +910,8 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def save_stack(self):
 
-        self.update_stack()
-        file_name = QFileDialog().getSaveFileName(self, "Save image data", '', 'image file(*tiff *tif )')
+        #self.update_stack()
+        file_name = QFileDialog().getSaveFileName(self, "Save image data", 'stack.tiff', 'image file(*tiff *tif )')
         if file_name[0]:
             tf.imsave(str(file_name[0]), self.updated_stack.transpose(0, 2, 1))
             logger.info(f'Updated Image Saved: {str(file_name[0])}')
@@ -921,7 +921,7 @@ class midasWindow(QtWidgets.QMainWindow):
             pass
 
     def save_disp_img(self):
-        file_name = QFileDialog().getSaveFileName(self, "Save image data", '', 'image file(*tiff *tif )')
+        file_name = QFileDialog().getSaveFileName(self, "Save image data", 'image.tiff', 'image file(*tiff *tif )')
         if file_name[0]:
             tf.imsave(str(file_name[0]) + '.tiff', self.disp_img.T)
             self.statusbar_main.showMessage(f'Image Saved to {str(file_name[0])}')
@@ -1050,7 +1050,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
         logger.info('Process started..')
 
-        self.update_stack()
+        #self.update_stack()
         n_components = self.sb_ncomp.value()
         method_ = self.cb_comp_method.currentText()
 
@@ -1064,7 +1064,7 @@ class midasWindow(QtWidgets.QMainWindow):
 
     def kmeans_elbow(self):
         logger.info('Process started..')
-        self.update_stack()
+        #self.update_stack()
         try:
             kmeans_variance(self.updated_stack)
             logger.info('Process complete')
@@ -1083,7 +1083,7 @@ class midasWindow(QtWidgets.QMainWindow):
     def clustering_(self):
 
         logger.info('Process started..')
-        self.update_stack()
+        #self.update_stack()
         method_ = self.cb_clust_method.currentText()
 
         decon_images, X_cluster, decon_spectra = cluster_stack(self.updated_stack, method=method_,

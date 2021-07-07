@@ -210,7 +210,7 @@ class XANESViewer(QtWidgets.QMainWindow):
         super(XANESViewer, self).__init__()
 
         uic.loadUi(os.path.join(ui_path, 'uis/XANESViewer.ui'), self)
-        self.centralwidget.setStyleSheet(open('defaultStyle.css').read())
+        self.centralwidget.setStyleSheet(open(os.path.join(ui_path,'defaultStyle.css')).read())
 
         self.im_stack = im_stack
         self.e_list = e_list

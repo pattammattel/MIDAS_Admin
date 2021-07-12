@@ -8,7 +8,7 @@ import pyqtgraph as pg
 import h5py
 import logging
 import tifffile as tf
-
+import larch
 from larch.xafs import preedge
 from pystackreg import StackReg
 from PyQt5 import QtCore
@@ -20,6 +20,19 @@ logger = logging.getLogger()
 
 
 def get_xrf_data(h='h5file'):
+    """
+    get xrf stack from h5 data generated at NSLS-II beamlines
+
+     Arguments:
+        h5/hdf5 file
+
+     Returns:
+         norm_xrf_stack -  xrf stack image normalized with Io
+         mono_e  - excitation enegy used for xrf
+         beamline - identity of the beamline
+         Io_avg - an average Io value, used before taking log
+
+    """
 
     f = h5py.File(h, 'r')
 
@@ -379,7 +392,7 @@ def interploate_E(refs, e):
 def getStats(spec,fit, num_refs = 2):
     stats = {}
 
-    r_factor = (np.sum(spec) - np.sum(fit)) / np.sum(spec)
+    r_factor = (np.sum(spec -fit)**2) / np.sum(spec**2)
     stats['R_Factor'] = np.around(r_factor,5)
 
     y_mean = np.sum(spec)/len(spec)

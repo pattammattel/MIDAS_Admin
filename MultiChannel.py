@@ -8,6 +8,7 @@ import tifffile as tf
 from itertools import combinations
 import time
 
+ui_path = os.path.dirname(os.path.abspath(__file__))
 pg.setConfigOption('imageAxisOrder', 'row-major')
 
 cmap_names = ['CET-L13', 'CET-L14', 'CET-L15']
@@ -39,7 +40,7 @@ class MultiChannelWindow(QtWidgets.QMainWindow):
 
     def __init__(self):
         super(MultiChannelWindow, self).__init__()
-        uic.loadUi('mutlichannel.ui', self)
+        uic.loadUi(os.path.join(ui_path,'uis/mutlichannel.ui'), self)
 
         self.canvas = self.img_view.addPlot(title="")
         self.canvas.getViewBox().invertY(True)
